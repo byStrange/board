@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="uz" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    
+    <meta name="description" content="MR Studio Ultimate - Enterprise Virtual Classroom and Whiteboard">
+    <meta name="theme-color" content="#0f172a">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    
+    <title>MR Studio Ultimate OS</title>
+
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div id="toastContainer" class="toast-wrapper" aria-live="polite" aria-atomic="true"></div>
+
+    <main id="authScreen" class="screen auth-screen active">
+        <div class="auth-card glass-panel">
+            <header class="auth-header">
+                <div class="logo-container">
+                    <i data-lucide="layers" class="logo-icon"></i>
+                </div>
+                <h1 class="auth-title">MR Studio OS</h1>
+                <p class="auth-subtitle">Enterprise Virtual Workspace</p>
+            </header>
+
+            <form id="authForm" class="auth-form" onsubmit="return false;">
+                <div class="input-group">
+                    <label for="userName" class="sr-only">Ismingiz</label>
+                    <div class="input-wrapper">
+                        <i data-lucide="user" class="input-icon"></i>
+                        <input type="text" id="userName" class="form-input" placeholder="Ismingizni kiriting" required autocomplete="off" spellcheck="false" maxlength="30">
+                    </div>
+                </div>
+
+                <div class="action-buttons">
+                    <button type="button" id="btnCreateRoom" class="btn btn-primary btn-large">
+                        <i data-lucide="shield-check"></i>
+                        <span>Dars Yaratish (Admin)</span>
+                    </button>
+                </div>
+
+                <div class="auth-divider">
+                    <span class="divider-text">YOKI KOD ORQALI KIRISH</span>
+                </div>
+
+                <div class="input-group">
+                    <label for="roomCode" class="sr-only">Dars Kodi</label>
+                    <div class="input-wrapper">
+                        <i data-lucide="key" class="input-icon"></i>
+                        <input type="text" id="roomCode" class="form-input code-input" placeholder="KOD (Masalan: MR-1234)" autocomplete="off" maxlength="10" style="text-transform: uppercase;">
+                    </div>
+                </div>
+
+                <div class="action-buttons">
+                    <button type="button" id="btnJoinRoom" class="btn btn-outline btn-large">
+                        <i data-lucide="log-in"></i>
+                        <span>Darsga Qo'shilish</span>
+                    </button>
+                </div>
+            </form>
+
+            <footer class="auth-footer">
+                <p>Ushbu tizim WebRTC va Canvas API asosida ishlaydi.</p>
+            </footer>
+        </div>
+    </main>
+
+    <div id="deviceSetupModal" class="modal-overlay hidden" role="dialog" aria-modal="true">
+        <div class="modal-content glass-panel">
+            <div class="modal-header">
+                <h2>Qurilmalarni sozlash</h2>
+                <button class="btn-icon close-modal" aria-label="Yopish" data-target="deviceSetupModal">
+                    <i data-lucide="x"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="device-preview">
+                    <video id="previewVideo" autoplay playsinline muted></video>
+                    <div class="audio-level-indicator">
+                        <div id="previewAudioMeter" class="meter-fill"></div>
+                    </div>
+                    <div class="device-status-overlay">
+                        <i data-lucide="video-off" id="previewCamIcon" class="hidden"></i>
+                    </div>
+                </div>
+                
+                <div class="device-controls">
+                    <div class="control-group">
+                        <label for="cameraSelect">Kamera</label>
+                        <select id="cameraSelect" class="form-select">
+                            <option value="">Kamerani tanlang...</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <label for="micSelect">Mikrofon</label>
+                        <select id="micSelect" class="form-select">
+                            <option value="">Mikrofonni tanlang...</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="btnJoinWithDevices" class="btn btn-primary btn-full">Darsga kirish</button>
+            </div>
+        </div>
+    </div>
+
+    <main id="workspaceScreen" class="screen workspace-screen hidden">
+        
+        <header class="app-header glass-panel">
+            <div class="header-left">
+                <div class="room-info">
+                    <div class="recording-indicator hidden" id="recIndicator" title="Yozib olinmoqda">
+                        <div class="pulse-dot"></div>
+                        <span>REC</span>
+                    </div>
+                    <h2 id="displayRoomName" class="room-title">MR Darsxona</h2>
+                    <div class="room-code-badge" id="btnCopyCode" title="Kodni nusxalash" role="button" tabindex="0">
+                        <span id="displayRoomCode">MR-0000</span>
+                        <i data-lucide="copy" size="14"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="header-center">
+                <div class="user-role-badge">
+                    <i id="headerRoleIcon" data-lucide="user"></i>
+                    <span id="headerRoleText">Talaba</span>
+                </div>
+            </div>
+
+            <div class="header-right">
+                <button id="btnToggleTheme" class="btn-icon" aria-label="Mavzuni o'zgartirish" title="Tungi/Kunduzgi rejim">
+                    <i data-lucide="moon" id="themeIcon"></i>
+                </button>
+                <div class="network-status" title="Tarmoq holati">
+                    <i data-lucide="wifi" id="networkIcon" class="status-good"></i>
+                </div>
+            </div>
+        </header>
+
+        <aside id="mainToolbar" class="c-toolbar">
+            
+            <div id="propertiesPanel" class="toolbar-panel panel-top glass-panel transition-panel">
+                <div class="tool-section">
+                    <span class="section-label">Rang</span>
+                    <div class="color-palette" id="colorPalette">
+                        <button class="color-btn active" data-color="#0ea5e9" style="background-color: #0ea5e9;" aria-label="Ko'k rang"></button>
+                        <button class="color-btn" data-color="#ef4444" style="background-color: #ef4444;" aria-label="Qizil rang"></button>
+                        <button class="color-btn" data-color="#10b981" style="background-color: #10b981;" aria-label="Yashil rang"></button>
+                        <button class="color-btn" data-color="#f59e0b" style="background-color: #f59e0b;" aria-label="Sariq rang"></button>
+                        <button class="color-btn" data-color="#8b5cf6" style="background-color: #8b5cf6;" aria-label="Binafsha rang"></button>
+                        <button class="color-btn" data-color="#f8fafc" style="background-color: #f8fafc;" aria-label="Oq rang"></button>
+                        <div class="custom-color-picker">
+                            <input type="color" id="customColorInput" value="#0ea5e9">
+                            <i data-lucide="pipette" size="14"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="v-divider"></div>
+
+                <div class="tool-section">
+                    <span class="section-label">Qalinlik (<span id="strokeSizeDisplay">4</span>px)</span>
+                    <input type="range" id="strokeSizeSlider" class="custom-slider" min="1" max="50" value="4">
+                </div>
+            </div>
+
+            <div id="toolsPanel" class="toolbar-panel panel-left glass-panel">
+                <button class="tool-btn" data-tool="select" title="Tanlash (V)">
+                    <i data-lucide="mouse-pointer-2"></i>
+                </button>
+                <div class="h-divider"></div>
+                <button class="tool-btn active" data-tool="draw" title="Qalam (P)">
+                    <i data-lucide="pencil"></i>
+                </button>
+                <button class="tool-btn" data-tool="erase" title="O'chirg'ich (E)">
+                    <i data-lucide="eraser"></i>
+                </button>
+                <button class="tool-btn" data-tool="highlighter" title="Marker (M)">
+                    <i data-lucide="pen-tool"></i>
+                </button>
+                
+                <div class="h-divider"></div>
+                
+                <div class="tool-dropdown-container">
+                    <button class="tool-btn" data-tool="rect" id="btnShapes" title="Shakllar (R, C, L)">
+                        <i data-lucide="square" id="currentShapeIcon"></i>
+                        <i data-lucide="chevron-right" class="dropdown-arrow" size="12"></i>
+                    </button>
+                    <div class="tool-dropdown glass-panel">
+                        <button class="sub-tool-btn" data-tool="rect"><i data-lucide="square"></i> To'rtburchak</button>
+                        <button class="sub-tool-btn" data-tool="circle"><i data-lucide="circle"></i> Aylana</button>
+                        <button class="sub-tool-btn" data-tool="triangle"><i data-lucide="triangle"></i> Uchburchak</button>
+                        <button class="sub-tool-btn" data-tool="line"><i data-lucide="minus"></i> Chiziq</button>
+                        <button class="sub-tool-btn" data-tool="arrow"><i data-lucide="arrow-up-right"></i> Ko'rsatkich o'q</button>
+                    </div>
+                </div>
+
+                <div class="h-divider"></div>
+
+                <button class="tool-btn" data-tool="text" title="Matn (T)">
+                    <i data-lucide="type"></i>
+                </button>
+                <button class="tool-btn" data-tool="sticky" title="Sariq qog'oz (S)">
+                    <i data-lucide="sticky-note"></i>
+                </button>
+                <button class="tool-btn" id="btnImageUpload" title="Rasm yuklash (I)">
+                    <i data-lucide="image"></i>
+                    <input type="file" id="imageInput" accept="image/png, image/jpeg, image/webp" hidden>
+                </button>
+
+                <div class="h-divider"></div>
+
+                <button class="tool-btn" data-tool="pan" title="Ekranni surish (H)">
+                    <i data-lucide="hand"></i>
+                </button>
+            </div>
+
+            <div id="actionsPanel" class="toolbar-panel panel-bottom glass-panel">
+                <div class="action-group">
+                    <button class="action-btn" id="btnUndo" title="Orqaga (Ctrl+Z)">
+                        <i data-lucide="undo-2"></i>
+                    </button>
+                    <button class="action-btn" id="btnRedo" title="Oldinga (Ctrl+Y)">
+                        <i data-lucide="redo-2"></i>
+                    </button>
+                </div>
+
+                <div class="v-divider"></div>
+
+                <div class="action-group zoom-controls">
+                    <button class="action-btn" id="btnZoomOut" title="Kichiklashtirish">-</button>
+                    <span id="zoomLevelDisplay" class="zoom-text">100%</span>
+                    <button class="action-btn" id="btnZoomIn" title="Kattalashtirish">+</button>
+                    <button class="action-btn" id="btnZoomReset" title="Markazlashtirish">
+                        <i data-lucide="target" size="16"></i>
+                    </button>
+                </div>
+
+                <div class="v-divider"></div>
+
+                <div class="action-group media-controls">
+                    <button class="media-btn" id="toggleMic" title="Mikrofonni yoqish/o'chirish">
+                        <i data-lucide="mic-off"></i>
+                    </button>
+                    <button class="media-btn" id="toggleCam" title="Kamerani yoqish/o'chirish">
+                        <i data-lucide="video-off"></i>
+                    </button>
+                    <button class="media-btn" id="toggleScreen" title="Ekranni ulashish" style="display: none;">
+                        <i data-lucide="monitor-up"></i>
+                    </button>
+                    <button class="media-btn danger-hover" id="toggleRecord" title="Darsni yozib olish" style="display: none;">
+                        <i data-lucide="screen-share"></i>
+                    </button>
+                </div>
+            </div>
+        </aside>
+
+        <div class="sidebar-container">
+            <div class="sidebar-triggers glass-panel">
+                <button class="trigger-btn" data-panel="usersPanel" title="Foydalanuvchilar">
+                    <i data-lucide="users"></i>
+                    <span class="badge" id="usersBadge">0</span>
+                </button>
+                <button class="trigger-btn" data-panel="chatPanel" title="Chat">
+                    <i data-lucide="message-square"></i>
+                    <span class="badge hidden" id="chatBadge">0</span>
+                </button>
+                <button class="trigger-btn" id="btnSettings" title="Sozlamalar">
+                    <i data-lucide="settings"></i>
+                </button>
+            </div>
+
+            <aside id="usersPanel" class="side-panel glass-panel hidden">
+                <div class="panel-header">
+                    <h3>Sinfxona (<span id="userCount">0</span>)</h3>
+                    <button class="btn-icon close-panel" data-target="usersPanel"><i data-lucide="x"></i></button>
+                </div>
+                <div class="admin-controls hidden" id="hostControls">
+                    <button id="btnMuteAll" class="btn btn-outline btn-small"><i data-lucide="mic-off" size="14"></i> Barchani ovozsiz qilish</button>
+                </div>
+                <div class="panel-body">
+                    <ul id="usersList" class="user-list">
+                        </ul>
+                </div>
+            </aside>
+
+            <aside id="chatPanel" class="side-panel glass-panel hidden">
+                <div class="panel-header">
+                    <h3>Umumiy Chat</h3>
+                    <button class="btn-icon close-panel" data-target="chatPanel"><i data-lucide="x"></i></button>
+                </div>
+                <div class="panel-body chat-messages-container" id="chatMessages">
+                    <div class="chat-placeholder">
+                        <i data-lucide="messages-square" size="32"></i>
+                        <p>Xabarlar shu yerda ko'rinadi</p>
+                    </div>
+                    </div>
+                <div class="chat-input-area">
+                    <div class="chat-input-wrapper">
+                        <textarea id="chatInput" placeholder="Xabar yozing..." rows="1"></textarea>
+                        <button id="btnSendChat" class="btn-icon send-btn"><i data-lucide="send"></i></button>
+                    </div>
+                </div>
+            </aside>
+        </div>
+
+        <div id="videoGridContainer" class="video-grid">
+            <div id="localVideoCard" class="video-card hidden">
+                <video id="localVideo" autoplay playsinline muted></video>
+                <div class="video-overlay">
+                    <div class="video-info">
+                        <div class="audio-indicator" id="localAudioIndicator"></div>
+                        <span class="video-name">Siz</span>
+                    </div>
+                    <div class="video-actions">
+                        <button class="btn-icon-small" id="btnPinLocal"><i data-lucide="pin" size="12"></i></button>
+                    </div>
+                </div>
+            </div>
+            </div>
+
+        <div id="canvasContainer" class="canvas-wrapper">
+            <canvas id="mainCanvas"></canvas>
+            
+            <div id="liveTextEditor" contenteditable="true" spellcheck="false" class="live-text-input hidden" aria-hidden="true"></div>
+            
+            <div id="stickyNotesContainer" class="sticky-layer"></div>
+        </div>
+
+    </main>
+
+    <div id="settingsModal" class="modal-overlay hidden" role="dialog">
+        <div class="modal-content glass-panel">
+            <div class="modal-header">
+                <h2>Sozlamalar</h2>
+                <button class="btn-icon close-modal" data-target="settingsModal"><i data-lucide="x"></i></button>
+            </div>
+            <div class="modal-body settings-body">
+                <div class="settings-section">
+                    <h3>Doska</h3>
+                    <div class="setting-item">
+                        <span>Fonga katak tushirish (Grid)</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="toggleGrid" checked>
+                            <span class="slider round"></span>
+                        </label>
+                    </div>
+                </div>
+                <div class="settings-section">
+                    <h3>Xavfsizlik</h3>
+                    <button id="btnDownloadBoard" class="btn btn-outline btn-full" style="margin-bottom: 10px;">
+                        <i data-lucide="download"></i> Doskani Rasm qilib saqlash
+                    </button>
+                    <button id="btnClearBoard" class="btn btn-outline btn-full danger-text hidden">
+                        <i data-lucide="trash-2"></i> Barcha chizmalarni o'chirish
+                    </button>
+                </div>
+                <div class="settings-section">
+                    <button id="btnLeaveRoom" class="btn btn-primary btn-full bg-danger">
+                        <i data-lucide="log-out"></i> Darsni yakunlash / Chiqish
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <nav id="contextMenu" class="context-menu glass-panel hidden">
+        <ul class="context-list">
+            <li class="context-item" id="ctxBringForward"><i data-lucide="bring-to-front" size="14"></i> Oldinga olib chiqish</li>
+            <li class="context-item" id="ctxSendBackward"><i data-lucide="send-to-back" size="14"></i> Orqaga o'tkazish</li>
+            <li class="context-divider"></li>
+            <li class="context-item danger-text" id="ctxDelete"><i data-lucide="trash" size="14"></i> O'chirish</li>
+        </ul>
+    </nav>
+
+    <script src="script.js"></script>
+
+</body>
+</html>
