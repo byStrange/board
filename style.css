@@ -1,0 +1,547 @@
+/* ==========================================================================
+   MR STUDIO ULTIMATE OS - ENTERPRISE STYLESHEET
+   Arxitektura: CSS Variables, Flexbox/Grid, Glassmorphism, BEM-ish
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   1. DESIGN SYSTEM (O'ZGARUVCHILAR VA MAVZULAR)
+   -------------------------------------------------------------------------- */
+:root[data-theme="dark"] {
+    /* Asosiy ranglar */
+    --bg-base: #0b1120;
+    --bg-panel: rgba(15, 23, 42, 0.75);
+    --bg-panel-hover: rgba(30, 41, 59, 0.85);
+    --bg-surface: #1e293b;
+    
+    /* Brand ranglar */
+    --primary: #0ea5e9;
+    --primary-hover: #0284c7;
+    --primary-glow: rgba(14, 165, 233, 0.25);
+    --primary-light: #38bdf8;
+    
+    /* Holat ranglari */
+    --danger: #ef4444;
+    --danger-hover: #dc2626;
+    --danger-glow: rgba(239, 68, 68, 0.2);
+    --success: #10b981;
+    --warning: #f59e0b;
+    
+    /* Matn va chegaralar */
+    --text-main: #f8fafc;
+    --text-muted: #94a3b8;
+    --text-inverse: #0f172a;
+    --border-light: rgba(255, 255, 255, 0.1);
+    --border-focus: rgba(14, 165, 233, 0.5);
+    
+    /* Soya va Blur */
+    --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+    --shadow-md: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+    --shadow-lg: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+    --shadow-glow: 0 0 20px var(--primary-glow);
+    --blur-intensity: blur(20px);
+}
+
+:root[data-theme="light"] {
+    --bg-base: #f8fafc;
+    --bg-panel: rgba(255, 255, 255, 0.85);
+    --bg-panel-hover: rgba(241, 245, 249, 0.9);
+    --bg-surface: #ffffff;
+    
+    --primary: #0284c7;
+    --primary-hover: #0369a1;
+    --primary-glow: rgba(2, 132, 199, 0.15);
+    --primary-light: #0ea5e9;
+    
+    --danger: #dc2626;
+    --danger-hover: #b91c1c;
+    --danger-glow: rgba(220, 38, 38, 0.15);
+    --success: #059669;
+    --warning: #d97706;
+    
+    --text-main: #0f172a;
+    --text-muted: #64748b;
+    --text-inverse: #f8fafc;
+    --border-light: rgba(0, 0, 0, 0.1);
+    --border-focus: rgba(2, 132, 199, 0.4);
+    
+    --shadow-sm: 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    --shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+    --shadow-glow: 0 0 15px var(--primary-glow);
+    --blur-intensity: blur(24px);
+}
+
+/* O'lchamlar va Z-index iyerarxiyasi */
+:root {
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 20px;
+    --radius-pill: 9999px;
+    
+    --transition-fast: 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-smooth: 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    --transition-bounce: 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+
+    --z-canvas: 10;
+    --z-overlay: 50;
+    --z-toolbar: 100;
+    --z-sidebar: 200;
+    --z-modal: 1000;
+    --z-toast: 9999;
+}
+
+/* --------------------------------------------------------------------------
+   2. GLOBAL RESET VA NORMALLASHTIRISH
+   -------------------------------------------------------------------------- */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    -webkit-tap-highlight-color: transparent;
+}
+
+html, body {
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    background-color: var(--bg-base);
+    color: var(--text-main);
+    transition: background-color var(--transition-smooth), color var(--transition-smooth);
+}
+
+/* Maxsus Scrollbar */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border-light); border-radius: var(--radius-pill); }
+::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+
+/* Utylitlar */
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); border: 0; }
+.hidden { display: none !important; }
+.glass-panel {
+    background: var(--bg-panel);
+    backdrop-filter: var(--blur-intensity);
+    -webkit-backdrop-filter: var(--blur-intensity);
+    border: 1px solid var(--border-light);
+    box-shadow: var(--shadow-md);
+}
+
+/* --------------------------------------------------------------------------
+   3. ANIMATSIYALAR (KEYFRAMES)
+   -------------------------------------------------------------------------- */
+@keyframes fadeInScale {
+    from { opacity: 0; transform: scale(0.95) translateY(10px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+@keyframes slideInRight {
+    from { opacity: 0; transform: translateX(30px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes pulseRecord {
+    0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+    70% { transform: scale(1); box-shadow: 0 0 0 8px rgba(239, 68, 68, 0); }
+    100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+}
+
+@keyframes toastSlide {
+    0% { transform: translateY(-30px) translateX(-50%); opacity: 0; }
+    100% { transform: translateY(0) translateX(-50%); opacity: 1; }
+}
+
+/* --------------------------------------------------------------------------
+   4. TAYYOR KOMPONENTLAR (Tugmalar, Inputlar)
+   -------------------------------------------------------------------------- */
+.btn {
+    display: inline-flex; align-items: center; justify-content: center;
+    gap: 8px; padding: 12px 24px; border-radius: var(--radius-md);
+    font-weight: 600; font-size: 15px; border: none;
+    cursor: pointer; outline: none; transition: var(--transition-smooth);
+    position: relative; overflow: hidden;
+}
+
+.btn-large { padding: 16px 32px; font-size: 16px; border-radius: var(--radius-lg); }
+.btn-small { padding: 8px 16px; font-size: 13px; border-radius: var(--radius-sm); }
+.btn-full { width: 100%; }
+
+.btn-primary {
+    background: var(--primary); color: #fff;
+    box-shadow: 0 4px 12px var(--primary-glow);
+}
+.btn-primary:hover { background: var(--primary-hover); transform: translateY(-2px); box-shadow: 0 6px 16px var(--primary-glow); }
+.btn-primary:active { transform: translateY(1px); box-shadow: 0 2px 4px var(--primary-glow); }
+
+.btn-outline {
+    background: transparent; color: var(--text-main);
+    border: 1px solid var(--border-light);
+}
+.btn-outline:hover { background: var(--bg-panel-hover); border-color: var(--primary); color: var(--primary); }
+
+.btn-icon, .btn-icon-small {
+    background: transparent; border: none; color: var(--text-muted);
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    transition: var(--transition-fast); border-radius: var(--radius-sm);
+}
+.btn-icon { width: 40px; height: 40px; }
+.btn-icon-small { width: 28px; height: 28px; }
+.btn-icon:hover, .btn-icon-small:hover { background: var(--border-light); color: var(--text-main); }
+
+.bg-danger { background: var(--danger) !important; color: white !important; box-shadow: 0 4px 12px var(--danger-glow) !important; }
+.bg-danger:hover { background: var(--danger-hover) !important; }
+.danger-text { color: var(--danger) !important; }
+
+/* Inputlar */
+.input-group { margin-bottom: 20px; width: 100%; }
+.input-wrapper { position: relative; display: flex; align-items: center; width: 100%; }
+.input-icon { position: absolute; left: 16px; color: var(--text-muted); width: 20px; height: 20px; pointer-events: none; }
+.form-input {
+    width: 100%; padding: 16px 16px 16px 48px;
+    background: rgba(0, 0, 0, 0.1); border: 1px solid var(--border-light);
+    border-radius: var(--radius-lg); color: var(--text-main);
+    font-size: 16px; font-weight: 500; transition: var(--transition-smooth);
+    outline: none;
+}
+:root[data-theme="light"] .form-input { background: rgba(255, 255, 255, 0.5); }
+.form-input:focus { border-color: var(--primary); box-shadow: 0 0 0 4px var(--primary-glow); background: var(--bg-surface); }
+.form-input::placeholder { color: var(--text-muted); }
+.code-input { letter-spacing: 2px; font-family: monospace; font-size: 18px; font-weight: 700; }
+
+/* Custom Slider */
+.custom-slider {
+    -webkit-appearance: none; width: 100%; height: 6px;
+    background: var(--border-light); border-radius: var(--radius-pill);
+    outline: none; cursor: pointer; transition: var(--transition-fast);
+}
+.custom-slider::-webkit-slider-thumb {
+    -webkit-appearance: none; appearance: none;
+    width: 20px; height: 20px; border-radius: 50%;
+    background: var(--primary); border: 3px solid var(--bg-surface);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.4); transition: var(--transition-bounce);
+}
+.custom-slider::-webkit-slider-thumb:hover { transform: scale(1.2); }
+
+/* Toggle Switch */
+.toggle-switch { position: relative; display: inline-block; width: 44px; height: 24px; }
+.toggle-switch input { opacity: 0; width: 0; height: 0; }
+.toggle-switch .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: var(--border-light); transition: .4s; border-radius: 24px; }
+.toggle-switch .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+.toggle-switch input:checked + .slider { background-color: var(--primary); }
+.toggle-switch input:checked + .slider:before { transform: translateX(20px); }
+
+/* --------------------------------------------------------------------------
+   5. WELCOME & AUTH SCREEN
+   -------------------------------------------------------------------------- */
+.screen { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; z-index: 1; }
+.auth-screen { background: radial-gradient(circle at top right, var(--primary-glow), transparent 50%), radial-gradient(circle at bottom left, rgba(139, 92, 246, 0.1), transparent 50%); }
+.auth-card {
+    width: 100%; max-width: 440px; padding: 48px; border-radius: 32px;
+    display: flex; flex-direction: column; align-items: center;
+    animation: fadeInScale 0.6s var(--transition-bounce);
+}
+.logo-container { width: 72px; height: 72px; background: var(--primary-glow); border-radius: 24px; display: flex; align-items: center; justify-content: center; margin-bottom: 24px; box-shadow: inset 0 0 20px rgba(255,255,255,0.1); }
+.logo-icon { color: var(--primary); width: 40px; height: 40px; }
+.auth-title { font-size: 32px; font-weight: 800; letter-spacing: -1px; margin-bottom: 8px; color: var(--text-main); }
+.auth-subtitle { color: var(--text-muted); font-size: 15px; margin-bottom: 40px; }
+.auth-form { width: 100%; }
+.auth-divider { display: flex; align-items: center; margin: 30px 0; width: 100%; }
+.auth-divider::before, .auth-divider::after { content: ''; flex: 1; height: 1px; background: var(--border-light); }
+.divider-text { padding: 0 16px; color: var(--text-muted); font-size: 12px; font-weight: 700; letter-spacing: 1px; }
+.auth-footer { margin-top: 30px; font-size: 12px; color: var(--text-muted); text-align: center; }
+
+/* --------------------------------------------------------------------------
+   6. WORKSPACE & HEADER
+   -------------------------------------------------------------------------- */
+.workspace-screen { flex-direction: column; align-items: stretch; justify-content: flex-start; }
+
+.app-header {
+    position: absolute; top: 20px; left: 50%; transform: translateX(-50%);
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 24px; border-radius: var(--radius-pill);
+    width: max-content; min-width: 400px; z-index: var(--z-toolbar);
+    animation: fadeInScale 0.5s var(--transition-bounce);
+}
+
+.header-left, .header-center, .header-right { display: flex; align-items: center; gap: 16px; }
+.room-info { display: flex; align-items: center; gap: 12px; }
+.room-title { font-size: 16px; font-weight: 700; display: none; /* Bo'sh joy tejash uchun yashirilgan */ }
+
+.recording-indicator { display: flex; align-items: center; gap: 6px; background: var(--danger-glow); color: var(--danger); padding: 4px 10px; border-radius: var(--radius-pill); font-size: 12px; font-weight: bold; border: 1px solid rgba(239,68,68,0.3); }
+.pulse-dot { width: 8px; height: 8px; background: var(--danger); border-radius: 50%; animation: pulseRecord 1.5s infinite; }
+
+.room-code-badge {
+    display: flex; align-items: center; gap: 8px;
+    background: var(--primary-glow); color: var(--primary);
+    padding: 6px 14px; border-radius: var(--radius-pill);
+    font-family: monospace; font-size: 14px; font-weight: 700;
+    cursor: pointer; transition: var(--transition-fast); border: 1px solid rgba(14,165,233,0.3);
+}
+.room-code-badge:hover { background: rgba(14,165,233,0.3); transform: translateY(-1px); }
+.room-code-badge:active { transform: translateY(1px); }
+
+.user-role-badge { display: flex; align-items: center; gap: 6px; padding: 6px 12px; background: var(--border-light); border-radius: var(--radius-pill); font-size: 13px; font-weight: 600; color: var(--text-muted); }
+.user-role-badge i { color: var(--primary); width: 16px; height: 16px; }
+
+.status-good { color: var(--success); }
+.status-poor { color: var(--warning); }
+.status-bad { color: var(--danger); }
+
+/* --------------------------------------------------------------------------
+   7. C-TOOLBAR (ASOSIY ASBOBLAR PANELI)
+   -------------------------------------------------------------------------- */
+.c-toolbar {
+    position: absolute; top: 80px; left: 20px; bottom: 20px;
+    display: grid;
+    grid-template-columns: 64px 300px; /* Ikkinchi ustun properties uchun */
+    grid-template-rows: 64px 1fr 64px;
+    gap: 16px; z-index: var(--z-toolbar); pointer-events: none;
+}
+
+.toolbar-panel { pointer-events: auto; border-radius: 24px; padding: 8px; display: flex; }
+
+/* Tepa panel (Rang va Qalinlik) - C ning tepa shoxi */
+.panel-top {
+    grid-column: 1 / 3; grid-row: 1; align-items: center; padding: 0 24px; gap: 24px;
+    border-radius: 32px; transform-origin: left center;
+    transition: transform var(--transition-smooth), opacity var(--transition-fast);
+}
+.panel-top.hidden-tool { transform: scaleX(0.2); opacity: 0; pointer-events: none; }
+
+.tool-section { display: flex; align-items: center; gap: 12px; }
+.section-label { font-size: 12px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+
+.color-palette { display: flex; align-items: center; gap: 10px; }
+.color-btn { width: 28px; height: 28px; border-radius: 50%; border: 2px solid transparent; cursor: pointer; transition: var(--transition-bounce); box-shadow: inset 0 2px 4px rgba(0,0,0,0.3); padding: 0; }
+.color-btn:hover { transform: scale(1.1); }
+.color-btn.active { transform: scale(1.2); border-color: var(--text-main); box-shadow: 0 0 15px rgba(255,255,255,0.2); }
+
+.custom-color-picker { position: relative; width: 28px; height: 28px; border-radius: 50%; overflow: hidden; border: 1px solid var(--border-light); display: flex; align-items: center; justify-content: center; background: conic-gradient(red, yellow, lime, aqua, blue, magenta, red); cursor: pointer; }
+.custom-color-picker input[type="color"] { position: absolute; opacity: 0; width: 200%; height: 200%; cursor: pointer; }
+.custom-color-picker i { color: white; pointer-events: none; z-index: 1; text-shadow: 0 1px 2px rgba(0,0,0,0.8); }
+
+.v-divider { width: 1px; height: 32px; background: var(--border-light); margin: 0 4px; }
+.h-divider { height: 1px; width: 60%; background: var(--border-light); margin: 8px auto; }
+
+/* Chap panel (Asboblar) - C ning tanasi */
+.panel-left { grid-column: 1; grid-row: 2; flex-direction: column; justify-content: flex-start; gap: 6px; padding: 12px 8px; border-radius: 32px; overflow-y: auto; overflow-x: hidden; scrollbar-width: none; }
+.panel-left::-webkit-scrollbar { display: none; }
+
+.tool-btn {
+    width: 48px; height: 48px; border-radius: 16px; border: none; background: transparent;
+    color: var(--text-muted); cursor: pointer; display: flex; align-items: center; justify-content: center;
+    transition: var(--transition-fast); position: relative;
+}
+.tool-btn i { width: 22px; height: 22px; transition: transform var(--transition-bounce); }
+.tool-btn:hover { background: var(--bg-panel-hover); color: var(--text-main); }
+.tool-btn:hover i { transform: scale(1.1); }
+.tool-btn.active { background: var(--primary-glow); color: var(--primary); box-shadow: inset 0 0 0 1px var(--border-focus); }
+.tool-btn.active i { transform: scale(1.15); }
+
+/* Tooltip logikasi (CSS only) */
+.tool-btn::after, .action-btn::after, .media-btn::after {
+    content: attr(title); position: absolute; left: calc(100% + 15px);
+    background: var(--text-main); color: var(--bg-base);
+    padding: 6px 12px; border-radius: 8px; font-size: 12px; font-weight: 600;
+    white-space: nowrap; opacity: 0; pointer-events: none;
+    transform: translateX(-10px); transition: var(--transition-smooth);
+    box-shadow: var(--shadow-md); z-index: var(--z-overlay);
+}
+.tool-btn:hover::after, .action-btn:hover::after, .media-btn:hover::after { opacity: 1; transform: translateX(0); }
+/* Default tooltiplarni yashirish (CSS o'zinikini ishlatish uchun HTML dagi title o'chiriladi JS da, yoki styling overriding) */
+
+/* Shakllar Dropdowni */
+.tool-dropdown-container { position: relative; width: 100%; }
+.dropdown-arrow { position: absolute; bottom: 4px; right: 4px; color: var(--text-muted); }
+.tool-dropdown {
+    position: absolute; left: calc(100% + 16px); top: -20px;
+    background: var(--bg-panel); border: 1px solid var(--border-light);
+    border-radius: 16px; padding: 8px; display: flex; flex-direction: column; gap: 4px;
+    opacity: 0; pointer-events: none; transform: translateX(-10px);
+    transition: var(--transition-smooth); box-shadow: var(--shadow-lg); min-width: 160px;
+}
+.tool-dropdown-container:hover .tool-dropdown { opacity: 1; pointer-events: auto; transform: translateX(0); }
+.sub-tool-btn { display: flex; align-items: center; gap: 12px; width: 100%; padding: 10px 14px; border: none; background: transparent; color: var(--text-main); border-radius: 10px; cursor: pointer; font-size: 14px; font-weight: 500; transition: var(--transition-fast); text-align: left; }
+.sub-tool-btn:hover { background: var(--bg-panel-hover); color: var(--primary); }
+.sub-tool-btn i { width: 18px; height: 18px; }
+
+/* Pastki panel (Media & Actions) - C ning pastki shoxi */
+.panel-bottom {
+    grid-column: 1 / 3; grid-row: 3; align-items: center; padding: 0 16px; gap: 12px;
+    border-radius: 32px; width: max-content;
+}
+
+.action-group { display: flex; align-items: center; gap: 8px; }
+.action-btn, .media-btn {
+    width: 44px; height: 44px; border-radius: 50%; border: none; background: transparent;
+    color: var(--text-main); cursor: pointer; display: flex; align-items: center; justify-content: center;
+    transition: var(--transition-fast); border: 1px solid transparent; position: relative;
+}
+.action-btn:hover { background: var(--bg-panel-hover); }
+.action-btn:active { transform: scale(0.9); }
+
+.zoom-controls { background: rgba(0,0,0,0.2); border-radius: var(--radius-pill); padding: 4px; border: 1px solid var(--border-light); }
+.zoom-controls .action-btn { width: 32px; height: 32px; }
+.zoom-text { font-size: 12px; font-weight: 700; font-family: monospace; width: 45px; text-align: center; }
+
+.media-btn { background: rgba(255,255,255,0.05); border-color: var(--border-light); }
+.media-btn:hover { background: var(--bg-panel-hover); }
+.media-btn.active { background: var(--primary-glow); color: var(--primary); border-color: var(--border-focus); }
+.media-btn.active i { transform: scale(1.1); }
+.media-btn.danger-hover:hover { background: var(--danger-glow); color: var(--danger); border-color: rgba(239, 68, 68, 0.4); }
+.media-btn.recording { background: var(--danger); color: white; animation: pulseRecord 2s infinite; border-color: transparent; }
+
+/* Bottom tooltips fix direction */
+.panel-bottom .action-btn::after, .panel-bottom .media-btn::after {
+    left: 50%; top: -45px; transform: translateX(-50%) translateY(10px);
+}
+.panel-bottom .action-btn:hover::after, .panel-bottom .media-btn:hover::after { transform: translateX(-50%) translateY(0); }
+
+
+/* --------------------------------------------------------------------------
+   8. RIGHT SIDEBARS (Chat & Users)
+   -------------------------------------------------------------------------- */
+.sidebar-container { position: absolute; right: 20px; top: 80px; bottom: 20px; display: flex; flex-direction: column; align-items: flex-end; gap: 16px; z-index: var(--z-sidebar); pointer-events: none; }
+
+.sidebar-triggers { pointer-events: auto; display: flex; flex-direction: column; gap: 12px; padding: 12px; border-radius: var(--radius-pill); }
+.trigger-btn {
+    width: 48px; height: 48px; border-radius: 50%; border: none; background: transparent;
+    color: var(--text-main); cursor: pointer; display: flex; align-items: center; justify-content: center;
+    transition: var(--transition-fast); position: relative; border: 1px solid transparent;
+}
+.trigger-btn:hover { background: var(--bg-panel-hover); }
+.trigger-btn.active { background: var(--primary); color: white; box-shadow: 0 4px 12px var(--primary-glow); }
+.badge { position: absolute; top: -2px; right: -2px; background: var(--danger); color: white; font-size: 10px; font-weight: 800; min-width: 20px; height: 20px; border-radius: 10px; display: flex; align-items: center; justify-content: center; padding: 0 4px; border: 2px solid var(--bg-panel); }
+
+.side-panel {
+    pointer-events: auto; width: 340px; height: calc(100vh - 180px);
+    border-radius: 24px; display: flex; flex-direction: column; overflow: hidden;
+    transform-origin: right center; animation: slideInRight 0.4s var(--transition-bounce);
+}
+
+.panel-header { padding: 16px 20px; border-bottom: 1px solid var(--border-light); display: flex; align-items: center; justify-content: space-between; background: rgba(0,0,0,0.2); }
+.panel-header h3 { font-size: 16px; font-weight: 700; margin: 0; }
+.close-panel { color: var(--text-muted); }
+
+.panel-body { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+
+/* Users List */
+.user-list { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+.user-item { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; background: rgba(0,0,0,0.1); border-radius: 16px; border: 1px solid transparent; transition: var(--transition-fast); }
+.user-item:hover { background: rgba(0,0,0,0.2); border-color: var(--border-light); }
+.user-info { display: flex; align-items: center; gap: 12px; }
+.user-avatar { width: 36px; height: 36px; border-radius: 12px; background: linear-gradient(135deg, var(--primary), #8b5cf6); display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 14px; color: white; box-shadow: inset 0 0 0 1px rgba(0,0,0,0.1); }
+.user-name { font-size: 14px; font-weight: 600; }
+.user-permissions { display: flex; gap: 4px; }
+.perm-btn { width: 32px; height: 32px; border-radius: 8px; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: var(--transition-fast); }
+.perm-btn.granted { background: var(--primary-glow); color: var(--primary); }
+.perm-btn.denied { background: rgba(239, 68, 68, 0.1); color: var(--danger); }
+.perm-btn:hover { filter: brightness(1.2); }
+
+/* Chat */
+.chat-messages-container { justify-content: flex-start; }
+.chat-placeholder { margin: auto; display: flex; flex-direction: column; align-items: center; color: var(--text-muted); gap: 12px; opacity: 0.5; }
+.chat-message { max-width: 85%; padding: 10px 14px; border-radius: 16px; font-size: 14px; line-height: 1.4; position: relative; word-wrap: break-word; animation: fadeInScale 0.3s ease; }
+.chat-message.me { align-self: flex-end; background: var(--primary); color: white; border-bottom-right-radius: 4px; box-shadow: 0 4px 10px var(--primary-glow); }
+.chat-message.other { align-self: flex-start; background: var(--bg-surface); color: var(--text-main); border: 1px solid var(--border-light); border-bottom-left-radius: 4px; }
+.msg-sender { font-size: 11px; font-weight: 700; margin-bottom: 4px; opacity: 0.8; }
+.msg-time { font-size: 10px; opacity: 0.6; text-align: right; margin-top: 4px; display: block; }
+
+.chat-input-area { padding: 16px; border-top: 1px solid var(--border-light); background: rgba(0,0,0,0.1); }
+.chat-input-wrapper { display: flex; align-items: flex-end; gap: 8px; background: var(--bg-surface); padding: 8px; border-radius: 20px; border: 1px solid var(--border-light); transition: var(--transition-smooth); }
+.chat-input-wrapper:focus-within { border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-glow); }
+#chatInput { flex: 1; border: none; background: transparent; color: var(--text-main); outline: none; padding: 8px 12px; font-size: 14px; resize: none; max-height: 100px; line-height: 1.4; }
+.send-btn { background: var(--primary); color: white; border-radius: 50%; width: 36px; height: 36px; padding: 0; flex-shrink: 0; box-shadow: 0 2px 8px var(--primary-glow); }
+.send-btn:hover { background: var(--primary-hover); transform: scale(1.05); }
+
+/* --------------------------------------------------------------------------
+   9. VIDEO GRID (WebRTC Cameras)
+   -------------------------------------------------------------------------- */
+.video-grid { position: absolute; left: 100px; bottom: 100px; display: flex; gap: 16px; flex-wrap: wrap-reverse; z-index: var(--z-overlay); pointer-events: none; max-width: calc(100% - 400px); }
+.video-card { pointer-events: auto; width: 200px; height: 140px; border-radius: 20px; overflow: hidden; background: #000; border: 1px solid var(--border-light); box-shadow: var(--shadow-lg); position: relative; animation: fadeInScale 0.4s var(--transition-bounce); }
+.video-card video { width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); /* Mirror effect */ }
+.video-overlay { position: absolute; inset: 0; padding: 8px; display: flex; flex-direction: column; justify-content: flex-end; background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 40%); opacity: 0; transition: var(--transition-smooth); }
+.video-card:hover .video-overlay { opacity: 1; }
+.video-info { display: flex; align-items: center; gap: 8px; }
+.audio-indicator { width: 8px; height: 8px; border-radius: 50%; background: var(--danger); transition: 0.1s; }
+.audio-indicator.speaking { background: var(--success); box-shadow: 0 0 8px var(--success); transform: scale(1.5); }
+.video-name { color: white; font-size: 12px; font-weight: 600; text-shadow: 0 1px 2px black; }
+
+/* --------------------------------------------------------------------------
+   10. CANVAS & OVERLAYS
+   -------------------------------------------------------------------------- */
+.canvas-wrapper { position: absolute; inset: 0; z-index: var(--z-canvas); overflow: hidden; }
+#mainCanvas { display: block; width: 100%; height: 100%; touch-action: none; outline: none; }
+
+/* Live Text Editor */
+.live-text-input { position: absolute; background: transparent; border: 1px dashed var(--primary); color: var(--text-main); font-family: 'Inter', sans-serif; font-weight: 500; white-space: pre; outline: none; z-index: var(--z-overlay); padding: 4px 8px; min-width: 20px; border-radius: 4px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); text-shadow: 0 1px 2px rgba(0,0,0,0.5); }
+
+/* Sticky Notes */
+.sticky-layer { position: absolute; inset: 0; pointer-events: none; z-index: calc(var(--z-canvas) + 1); overflow: hidden; }
+.sticky-note { position: absolute; width: 220px; min-height: 180px; padding: 16px; border-radius: 2px 16px 16px 16px; font-family: 'Inter', sans-serif; font-size: 15px; line-height: 1.5; color: #1e293b; outline: none; resize: none; overflow-y: auto; pointer-events: auto; box-shadow: 2px 10px 20px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.5); transition: box-shadow 0.2s, transform 0.2s; transform-origin: top left; }
+.sticky-note:focus { box-shadow: 2px 15px 30px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.5), 0 0 0 2px var(--primary); z-index: 10; }
+/* Fold effect */
+.sticky-note::before { content: ''; position: absolute; top: 0; left: 0; border-width: 0 16px 16px 0; border-style: solid; border-color: transparent rgba(0,0,0,0.1) transparent transparent; border-radius: 0 0 4px 0; }
+
+/* --------------------------------------------------------------------------
+   11. MODALS & CONTEXT MENUS
+   -------------------------------------------------------------------------- */
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(8px); display: flex; align-items: center; justify-content: center; z-index: var(--z-modal); opacity: 1; transition: opacity var(--transition-smooth); }
+.modal-overlay.hidden { opacity: 0; pointer-events: none; }
+.modal-content { width: 100%; max-width: 500px; border-radius: 24px; display: flex; flex-direction: column; overflow: hidden; transform: scale(1); transition: transform var(--transition-bounce); }
+.modal-overlay.hidden .modal-content { transform: scale(0.95) translateY(20px); }
+
+.modal-header { padding: 20px 24px; border-bottom: 1px solid var(--border-light); display: flex; align-items: center; justify-content: space-between; background: rgba(0,0,0,0.2); }
+.modal-header h2 { font-size: 20px; font-weight: 700; margin: 0; }
+.modal-body { padding: 24px; display: flex; flex-direction: column; gap: 20px; }
+.modal-footer { padding: 16px 24px; border-top: 1px solid var(--border-light); background: rgba(0,0,0,0.1); display: flex; justify-content: flex-end; gap: 12px; }
+
+/* Settings Modal Specific */
+.settings-section { display: flex; flex-direction: column; gap: 12px; }
+.settings-section h3 { font-size: 14px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+.setting-item { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; background: rgba(0,0,0,0.1); border-radius: 12px; font-weight: 500; }
+
+/* Context Menu (Right Click) */
+.context-menu { position: absolute; border-radius: 16px; padding: 8px; min-width: 200px; box-shadow: var(--shadow-lg); z-index: var(--z-modal); transform-origin: top left; animation: fadeInScale 0.2s cubic-bezier(0.16, 1, 0.3, 1); }
+.context-list { list-style: none; display: flex; flex-direction: column; gap: 2px; }
+.context-item { padding: 10px 14px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 12px; font-size: 14px; font-weight: 500; transition: 0.1s; }
+.context-item:hover { background: var(--bg-panel-hover); color: var(--primary); }
+.context-divider { height: 1px; background: var(--border-light); margin: 4px 0; }
+
+/* --------------------------------------------------------------------------
+   12. TOAST NOTIFICATIONS
+   -------------------------------------------------------------------------- */
+.toast-wrapper { position: fixed; top: 24px; left: 50%; transform: translateX(-50%); z-index: var(--z-toast); display: flex; flex-direction: column; gap: 12px; pointer-events: none; }
+.toast { background: var(--bg-surface); color: var(--text-main); padding: 14px 24px; border-radius: var(--radius-pill); font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 12px; box-shadow: var(--shadow-lg); border: 1px solid var(--border-light); animation: toastSlide 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; pointer-events: auto; }
+.toast-icon { display: flex; align-items: center; justify-content: center; }
+.toast.success .toast-icon { color: var(--success); }
+.toast.error .toast-icon { color: var(--danger); }
+.toast.info .toast-icon { color: var(--primary); }
+
+/* --------------------------------------------------------------------------
+   13. RESPONSIVE DESIGN (Media Queries)
+   -------------------------------------------------------------------------- */
+@media (max-width: 1024px) {
+    .c-toolbar { left: 16px; grid-template-columns: 56px 250px; }
+    .t-btn { width: 40px; height: 40px; }
+    .panel-top { padding: 0 16px; gap: 12px; }
+}
+
+@media (max-width: 768px) {
+    /* Mobile uchun qattiq o'zgarishlar */
+    .app-header { top: 10px; width: calc(100% - 20px); min-width: unset; padding: 8px 16px; }
+    .room-title { display: none; }
+    
+    /* C-Toolbar ni Bottom Bar ga aylantirish */
+    .c-toolbar { top: auto; left: 10px; right: 10px; bottom: 10px; display: flex; flex-direction: column-reverse; gap: 8px; width: auto; }
+    .panel-left { flex-direction: row; width: 100%; overflow-x: auto; overflow-y: hidden; padding: 8px 12px; gap: 12px; border-radius: 20px; }
+    .panel-top { width: 100%; transform-origin: bottom center; flex-wrap: wrap; justify-content: center; padding: 12px; }
+    .panel-top.hidden-tool { transform: scaleY(0); transform-origin: bottom center; }
+    .panel-bottom { display: none; /* Mobilda ko'p joy egallamasligi uchun menyuga tiqiladi */ }
+    
+    .sidebar-container { top: 70px; right: 10px; bottom: 100px; }
+    .side-panel { width: calc(100vw - 80px); }
+    
+    .video-grid { top: 70px; left: 10px; flex-direction: row; width: calc(100% - 80px); }
+    .video-card { width: 120px; height: 90px; }
+}
