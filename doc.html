@@ -2,327 +2,396 @@
 <html lang="uz" dir="ltr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>MR BOARD · To'liq Qo'llanma (Enterprise Edition)</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#f8fafc" id="theme-color">
+    <title>MR BOARD · Qo'llanma va Hujjatlar (Docs)</title>
+    
     <script src="https://unpkg.com/lucide@latest"></script>
+    
     <style>
         /* ==================================================================
-           [1] DOKUMENTATSIYA ASOSIY DIZAYNI (Design Tokens)
+           [1] GLOBAL DESIGN TOKENS (Sizning kodingizdan olingan original)
            ================================================================== */
         :root {
-            /* Doc Asosiy Ranglari */
-            --bg-doc: #ffffff; 
-            --bg-doc-alt: #f8fafc; 
-            --text-doc: #0f172a; 
-            --text-doc-muted: #475569;
-            --brand-doc: #007aff; 
-            --brand-doc-hover: #0056b3;
-            --border-doc: #e2e8f0; 
-            --sidebar-w: 320px;
-            
-            /* Tizim (MR BOARD) o'zgaruvchilari */
-            --bg-base: #f8fafc; 
-            --bg-canvas: #e2e8f0; 
-            --bg-glass: rgba(255, 255, 255, 0.85);
-            --bg-panel: rgba(255, 255, 255, 0.9); 
-            --border-subtle: rgba(255, 255, 255, 0.5); 
+            --bg-base: #f8fafc;
+            --bg-canvas: #e2e8f0;
+            --bg-glass: rgba(255, 255, 255, 0.65);
+            --bg-panel: rgba(255, 255, 255, 0.85);
+            --bg-hover: rgba(0, 0, 0, 0.05);
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --border-subtle: rgba(255, 255, 255, 0.4);
             --border-strong: rgba(0, 0, 0, 0.1);
-            --brand-primary: #007aff; 
-            --brand-alpha: rgba(0, 122, 255, 0.1);
-            --state-danger: #ff3b30; 
-            --state-success: #34c759; 
+            --brand-primary: #007aff;
+            --brand-hover: #0056b3;
+            --brand-alpha: rgba(0, 122, 255, 0.15);
+            --state-danger: #ff3b30;
+            --state-success: #34c759;
             --state-warning: #ffcc00;
-            --shadow-float: 0 20px 40px -10px rgba(0,0,0,0.1);
-            --shadow-inner: inset 0 2px 4px rgba(0,0,0,0.05);
+            
             --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+            --ease-smooth: cubic-bezier(0.25, 1, 0.5, 1);
+            
+            --duration-fast: 200ms;
+            --duration-base: 400ms;
+            --duration-slow: 600ms;
+            
+            --shadow-float: 0 24px 48px -12px rgba(0,0,0,0.15), 0 12px 24px -8px rgba(0,0,0,0.1);
+            --shadow-glass: inset 0 1px 1px rgba(255,255,255,0.8), inset 0 0 0 1px rgba(255,255,255,0.4);
+            --shadow-inner: inset 0 2px 4px rgba(0,0,0,0.05);
+
+            --sidebar-width: 320px;
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: "SF Pro Display", -apple-system, BlinkMacSystemFont, "Inter", sans-serif; }
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg-base: #020617; 
+                --bg-canvas: #0f172a; 
+                --bg-glass: rgba(15, 23, 42, 0.55); 
+                --bg-panel: rgba(30, 41, 59, 0.85); 
+                --bg-hover: rgba(255, 255, 255, 0.1);
+                --text-main: #f8fafc; 
+                --text-muted: #94a3b8;
+                --border-subtle: rgba(255, 255, 255, 0.1); 
+                --border-strong: rgba(255, 255, 255, 0.2);
+                --shadow-float: 0 24px 48px -12px rgba(0,0,0,0.5); 
+                --shadow-glass: inset 0 1px 1px rgba(255,255,255,0.1), inset 0 0 0 1px rgba(255,255,255,0.05);
+                --brand-primary: #0a84ff;
+            }
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         html { scroll-behavior: smooth; }
-        body { display: flex; color: var(--text-doc); background: var(--bg-doc); line-height: 1.7; overflow-x: hidden; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", Roboto, sans-serif;
+            background: var(--bg-canvas);
+            color: var(--text-main);
+            overflow-x: hidden;
+            display: flex;
+            transition: background var(--duration-base) var(--ease-smooth), color var(--duration-base) var(--ease-smooth);
+        }
 
         /* ==================================================================
-           [2] SIDEBAR NAVIGATSIYA
+           [2] SIDEBAR (Navigatsiya paneli)
            ================================================================== */
-        .sidebar { 
-            width: var(--sidebar-w); height: 100vh; position: fixed; 
-            border-right: 1px solid var(--border-doc); padding: 32px 24px; 
-            background: var(--bg-doc-alt); overflow-y: auto; z-index: 100; 
-            scrollbar-width: thin; scrollbar-color: #cbd5e1 transparent;
+        .sidebar {
+            position: fixed; top: 0; left: 0; bottom: 0;
+            width: var(--sidebar-width);
+            background: var(--bg-panel);
+            backdrop-filter: blur(40px) saturate(200%); -webkit-backdrop-filter: blur(40px) saturate(200%);
+            border-right: 1px solid var(--border-subtle);
+            padding: 32px 24px;
+            overflow-y: auto;
+            z-index: 100;
+            box-shadow: var(--shadow-float);
+            transition: transform var(--duration-base) var(--ease-spring);
         }
         .sidebar::-webkit-scrollbar { width: 6px; }
-        .sidebar::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 10px; }
+        .sidebar::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 10px; }
 
-        .sidebar-brand { font-size: 26px; font-weight: 900; margin-bottom: 8px; display: flex; align-items: center; gap: 10px; color: var(--text-doc); text-decoration: none; }
-        .sidebar-brand span { color: var(--brand-doc); }
-        .sidebar-version { font-size: 11px; font-weight: 800; color: var(--text-doc-muted); margin-bottom: 24px; padding-left: 42px; text-transform: uppercase; letter-spacing: 1px; }
-        
-        .global-nav { display: flex; flex-direction: column; gap: 8px; margin-bottom: 32px; padding-bottom: 24px; border-bottom: 1px solid var(--border-doc); }
-        .btn-global { 
-            display: flex; align-items: center; justify-content: center; gap: 10px; 
-            width: 100%; padding: 12px; border-radius: 14px; text-decoration: none; 
-            font-size: 14px; font-weight: 700; transition: 0.2s var(--ease-spring);
-        }
-        .btn-board { background: var(--brand-doc); color: white; box-shadow: 0 4px 15px var(--brand-alpha); }
-        .btn-board:hover { background: var(--brand-doc-hover); transform: translateY(-2px); box-shadow: 0 8px 25px rgba(0, 122, 255, 0.3); }
+        .brand { font-size: 28px; font-weight: 800; display: flex; align-items: center; gap: 12px; letter-spacing: -1px; margin-bottom: 8px; color: var(--text-main); text-decoration: none; }
+        .brand span { color: var(--brand-primary); }
+        .brand-sub { font-size: 11px; font-weight: 800; text-transform: uppercase; color: var(--text-muted); letter-spacing: 2px; padding-left: 42px; margin-bottom: 32px; display: block; }
 
-        .nav-section { font-size: 12px; font-weight: 800; color: var(--text-doc-muted); text-transform: uppercase; letter-spacing: 1px; margin: 24px 0 8px 12px; opacity: 0.7; }
-        .nav-link { 
-            display: flex; align-items: center; gap: 12px; padding: 10px 14px; 
-            color: var(--text-doc-muted); text-decoration: none; font-weight: 600; 
-            font-size: 15px; border-radius: 12px; transition: all 0.2s ease; margin-bottom: 4px; 
+        .global-actions { margin-bottom: 32px; padding-bottom: 24px; border-bottom: 1px solid var(--border-strong); }
+        .btn-board {
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+            width: 100%; padding: 16px; border-radius: 20px;
+            background: var(--brand-primary); color: #fff;
+            font-size: 15px; font-weight: 700; text-decoration: none;
+            box-shadow: 0 8px 20px var(--brand-alpha);
+            transition: all var(--duration-fast) var(--ease-spring);
         }
-        .nav-link:hover { background: rgba(0, 122, 255, 0.05); color: var(--text-doc); transform: translateX(4px); }
-        .nav-link.active { background: var(--brand-alpha); color: var(--brand-doc); font-weight: 700; }
+        .btn-board:hover { transform: translateY(-4px) scale(1.02); box-shadow: 0 12px 28px var(--brand-alpha); }
+        .btn-board:active { transform: scale(0.95); }
+
+        .nav-label { font-size: 12px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin: 24px 0 12px 12px; opacity: 0.8; }
+        .nav-link {
+            display: flex; align-items: center; gap: 12px;
+            padding: 12px 16px; border-radius: 16px;
+            color: var(--text-muted); text-decoration: none;
+            font-weight: 600; font-size: 15px;
+            transition: all var(--duration-fast) var(--ease-spring);
+        }
+        .nav-link:hover { background: var(--bg-hover); color: var(--text-main); transform: translateX(4px); }
+        .nav-link.active { background: var(--brand-alpha); color: var(--brand-primary); font-weight: 700; box-shadow: var(--shadow-inner); }
 
         /* ==================================================================
-           [3] ASOSIY QISM VA iOS TOP NAVIGATION
+           [3] MAIN CONTENT & TOP BAR
            ================================================================== */
-        .content { margin-left: var(--sidebar-w); flex: 1; padding: 0 6% 60px; max-width: 1200px; }
+        .main-wrapper { margin-left: var(--sidebar-width); flex: 1; display: flex; flex-direction: column; min-height: 100vh; position: relative; }
         
-        /* iOS kabi Top Navigatsiya Paneli */
-        .ios-top-nav {
+        /* iOS Glass Topbar */
+        .topbar {
             position: sticky; top: 0; z-index: 90;
             background: var(--bg-glass);
-            backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
-            margin: 0 -6%; padding: 16px 6%;
-            border-bottom: 1px solid var(--border-doc);
-            display: flex; justify-content: space-between; align-items: center;
-            margin-bottom: 40px;
+            backdrop-filter: blur(50px) saturate(200%); -webkit-backdrop-filter: blur(50px) saturate(200%);
+            border-bottom: 1px solid var(--border-subtle);
+            padding: 16px 5%; display: flex; justify-content: space-between; align-items: center;
+            box-shadow: var(--shadow-glass);
         }
-
-        /* iOS kabi Back Icon tugmasi */
-        .ios-back-link {
-            display: inline-flex; align-items: center; gap: 2px;
-            color: var(--brand-doc); text-decoration: none;
-            font-size: 17px; font-weight: 500; letter-spacing: -0.4px;
-            transition: opacity 0.2s ease;
+        .ios-back {
+            display: inline-flex; align-items: center; gap: 4px;
+            color: var(--brand-primary); text-decoration: none;
+            font-size: 17px; font-weight: 600; letter-spacing: -0.5px;
+            transition: opacity var(--duration-fast);
         }
-        .ios-back-link i { margin-left: -6px; }
-        .ios-back-link:hover, .ios-back-link:active { opacity: 0.6; }
-
-        h1 { font-size: clamp(36px, 4vw, 52px); font-weight: 900; letter-spacing: -1.5px; margin-bottom: 24px; line-height: 1.1; }
-        h2 { font-size: 32px; font-weight: 800; color: var(--text-doc); margin: 80px 0 24px; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid var(--border-doc); padding-bottom: 16px; scroll-margin-top: 80px; }
-        h2 i { color: var(--brand-doc); }
-        h3 { font-size: 24px; font-weight: 800; margin: 40px 0 16px; display: flex; align-items: center; gap: 10px; color: #1e293b; }
-        h4 { font-size: 18px; font-weight: 800; margin: 24px 0 12px; color: #0f172a; }
-        p { margin-bottom: 20px; font-size: 17px; color: var(--text-doc-muted); line-height: 1.8; }
+        .ios-back i { margin-left: -8px; }
+        .ios-back:hover { opacity: 0.7; }
         
-        .highlight-text { font-size: 18px; font-weight: 500; color: #334155; border-left: 4px solid var(--brand-doc); padding: 20px 24px; margin: 32px 0; background: var(--bg-doc-alt); border-radius: 0 16px 16px 0; line-height: 1.6; }
-        ul { margin-left: 24px; margin-bottom: 24px; color: var(--text-doc-muted); font-size: 17px; }
+        .topbar-title { font-weight: 800; opacity: 0; transition: opacity var(--duration-base); }
+        .topbar.scrolled .topbar-title { opacity: 1; }
+
+        .menu-btn { display: none; background: var(--bg-base); border: 1px solid var(--border-strong); border-radius: 12px; padding: 8px; color: var(--text-main); }
+
+        /* Content Typography & Cards */
+        .content { padding: 60px 5% 100px; max-width: 1000px; margin: 0 auto; width: 100%; }
+        
+        h1 { font-size: clamp(40px, 6vw, 56px); font-weight: 900; letter-spacing: -2px; margin-bottom: 24px; line-height: 1.1; }
+        h2 { font-size: 32px; font-weight: 800; margin: 80px 0 32px; display: flex; align-items: center; gap: 16px; border-bottom: 1px solid var(--border-strong); padding-bottom: 24px; scroll-margin-top: 100px; letter-spacing: -1px; }
+        h2 i { background: var(--bg-panel); border: 1px solid var(--border-strong); padding: 12px; border-radius: 16px; box-shadow: var(--shadow-sm); color: var(--brand-primary); }
+        h3 { font-size: 24px; font-weight: 800; margin: 40px 0 20px; }
+        
+        p { font-size: 17px; line-height: 1.8; margin-bottom: 24px; color: var(--text-muted); }
+        ul, ol { margin-left: 24px; margin-bottom: 32px; font-size: 17px; color: var(--text-muted); }
         li { margin-bottom: 12px; padding-left: 8px; }
-        li::marker { color: var(--brand-doc); }
-        strong { color: var(--text-doc); font-weight: 700; }
-        .kbd { background: #f1f5f9; border: 1px solid #cbd5e1; border-bottom-width: 3px; padding: 3px 8px; border-radius: 6px; font-family: monospace; font-size: 13px; font-weight: 700; color: #0f172a; display: inline-block; transform: translateY(-1px); }
+        li::marker { color: var(--brand-primary); font-weight: 800; }
+        strong { color: var(--text-main); font-weight: 700; }
 
-        .step-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; margin: 40px 0; }
-        .step-card { background: var(--bg-doc-alt); border: 1px solid var(--border-doc); padding: 32px; border-radius: 24px; position: relative; transition: 0.3s var(--ease-spring); }
-        .step-card:hover { transform: translateY(-8px); box-shadow: var(--shadow-float); border-color: transparent; }
-        .step-number { position: absolute; top: -16px; left: -16px; width: 44px; height: 44px; background: var(--brand-doc); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 900; border: 4px solid var(--bg-doc); box-shadow: 0 4px 10px var(--brand-alpha); }
-        .step-card h4 { margin-top: 0; }
-        .step-card p { margin-bottom: 0; font-size: 15px; }
-
-        /* ==================================================================
-           [4] VIZUAL MAKETLAR (UI Mockups)
-           ================================================================== */
-        .demo-box { background: var(--bg-canvas); background-image: radial-gradient(var(--border-strong) 1px, transparent 1px); background-size: 32px 32px; border-radius: 24px; border: 1px solid var(--border-strong); padding: 60px 40px; margin: 40px 0 20px; position: relative; overflow: hidden; display: flex; justify-content: center; align-items: center; min-height: 250px; flex-wrap: wrap; gap: 24px; }
-        .demo-caption { text-align: center; font-size: 13px; font-weight: 800; color: var(--text-doc-muted); margin-bottom: 48px; text-transform: uppercase; letter-spacing: 1px; }
+        /* Cards & Alerts */
+        .elastic-card {
+            background: var(--bg-panel);
+            border: 1px solid var(--border-subtle);
+            border-radius: 32px;
+            padding: 40px;
+            margin: 40px 0;
+            box-shadow: var(--shadow-float), var(--shadow-glass);
+            transition: transform var(--duration-base) var(--ease-spring);
+        }
+        .elastic-card:hover { transform: translateY(-8px); }
         
-        .mock-panel { background: var(--bg-panel); backdrop-filter: blur(40px); border-radius: 32px; padding: 40px; box-shadow: var(--shadow-float); border: 1px solid var(--border-subtle); width: 100%; max-width: 450px; }
-        .mock-input { width: 100%; padding: 16px 20px; background: var(--bg-base); border: 1.5px solid var(--border-strong); border-radius: 20px; font-size: 15px; font-weight: 600; box-shadow: var(--shadow-inner); outline: none; margin-bottom: 20px; color: var(--text-main); }
-        .mock-btn { width: 100%; padding: 18px; border-radius: 20px; font-size: 16px; font-weight: 800; display: flex; align-items: center; justify-content: center; gap: 10px; border: none; cursor: default; }
-        .mock-btn.primary { background: var(--brand-primary); color: #fff; box-shadow: 0 10px 25px var(--brand-alpha); }
-        .mock-btn.ghost { background: var(--bg-base); border: 1.5px solid var(--border-strong); color: var(--text-main); }
-        
-        .mock-dock { background: var(--bg-glass); backdrop-filter: blur(50px); border: 1px solid var(--border-subtle); border-radius: 32px; padding: 12px 16px; display: flex; align-items: center; gap: 12px; box-shadow: var(--shadow-float); flex-wrap: wrap; justify-content: center; }
-        .mock-action { width: 52px; height: 52px; border-radius: 18px; display: flex; align-items: center; justify-content: center; color: var(--text-muted); background: transparent; transition: 0.2s; }
-        .mock-action.active { background: var(--brand-primary); color: #fff; box-shadow: 0 8px 20px var(--brand-alpha); transform: scale(1.05); }
-        .mock-sep { width: 2px; height: 32px; background: var(--border-strong); margin: 0 4px; border-radius: 2px; }
+        .alert { display: flex; gap: 16px; padding: 24px; border-radius: 24px; margin: 32px 0; font-size: 16px; line-height: 1.6; }
+        .alert.warning { background: rgba(255, 204, 0, 0.1); border: 1px solid rgba(255, 204, 0, 0.3); color: #b38f00; }
+        .alert.info { background: var(--brand-alpha); border: 1px solid rgba(0, 122, 255, 0.2); color: var(--brand-primary); }
+        @media (prefers-color-scheme: dark) { .alert.warning { color: var(--state-warning); } }
 
-        .doc-table { width: 100%; border-collapse: collapse; margin: 32px 0; background: var(--bg-doc-alt); border-radius: 16px; overflow: hidden; border: 1px solid var(--border-doc); }
-        .doc-table th, .doc-table td { padding: 16px 24px; text-align: left; border-bottom: 1px solid var(--border-doc); font-size: 15px; }
-        .doc-table th { background: #e2e8f0; font-weight: 800; color: #1e293b; }
-        .doc-table tr:last-child td { border-bottom: none; }
+        /* Code & Hotkeys */
+        .kbd { background: var(--bg-base); border: 1.5px solid var(--border-strong); border-bottom-width: 4px; padding: 4px 12px; border-radius: 10px; font-family: ui-monospace, monospace; font-size: 14px; font-weight: 800; color: var(--text-main); display: inline-block; box-shadow: inset 0 -2px 0 rgba(0,0,0,0.05); }
 
-        /* Mobil Versiya (Menu tugmasi endi Top Nav ichida) */
-        .menu-btn { display: none; background: transparent; color: var(--text-doc); border: none; cursor: pointer; padding: 4px; }
+        /* Status Pills (From your code) */
+        .status-pill {
+            display: inline-flex; align-items: center; gap: 8px;
+            background: var(--bg-panel); backdrop-filter: blur(20px);
+            border: 1px solid var(--border-strong); border-radius: 99px;
+            padding: 8px 16px; font-size: 14px; font-weight: 700;
+            box-shadow: var(--shadow-sm); margin-right: 8px; margin-bottom: 8px;
+        }
+
+        /* Mockup Visuals */
+        .mockup-container { background: var(--bg-canvas); background-image: radial-gradient(var(--border-strong) 1px, transparent 1px); background-size: 32px 32px; border-radius: 32px; padding: 60px 20px; border: 1px solid var(--border-strong); display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 24px; margin-bottom: 40px; }
         
+        /* Your original Dock style replicated */
+        .mock-dock {
+            background: var(--bg-glass); backdrop-filter: blur(50px) saturate(200%); -webkit-backdrop-filter: blur(50px) saturate(200%);
+            border: 1px solid var(--border-subtle); border-radius: 32px; padding: 12px;
+            display: flex; align-items: center; gap: 8px; box-shadow: var(--shadow-float), var(--shadow-glass);
+        }
+        .action-btn { width: 56px; height: 56px; border-radius: 20px; display: flex; align-items: center; justify-content: center; color: var(--text-muted); background: transparent; transition: all var(--duration-fast) var(--ease-spring); border: none; }
+        .action-btn.is-active { background: var(--brand-primary); color: #fff; box-shadow: 0 8px 20px var(--brand-alpha); transform: scale(1.1); }
+        .dock-sep { width: 2px; height: 32px; background: var(--border-strong); margin: 0 8px; border-radius: 2px; }
+
+        footer { padding: 40px 5%; border-top: 1px solid var(--border-strong); text-align: center; color: var(--text-muted); font-size: 15px; font-weight: 600; }
+
         @media (max-width: 900px) {
-            .sidebar { transform: translateX(-100%); transition: 0.4s var(--ease-spring); }
-            .sidebar.open { transform: translateX(0); box-shadow: 0 0 50px rgba(0,0,0,0.2); }
-            .content { margin-left: 0; padding: 0 5% 60px; }
-            .ios-top-nav { margin: 0 -5%; padding: 16px 5%; }
-            .menu-btn { display: block; }
+            .sidebar { transform: translateX(-100%); }
+            .sidebar.is-open { transform: translateX(0); }
+            .main-wrapper { margin-left: 0; }
+            .menu-btn { display: flex; align-items: center; justify-content: center; }
+            h1 { font-size: 36px; }
+            .elastic-card { padding: 24px; border-radius: 24px; }
+            .mock-dock { flex-wrap: wrap; border-radius: 24px; }
         }
     </style>
 </head>
 <body>
 
     <nav class="sidebar" id="sidebar">
-        <a href="index.html" class="sidebar-brand"><i data-lucide="layers" size="32"></i> MR <span>BOARD</span></a>
-        <div class="sidebar-version">Docs v3.0</div>
-        
-        <div class="global-nav">
-            <a href="board.html" class="btn-global btn-board"><i data-lucide="external-link" size="18"></i> Doskani Ochish</a>
+        <a href="index.html" class="brand"><i data-lucide="layers" size="32"></i> MR <span>BOARD</span></a>
+        <span class="brand-sub">Enterprise Edition</span>
+
+        <div class="global-actions">
+            <a href="board.html" class="btn-board"><i data-lucide="external-link"></i> Doskani ochish</a>
         </div>
+
+        <div class="nav-label">Tanishuv</div>
+        <a href="#intro" class="nav-link active"><i data-lucide="rocket"></i> Tizim haqida</a>
+        <a href="#auth" class="nav-link"><i data-lucide="shield-check"></i> Avtorizatsiya & Rollar</a>
+
+        <div class="nav-label">Ish interfeysi</div>
+        <a href="#ui-top" class="nav-link"><i data-lucide="layout-template"></i> Statuslar & Zen Mode</a>
+        <a href="#minimap" class="nav-link"><i data-lucide="map"></i> Kuzatuv doskasi (Minimap)</a>
         
-        <div class="nav-section">Tanishuv</div>
-        <a href="#intro" class="nav-link active"><i data-lucide="info" size="18"></i> Kirish</a>
-        <a href="#auth" class="nav-link"><i data-lucide="shield-check" size="18"></i> Avtorizatsiya & Rollar</a>
-        
-        <div class="nav-section">Asosiy Ish Qurollari</div>
-        <a href="#workspace" class="nav-link"><i data-lucide="monitor" size="18"></i> Ish maydoni (Canvas)</a>
-        <a href="#dock-tools" class="nav-link"><i data-lucide="pen-tool" size="18"></i> Asboblar (Dock) 1ma1</a>
-        <a href="#colors" class="nav-link"><i data-lucide="palette" size="18"></i> Ranglar palitrasi</a>
-        <a href="#settings" class="nav-link"><i data-lucide="settings" size="18"></i> Sozlamalar menyusi</a>
-        
-        <div class="nav-section">Jamoaviy Ish (Hamkorlik)</div>
-        <a href="#audio" class="nav-link"><i data-lucide="mic" size="18"></i> Ovozli muloqot (WebRTC)</a>
-        <a href="#chat" class="nav-link"><i data-lucide="message-square" size="18"></i> Umumiy Chat</a>
-        <a href="#users" class="nav-link"><i data-lucide="users" size="18"></i> Boshqaruv (Admin)</a>
-        
-        <div class="nav-section">Qo'shimcha Imkoniyatlar</div>
-        <a href="#minimap" class="nav-link"><i data-lucide="map" size="18"></i> Navigatsiya (Minimap)</a>
-        <a href="#advanced" class="nav-link"><i data-lucide="wand-2" size="18"></i> Ilg‘or funksiyalar</a>
-        <a href="#shortcuts" class="nav-link"><i data-lucide="keyboard" size="18"></i> Hotkeys (Klaviatura)</a>
-        <a href="#export" class="nav-link"><i data-lucide="save" size="18"></i> Saqlash va Eksport</a>
+        <div class="nav-label">Asboblar (Dock)</div>
+        <a href="#tools" class="nav-link"><i data-lucide="pen-tool"></i> Chizish vositalari</a>
+        <a href="#colors" class="nav-link"><i data-lucide="palette"></i> Ranglar va Sozlamalar</a>
+
+        <div class="nav-label">Jamoaviy ish</div>
+        <a href="#audio" class="nav-link"><i data-lucide="mic"></i> Ovozli muloqot (WebRTC)</a>
+        <a href="#chat" class="nav-link"><i data-lucide="message-square"></i> Chat va Bildirishnomalar</a>
+        <a href="#host" class="nav-link"><i data-lucide="crown"></i> Host boshqaruvi</a>
+
+        <div class="nav-label">Ma'lumotlar</div>
+        <a href="#data" class="nav-link"><i data-lucide="database"></i> JSON Import/Export</a>
+        <a href="#hotkeys" class="nav-link"><i data-lucide="keyboard"></i> Klaviatura qisqartmalari</a>
     </nav>
 
-    <main class="content">
+    <main class="main-wrapper">
         
-        <div class="ios-top-nav">
-            <a href="index.html" class="ios-back-link">
-                <i data-lucide="chevron-left" size="28"></i>
-                <span>Studio</span>
-            </a>
-            <button class="menu-btn" onclick="document.getElementById('sidebar').classList.toggle('open')">
-                <i data-lucide="menu" size="28"></i>
-            </button>
+        <div class="topbar" id="topbar">
+            <a href="index.html" class="ios-back"><i data-lucide="chevron-left" size="28"></i><span>Studio</span></a>
+            <div class="topbar-title">Qo'llanma</div>
+            <button class="menu-btn" onclick="document.getElementById('sidebar').classList.toggle('is-open')"><i data-lucide="menu"></i></button>
         </div>
 
-        <section id="intro">
-            <h1>MR BOARD <br>To'liq Qo'llanmasi</h1>
-            <p class="highlight-text">
-                MR BOARD — bu real vaqt rejimida hamkorlikda chizish, loyihalash, taqdimotlar o'tkazish va bevosita brauzer orqali ovozli muloqot qilish imkonini beruvchi <strong>Korporativ darajadagi (Enterprise)</strong> platformadir.
-            </p>
-            <p>Ushbu hujjat tizimning barcha funksiyalarini vizual misollar va qadam-ba-qadam tushuntirishlar bilan ochib beradi. Platforma zamonaviy dizayn falsafasi asosida qurilgan bo'lib, jamoangiz bilan masofadan ishlashni yangi bosqichga olib chiqadi.</p>
-        </section>
+        <div class="content">
+            <section id="intro">
+                <h1>Enterprise Tizimi <br>Qo'llanmasi</h1>
+                <p style="font-size: 20px; font-weight: 500;">MR BOARD Enterprise Edition – bu shunchaki chizish doskasi emas, balki real vaqt rejimida qotishlarsiz ishlaydigan (Zero-latency), o'rnatilgan audio tizim va mukammal <strong>Glassmorphism (iOS 26)</strong> interfeysiga ega murakkab platformadir.</p>
+                <div class="alert info">
+                    <i data-lucide="info" size="24"></i>
+                    <div><strong>Arxitektura:</strong> Dastur Vanilla JS, HTML5 Canvas va Firebase RTDB asosida ishlaydi. Tizim resurslarni juda kam yeydi va 60FPS silliqlikni ta'minlaydi.</div>
+                </div>
+            </section>
 
-        <section id="auth">
-            <h2><i data-lucide="shield-check"></i> 1. Tizimga kirish va Rollar</h2>
-            <p>Platformaga kirishda hech qanday murakkab ro'yxatdan o'tish (Login/Parol) yo'q. Shunchaki ismingizni yozib, xona ochasiz yoki mavjud xonaga ulanasiz.</p>
+            <section id="auth">
+                <h2><i data-lucide="shield-check"></i> Avtorizatsiya va Rollar</h2>
+                <p>Tizimda hech qanday login/parol so'ralmaydi. Siz tizimga ikki xil rolda kirishingiz mumkin:</p>
+                
+                <div class="elastic-card">
+                    <h3 style="margin-top:0;"><i data-lucide="crown" style="color:var(--state-warning)"></i> Host (Xona egasi)</h3>
+                    <p>O'z ismingizni yozib <strong>"Yangi Xona"</strong> tugmasini bossangiz, tizim sizga unikal kod beradi. Siz mutlaq huquqlarga ega bo'lasiz:</p>
+                    <ul>
+                        <li>Qatnashchilarning chizish/gapirish huquqlarini bloklash yoki ochish.</li>
+                        <li>Doskani to'liq tozalab tashlash huquqi.</li>
+                        <li>Qoidalarni buzgan foydalanuvchilarni xonadan chiqarib yuborish.</li>
+                    </ul>
+                </div>
 
-            <div class="demo-box">
-                <div class="mock-panel">
-                    <div style="text-align: center; margin-bottom: 32px;">
-                        <h1 style="font-size: 32px; margin:0;">MR <span style="color: var(--brand-primary)">BOARD</span></h1>
+                <div class="elastic-card">
+                    <h3 style="margin-top:0;"><i data-lucide="eye" style="color:var(--text-muted)"></i> Kuzatuvchi (Mehmon)</h3>
+                    <p>Mavjud xonaga kod (Masalan: <code>MR-1234</code>) orqali kirsangiz, siz kuzatuvchi hisoblanasiz. Host ruxsat bermaguncha mikrofoningiz ishlamaydi va doskaga chiza olmaysiz. Faqat chat orqali yozishingiz mumkin.</p>
+                </div>
+            </section>
+
+            <section id="minimap">
+                <h2><i data-lucide="map"></i> Interfeys va Minimap</h2>
+                <p>Ekraningiz butunlay sizniki. Biz vizual shovqinni kamaytirish uchun vositalarni shaffof oyna (glass) effekti orqasida yashirdik.</p>
+                
+                <div class="status-pill"><i data-lucide="hash"></i> MR-5892</div>
+                <div class="status-pill"><i data-lucide="search"></i> 100%</div>
+                <div class="status-pill"><i data-lucide="pencil" style="color:var(--brand-primary)"></i> Yozuvchi</div>
+                <p style="margin-top: 16px;">Tepadagi status panellarida siz xona kodini, masshtabni va ayni paytdagi rolingizni ko'rib turasiz.</p>
+
+                <h3>Kuzatuv doskasi (Minimap)</h3>
+                <p>O'ng burchakdagi <strong>Minimap</strong> cheksiz doska bo'ylab qayerda turganingizni ko'rsatadi. Uning xususiyatlari:</p>
+                <ul>
+                    <li>Tepasidan ushlab ekranning istalgan joyiga surish (Drag & Drop) mumkin.</li>
+                    <li>Pastki o'ng burchagidan tortib o'lchamini o'zgartirish (Resize) mumkin.</li>
+                    <li>Sozlamalar paneli orqali butunlay yashirish imkoniyati bor.</li>
+                </ul>
+            </section>
+
+            <section id="tools">
+                <h2><i data-lucide="pen-tool"></i> Chizish vositalari (Dock)</h2>
+                <p>Ekran pastidagi markaziy Dock paneli iOS uslubida yaratilgan bo'lib, barcha vositalarni o'z ichiga oladi.</p>
+
+                <div class="mockup-container">
+                    <div class="mock-dock">
+                        <div class="action-btn"><i data-lucide="settings-2" size="28"></i></div>
+                        <div class="action-btn"><div style="width:32px; height:32px; border-radius:50%; background:var(--brand-primary); border:3px solid #fff;"></div></div>
+                        <div class="dock-sep"></div>
+                        <div class="action-btn is-active"><i data-lucide="pencil" size="28"></i></div>
+                        <div class="action-btn" style="color:var(--state-danger)"><i data-lucide="wand-2" size="28"></i></div>
+                        <div class="action-btn"><i data-lucide="shapes" size="28"></i></div>
+                        <div class="action-btn"><i data-lucide="hand" size="28"></i></div>
                     </div>
-                    
-                    <div style="font-size: 12px; font-weight: 800; color: var(--text-muted); margin-bottom: 8px; text-transform: uppercase;">Ismingiz</div>
-                    <div class="mock-input">Alisher</div>
-                    
-                    <div class="mock-btn primary" style="margin-bottom: 24px;"><i data-lucide="plus-circle"></i> Yangi Xona (Host)</div>
-                    
-                    <div style="display: flex; align-items: center; margin: 24px 0; opacity: 0.5;">
-                        <div style="flex:1; border-bottom: 1px solid var(--text-main);"></div>
-                        <span style="padding: 0 16px; font-size: 12px; font-weight: 800;">YOKI KOD ORQALI KIRISH</span>
-                        <div style="flex:1; border-bottom: 1px solid var(--text-main);"></div>
+                </div>
+
+                <div class="elastic-card">
+                    <ul style="margin-bottom:0; margin-left:16px;">
+                        <li><strong>Qalam <kbd class="kbd">B</kbd>:</strong> Maxsus Spline algoritmi chiziqlaringizni avtomatik silliqlaydi.</li>
+                        <li><strong>Lazer <kbd class="kbd">L</kbd>:</strong> Taqdimotlar uchun qizil rangli neon iz. U 1.2 soniyadan so'ng qoldiqsiz o'chadi.</li>
+                        <li><strong>Shakllar <kbd class="kbd">S</kbd>:</strong> To'rtburchak, aylana, to'g'ri chiziq va o'q chizish vositalari jamlanmasi.</li>
+                        <li><strong>Surish <kbd class="kbd">H</kbd>:</strong> Doskani xohlagan tomonga surish. Sichqoncha roligi (scroll) bilan xuddi shu amalni bajarish mumkin.</li>
+                        <li><strong>Matn <kbd class="kbd">T</kbd>:</strong> Maxsus yopishib chiqadigan modal oyna orqali doskaga yozuv qo'shish.</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section id="audio">
+                <h2><i data-lucide="mic"></i> WebRTC Audio va Muloqot</h2>
+                <p>Platformaga to'g'ridan-to'g'ri gaplashish funksiyasi o'rnatilgan. Buning uchun Zoom yoki Telegram kerak emas.</p>
+                <div class="alert warning">
+                    <i data-lucide="alert-triangle" size="24"></i>
+                    <div>
+                        <strong>Diqqat:</strong> Ovoz P2P (Peer-to-Peer) texnologiyasi orqali ishlaydi. Bu degani ovoz serverda saqlanmaydi, to'g'ridan-to'g'ri ishtirokchilar kompyuteriga ulanadi. Natijada kechikish (latency) 0 ga teng bo'ladi.
                     </div>
-
-                    <div style="font-size: 12px; font-weight: 800; color: var(--text-muted); margin-bottom: 8px; text-transform: uppercase;">Xona Kodi</div>
-                    <div class="mock-input" style="color: var(--text-muted);">MR-XXXX</div>
-                    
-                    <div class="mock-btn ghost"><i data-lucide="log-in"></i> Xonaga Ulanish</div>
                 </div>
-            </div>
-            <div class="demo-caption">Avtorizatsiya oynasi – soddalik va xavfsizlik</div>
+                <ul>
+                    <li>Mikrofonni yoqish/o'chirish uchun Dock panelidagi mikrofon tugmasini yoki <kbd class="kbd">M</kbd> tugmasini bosing.</li>
+                    <li>Siz gapirayotganingizda, panelda o'rnatilgan <strong>Audio Ekvaylayzer (Visualizer)</strong> to'lqinlanib turadi.</li>
+                    <li>Host ruxsat bermasa, sizning mikrofoningiz ishga tushmaydi.</li>
+                </ul>
 
-            <div class="step-grid">
-                <div class="step-card">
-                    <div class="step-number">1</div>
-                    <h4>Host (Xona Egasi) bo'lish</h4>
-                    <p>O'z ismingizni yozib <strong>"Yangi Xona"</strong> tugmasini bossangiz, tizim sizga unikal kod (masalan, <code>MR-5892</code>) beradi. Siz xonaning mutlaq egasiga aylanasiz.</p>
+                <h3>Umumiy Chat paneli</h3>
+                <p>O'ng tomondan chiquvchi (Drawer) chat paneli. Sizga yangi xabar kelsa, chat ikonkasida qizil rangli bildirishnoma (badge) paydo bo'ladi. Xabarlar chiroyli "bubble" (pufakcha) dizayniga ega bo'lib, egasi (Host) yozgan xabarlar oldida kichik toj <i data-lucide="crown" size="14" style="color:var(--state-warning)"></i> belgisi turadi.</p>
+            </section>
+
+            <section id="data">
+                <h2><i data-lucide="database"></i> Ma'lumotlarni boshqarish</h2>
+                <p>Doskadagi ma'lumotlarni saqlash va yuklashning ikki xil usuli bor, ular <strong>Sozlamalar</strong> oynasida joylashgan:</p>
+                
+                <div class="elastic-card" style="display:flex; flex-direction:column; gap:24px;">
+                    <div>
+                        <h4><i data-lucide="download" style="color:var(--brand-primary); margin-right:8px;"></i> PNG Rasm qilib saqlash</h4>
+                        <p style="margin:0;">Joriy doska ko'rinishini qurilmangizga yuqori sifatli rasm (PNG) formatida saqlab oladi.</p>
+                    </div>
+                    <div style="border-top:1px solid var(--border-subtle); padding-top:24px;">
+                        <h4><i data-lucide="save" style="color:var(--state-success); margin-right:8px;"></i> JSON Loyiha arxivini saqlash</h4>
+                        <p style="margin:0;">Eng muhim funksiya! Barcha chizilgan elementlar matematik vektor sifatida saqlanadi (.json). Siz ertasi kuni kompyuterda <strong>"Loyihani yuklash"</strong> tugmasi orqali shu faylni tanlasangiz, doska xuddi kechagi holatiga to'liq qaytadi.</p>
+                    </div>
                 </div>
-                <div class="step-card">
-                    <div class="step-number">2</div>
-                    <h4>Kuzatuvchi bo'lib kirish</h4>
-                    <p>Do'stingiz yaratgan xonaga kirish uchun pastki maydonga u bergan kodni yozasiz. Siz xonaga <strong>Kuzatuvchi</strong> bo'lib kirasiz va Host sizga ruxsat bermaguncha chiza olmaysiz.</p>
+            </section>
+
+            <section id="hotkeys">
+                <h2><i data-lucide="keyboard"></i> Klaviatura Qisqartmalari (Hotkeys)</h2>
+                <div style="display:flex; flex-wrap:wrap; gap:16px;">
+                    <div class="elastic-card" style="flex: 1 1 300px; margin: 10px 0; padding: 24px;">
+                        <kbd class="kbd" style="margin-bottom:12px;">Ctrl + Z</kbd>
+                        <p style="margin:0; font-weight:700;">Oxirgi chiziqni bekor qilish.</p>
+                    </div>
+                    <div class="elastic-card" style="flex: 1 1 300px; margin: 10px 0; padding: 24px;">
+                        <kbd class="kbd" style="margin-bottom:12px;">F</kbd>
+                        <p style="margin:0; font-weight:700;">Zen Mode (To'liq ekran). Barcha menyular yashirinadi.</p>
+                    </div>
+                    <div class="elastic-card" style="flex: 1 1 300px; margin: 10px 0; padding: 24px;">
+                        <kbd class="kbd" style="margin-bottom:12px;">M</kbd>
+                        <p style="margin:0; font-weight:700;">Mikrofonni tezkor yoqish/o'chirish.</p>
+                    </div>
+                    <div class="elastic-card" style="flex: 1 1 300px; margin: 10px 0; padding: 24px;">
+                        <kbd class="kbd" style="margin-bottom:12px;">C</kbd>
+                        <p style="margin:0; font-weight:700;">Chat panelini tezkor ochish.</p>
+                    </div>
                 </div>
-            </div>
-        </section>
+            </section>
 
-        <section id="workspace">
-            <h2><i data-lucide="monitor"></i> 2. Ish maydoni va Statuslar</h2>
-            <p>Xonaga kirgach, oldingizda <strong>Cheksiz (Infinite) Canvas</strong> ochiladi. Ekranning yuqori qismida sizning holatingizni bildiruvchi ma'lumotlar joylashgan.</p>
-            <ul>
-                <li><strong>Xona Kodi:</strong> Chapdagi kodni nusxalab do'stlaringizga yuboring.</li>
-                <li><strong>Masshtab (Zoom):</strong> Sichqoncha roligi yoki touchpad yordamida doskani yaqinlashtirish/uzoqlashtirish mumkin (10% - 500%).</li>
-                <li><strong>Rolingiz:</strong> O'ng tomonda joriy rolingiz (Host, Yozuvchi, Kuzatuvchi) ko'rinib turadi.</li>
-            </ul>
-        </section>
+        </div>
 
-        <section id="dock-tools">
-            <h2><i data-lucide="pen-tool"></i> 3. Asboblar Paneli (Dock)</h2>
-            <p>Ekranning pastki qismida macOS tizimidagi kabi suzib yuruvchi Dock paneli joylashgan. Unda chizish uchun barcha vositalar mujassam.</p>
-
-            <div class="demo-box" style="padding: 40px 20px;">
-                <div class="mock-dock">
-                    <div class="mock-action"><i data-lucide="settings-2" size="24"></i></div>
-                    <div class="mock-action"><div style="width:28px; height:28px; border-radius:50%; background:#007aff; border:3px solid #fff; box-shadow: 0 2px 5px rgba(0,0,0,0.2);"></div></div>
-                    <div class="mock-sep"></div>
-                    <div class="mock-action active"><i data-lucide="pencil" size="24"></i></div>
-                    <div class="mock-action" style="color: var(--state-danger);"><i data-lucide="wand-2" size="24"></i></div>
-                    <div class="mock-action"><i data-lucide="shapes" size="24"></i></div>
-                    <div class="mock-action"><i data-lucide="eraser" size="24"></i></div>
-                    <div class="mock-action"><i data-lucide="type" size="24"></i></div>
-                </div>
-            </div>
-            <div class="demo-caption">Asosiy Dock Paneli ko'rinishi</div>
-
-            <table class="doc-table">
-                <thead>
-                    <tr><th>Asbob</th><th>Klaviatura</th><th>Vazifasi</th></tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td><strong>Qalam (Brush)</strong></td>
-                        <td><kbd class="kbd">B</kbd></td>
-                        <td>Erkin chizish. Chiziqlar avtomatik silliqlanadi.</td>
-                    </tr>
-                    <tr>
-                        <td><strong>Lazer (Pointer)</strong></td>
-                        <td><kbd class="kbd">L</kbd></td>
-                        <td>Taqdimot uchun vaqtinchalik qizil iz. 1.2 soniyadan so'ng avtomatik o'chadi.</td>
-                    </tr>
-                    <tr>
-                        <td><strong>Shakllar (Shapes)</strong></td>
-                        <td><kbd class="kbd">S</kbd></td>
-                        <td>To'rtburchak, aylana, chiziq yoki o'q chizish.</td>
-                    </tr>
-                    <tr>
-                        <td><strong>O'chirg'ich (Eraser)</strong></td>
-                        <td><kbd class="kbd">E</kbd></td>
-                        <td>Xatolarni o'chirish uchun.</td>
-                    </tr>
-                    <tr>
-                        <td><strong>Matn (Text)</strong></td>
-                        <td><kbd class="kbd">T</kbd></td>
-                        <td>Doskaga bosib klaviatura orqali matn/izoh yozish.</td>
-                    </tr>
-                </tbody>
-            </table>
-        </section>
-
-        <section id="audio">
-            <h2><i data-lucide="mic"></i> 4. Ovozli Muloqot (WebRTC)</h2>
-            <p>Hech qanday tashqi dasturlarsiz, to'g'ridan-to'g'ri brauzerda jamoangiz bilan gaplashing. Bu <strong>Peer-to-Peer</strong> texnologiyasida ishlagani uchun ovoz kechikishlari (latency) deyarli yo'q.</p>
-        </section>
-
-        <footer style="margin-top: 80px; text-align: center; color: var(--text-doc-muted); font-size: 15px; border-top: 1px solid var(--border-doc); padding: 40px 0;">
-            <div style="font-size: 24px; font-weight: 900; margin-bottom: 16px; display: flex; align-items: center; justify-content: center; gap: 10px; color: var(--text-doc);">
-                <i data-lucide="layers" style="color:var(--brand-doc)"></i> MR BOARD
-            </div>
-            &copy; 2026 Barcha huquqlar himoyalangan. Dasturchi: Rahmatullo.
+        <footer>
+            <div style="font-size: 20px; font-weight: 800; color: var(--text-main); margin-bottom: 8px;">MR BOARD Studio</div>
+            <div>Enterprise Edition &copy; 2026. Barcha huquqlar himoyalangan.</div>
         </footer>
     </main>
 
@@ -330,15 +399,20 @@
         // Ikonkalarni inicializatsiya qilish
         lucide.createIcons();
 
-        // ScrollSpy - Yon paneldagi navigatsiyani faollashtirish
+        // Scrollspy & Topbar blur
+        const topbar = document.getElementById('topbar');
         const sections = document.querySelectorAll('section');
         const navLinks = document.querySelectorAll('.sidebar .nav-link');
 
         window.addEventListener('scroll', () => {
+            // Topbar style update
+            if (window.scrollY > 50) topbar.classList.add('scrolled');
+            else topbar.classList.remove('scrolled');
+
+            // Scrollspy logic
             let current = '';
             sections.forEach(section => {
                 const sectionTop = section.offsetTop;
-                // Scroll paytida faol qismni aniqlash
                 if (pageYOffset >= (sectionTop - 150)) {
                     current = section.getAttribute('id');
                 }
@@ -350,6 +424,15 @@
                     link.classList.add('active');
                 }
             });
+        });
+
+        // Mobile menu close on click outside
+        document.addEventListener('click', function(event) {
+            var sidebar = document.getElementById('sidebar');
+            var menuBtn = document.querySelector('.menu-btn');
+            if (!sidebar.contains(event.target) && !menuBtn.contains(event.target)) {
+                sidebar.classList.remove('is-open');
+            }
         });
     </script>
 </body>
