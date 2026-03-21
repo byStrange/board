@@ -827,10 +827,6 @@
     <input type="file" id="sys-file-json" accept=".mrboard, .json" style="display: none;">
 
     <script>
-        /**
-         * MR BOARD - ENTERPRISE MONOLITH (ULTIMATE EDITION)
-         * Core Logic intact. Only CSS redesigned.
-         */
         (function() {
             'use strict';
             lucide.createIcons();
@@ -877,6 +873,15 @@
                         this.ref.child('meta/hostKey').set(Store.hostKey);
                     }
                     me.set({ id: Store.uid, n: Store.name, h: Store.isHost, d: Store.perms.draw, s: Store.perms.speak });
+                    
+                    // Listen for kicked flag
+                    this.ref.child(`kicked/${Store.uid}`).on('value', snap => {
+                        if (snap.val() === true) {
+                            AppEvents.emit('ui:toast', { m: "Siz xonadan chiqarib yuborildingiz", t: "error" });
+                            setTimeout(() => location.reload(), 2000);
+                        }
+                    });
+                    
                     this.attachListeners();
                 }
 
@@ -938,6 +943,7 @@
                         this.ref.child('meta/hostKey').once('value', snap => {
                             if (snap.val() === Store.hostKey) {
                                 this.ref.child(`users/${userId}`).remove();
+                                this.ref.child(`kicked/${userId}`).set(true);
                                 AppEvents.emit('ui:toast', { m: "Foydalanuvchi chiqarib yuborildi", t: "success" });
                             }
                         });
@@ -1296,7 +1302,6 @@
                     if (stored) {
                         document.body.setAttribute('data-theme', stored);
                     } else {
-                        // default: follow system
                         const darkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
                         document.body.setAttribute('data-theme', darkMode ? 'dark' : 'light');
                     }
@@ -1449,10 +1454,14 @@
                     let room = isHost ? `MR${Math.floor(1000 + Math.random() * 9000)}` : document.getElementById('auth-room-inp').value.trim().toUpperCase();
                     if (!room) return AppEvents.emit('ui:toast', { m: "Xona kodini kiriting", t: "error" });
                     
-                    Store.name = name; Store.isHost = isHost; Store.roomId = room; if (isHost) Store.hostKey = Utils.generateId('K');
-                    // Update URL hash: teacher link = #t-<room>, student link = #<room>
-                    const newHash = isHost ? `#t-${room}` : `#${room}`;
-                    history.pushState(null, '', newHash);
+                    Store.name = name; Store.isHost = isHost; Store.roomId = room;
+                    if (isHost) {
+                        Store.hostKey = Utils.generateId('K');
+                        const hash = `host-${room}-${Store.hostKey}`;
+                        history.pushState(null, '', `#${hash}`);
+                    } else {
+                        history.pushState(null, '', `#${room}`);
+                    }
                     
                     Utils.vibrate([15, 50, 15]);
                     const auth = document.getElementById('auth-gateway'); auth.style.opacity = '0';
@@ -1463,29 +1472,49 @@
                     }, 500);
                 }
                 
+                initFromHash(roomId, isTeacher, token) {
+                    if (!roomId) return;
+                    Store.roomId = roomId;
+                    Store.isHost = isTeacher;
+                    if (isTeacher) Store.hostKey = token;
+                    // prompt name
+                    const name = prompt("Ismingizni kiriting:") || "Mehmon";
+                    if (!name) return;
+                    Store.name = name;
+                    Utils.vibrate([15, 50, 15]);
+                    const auth = document.getElementById('auth-gateway'); auth.style.opacity = '0';
+                    setTimeout(() => {
+                        auth.style.display = 'none'; document.getElementById('ui-overlay').style.display = 'block'; document.getElementById('ui-room-code').innerText = roomId;
+                        if (isTeacher) { document.getElementById('btn-open-users').style.display = 'flex'; document.getElementById('panel-host-controls').style.display = 'block'; document.getElementById('ui-participants-list').classList.add('host-active'); }
+                        AppEvents.emit('ui:role'); DB.init(roomId); Engine.init(); AudioSystem.init(); AppEvents.emit('ui:toast', { m: "Tizimga ulandingiz!", t: "success" });
+                    }, 500);
+                }
+                
                 handleHash() {
                     const hash = window.location.hash.slice(1);
                     if (!hash) return;
-                    let isTeacher = false;
-                    let roomId = hash;
-                    if (hash.startsWith('t-')) {
-                        isTeacher = true;
-                        roomId = hash.slice(2);
-                    }
-                    if (roomId) {
-                        // show auth panel and prefill? we'll just simulate join
-                        const name = prompt("Ismingizni kiriting:") || "Mehmon";
-                        if (!name) return;
-                        Store.userName = name;
-                        Store.isTeacher = isTeacher;
-                        Store.roomId = roomId;
-                        if (isTeacher) Store.hostKey = Utils.generateId('K');
-                        const auth = document.getElementById('auth-gateway'); auth.style.opacity = '0';
-                        setTimeout(() => {
-                            auth.style.display = 'none'; document.getElementById('ui-overlay').style.display = 'block'; document.getElementById('ui-room-code').innerText = roomId;
-                            if (isTeacher) { document.getElementById('btn-open-users').style.display = 'flex'; document.getElementById('panel-host-controls').style.display = 'block'; document.getElementById('ui-participants-list').classList.add('host-active'); }
-                            AppEvents.emit('ui:role'); DB.init(roomId); Engine.init(); AudioSystem.init(); AppEvents.emit('ui:toast', { m: "Tizimga ulandingiz!", t: "success" });
-                        }, 500);
+                    if (hash.startsWith('host-')) {
+                        const parts = hash.split('-');
+                        if (parts.length >= 3) {
+                            const roomId = parts[1];
+                            const token = parts.slice(2).join('-');
+                            // verify token
+                            const roomRef = firebase.database().ref(`mr_enterprise_v2/${roomId}`);
+                            roomRef.child('meta/hostKey').once('value', snap => {
+                                if (snap.val() === token) {
+                                    this.initFromHash(roomId, true, token);
+                                } else {
+                                    alert("Noto'g'ri host linki!");
+                                    location.hash = '';
+                                }
+                            });
+                        } else {
+                            alert("Noto'g'ri host linki!");
+                            location.hash = '';
+                        }
+                    } else {
+                        // student link
+                        this.initFromHash(hash, false, '');
                     }
                 }
                 
@@ -1605,7 +1634,7 @@
 
             const UI = new UIController();
             window.addEventListener('load', () => UI.handleHash());
-            window.addEventListener('hashchange', () => location.reload()); // simple reload on hash change, could be smarter
+            window.addEventListener('hashchange', () => location.reload());
         })();
     </script>
 </body>
