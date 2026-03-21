@@ -1,11 +1,12 @@
 <!DOCTYPE html>
-<html lang="uz">
+<html lang="uz" dir="ltr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>MR Board · Ultimate Group Edition</title>
+    <meta name="theme-color" content="#0f172a">
+    <title>MR BOARD - Titan Edition</title>
     
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
@@ -13,1060 +14,492 @@
 
     <style>
         /* ==========================================================================
-           1. ASOSIY SOZLAMALAR VA DIZAYN TIZIMI
+           1. CSS VARIABLES & THEME SYSTEM (TITAN ENGINE)
            ========================================================================== */
         :root {
-            /* Chuqur qora va kulrang palitra (Performans va ko'z uchun qulay) */
-            --bg-base: #000000;
-            --bg-surface: #121212;
-            --bg-surface-elevated: #1e1e1e;
-            --bg-overlay: rgba(0, 0, 0, 0.75);
+            /* Light Theme Defaults */
+            --bg-base: #f1f5f9;
+            --bg-canvas: #ffffff;
+            --bg-glass: rgba(255, 255, 255, 0.85);
+            --bg-panel: #ffffff;
+            --bg-hover: #f8fafc;
             
-            --border-subtle: #2a2a2a;
-            --border-active: #404040;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --border-color: rgba(100, 116, 139, 0.2);
+            --border-strong: rgba(100, 116, 139, 0.4);
             
-            --text-main: #f3f4f6;
-            --text-muted: #9ca3af;
+            --accent: #2563eb;
+            --accent-hover: #1d4ed8;
+            --accent-light: rgba(37, 99, 235, 0.1);
             
-            /* Accent ranglar */
-            --accent-primary: #3b82f6;
-            --accent-hover: #2563eb;
-            --accent-alpha: rgba(59, 130, 246, 0.15);
+            --danger: #ef4444;
+            --danger-light: rgba(239, 68, 68, 0.1);
+            --success: #10b981;
+            --warning: #f59e0b;
             
-            --status-success: #10b981;
-            --status-danger: #ef4444;
-            --status-danger-alpha: rgba(239, 68, 68, 0.15);
-            --status-warning: #f59e0b;
+            --grid-color: rgba(100, 116, 139, 0.15);
 
-            /* Geometriya */
-            --radius-sm: 8px;
-            --radius-md: 12px;
-            --radius-lg: 20px;
-            --radius-full: 9999px;
+            /* Elastic Physics */
+            --ease-elastic: cubic-bezier(0.34, 1.56, 0.64, 1);
+            --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+            --shadow-sm: 0 2px 8px rgba(0,0,0,0.05);
+            --shadow-md: 0 8px 24px rgba(0,0,0,0.08);
+            --shadow-lg: 0 24px 48px -12px rgba(0,0,0,0.15);
+            --radius-sm: 8px; --radius-md: 16px; --radius-lg: 24px; --radius-pill: 999px;
             
-            /* Soyalar */
-            --shadow-float: 0 10px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.3);
-            --shadow-subtle: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
-            
-            /* Animatsiyalar */
-            --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
-            --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
-            --duration-fast: 150ms;
-            --duration-normal: 300ms;
-
-            /* Z-Index iyerarxiyasi */
-            --z-canvas: 1;
-            --z-grid: 2;
-            --z-ui: 10;
-            --z-sidebar: 50;
-            --z-modal: 100;
-            --z-toast: 999;
+            --z-bg: 0; --z-canvas: 1; --z-laser: 2; --z-minimap: 5; --z-ui: 10; --z-overlay: 50; --z-modal: 100; --z-toast: 1000;
         }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
+        /* Dark Theme Auto-Switch */
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg-base: #020617;
+                --bg-canvas: #0f172a;
+                --bg-glass: rgba(15, 23, 42, 0.85);
+                --bg-panel: #1e293b;
+                --bg-hover: #334155;
+                --text-main: #f8fafc;
+                --text-muted: #94a3b8;
+                --border-color: rgba(255, 255, 255, 0.1);
+                --border-strong: rgba(255, 255, 255, 0.2);
+                --grid-color: rgba(255, 255, 255, 0.05);
+                --shadow-sm: 0 2px 8px rgba(0,0,0,0.3);
+                --shadow-md: 0 8px 24px rgba(0,0,0,0.4);
+                --shadow-lg: 0 24px 48px -12px rgba(0,0,0,0.6);
+            }
         }
 
-        html, body {
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-            background-color: var(--bg-base);
-            color: var(--text-main);
-            font-family: -apple-system, BlinkMacSystemFont, 'Inter', Roboto, Helvetica, Arial, sans-serif;
-            user-select: none;
-            -webkit-user-select: none;
-            touch-action: none;
-        }
-
-        button, input, textarea {
-            border: none;
-            background: none;
-            color: inherit;
-            font-family: inherit;
-            outline: none;
-        }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg-canvas); color: var(--text-main); overflow: hidden; width: 100vw; height: 100vh; touch-action: none; user-select: none; -webkit-user-select: none; }
+        input, textarea, button { font-family: inherit; outline: none; border: none; background: none; color: inherit; }
         button { cursor: pointer; }
 
         /* ==========================================================================
-           2. CANVAS VA GRID (ASOSIY ISH MAYDONI)
+           2. CANVAS & MINIMAP ENGINE
            ========================================================================== */
-        #canvas-wrapper {
-            position: absolute;
-            inset: 0;
-            z-index: var(--z-canvas);
-            background-color: var(--bg-base);
-        }
-
-        #main-canvas {
-            display: block;
-            width: 100%;
-            height: 100%;
-            touch-action: none;
-        }
-
-        /* ==========================================================================
-           3. AUTHENTICATION (KIRISH EKRANI)
-           ========================================================================== */
-        #auth-screen {
-            position: fixed;
-            inset: 0;
-            background-color: var(--bg-base);
-            background-image: radial-gradient(circle at top, #1e1e24 0%, var(--bg-base) 80%);
-            z-index: var(--z-modal);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 24px;
-            transition: opacity var(--duration-normal) var(--ease-out-expo);
-        }
-
-        .auth-container {
-            background-color: var(--bg-surface);
-            border: 1px solid var(--border-subtle);
-            border-radius: var(--radius-lg);
-            padding: 48px 40px;
-            width: 100%;
-            max-width: 440px;
-            box-shadow: var(--shadow-float);
-            animation: slideUp 0.6s var(--ease-out-expo);
-        }
-
-        @keyframes slideUp {
-            from { opacity: 0; transform: translateY(40px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .brand-title {
-            font-size: 36px;
-            font-weight: 800;
-            text-align: center;
-            background: linear-gradient(135deg, #60a5fa, #3b82f6);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin-bottom: 8px;
-            letter-spacing: -1px;
-        }
-
-        .brand-subtitle {
-            text-align: center;
-            color: var(--text-muted);
-            font-size: 15px;
-            margin-bottom: 40px;
-        }
-
-        .input-group { margin-bottom: 24px; }
+        #workspace { position: absolute; inset: 0; z-index: var(--z-canvas); background: var(--bg-canvas); }
+        .grid-bg { background-image: radial-gradient(var(--grid-color) 1.5px, transparent 1.5px); background-size: 40px 40px; background-position: center center; }
+        .dot-bg { background-image: radial-gradient(var(--grid-color) 2px, transparent 2px); background-size: 20px 20px; }
         
-        .input-label {
-            display: block;
-            font-size: 12px;
-            font-weight: 600;
-            color: var(--text-muted);
-            margin-bottom: 8px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
+        canvas { position: absolute; top: 0; left: 0; display: block; width: 100%; height: 100%; }
+        #canvas-main { z-index: 1; }
+        #canvas-laser { z-index: 2; pointer-events: none; } /* Lazer chiziqlari uchun alohida qatlam */
 
-        .auth-input {
-            width: 100%;
-            padding: 16px;
-            background-color: var(--bg-base);
-            border: 1px solid var(--border-subtle);
-            border-radius: var(--radius-md);
-            font-size: 16px;
-            color: var(--text-main);
-            transition: border-color var(--duration-fast);
-        }
-
-        .auth-input:focus {
-            border-color: var(--accent-primary);
-            box-shadow: 0 0 0 4px var(--accent-alpha);
-        }
-
-        .btn-primary, .btn-secondary {
-            width: 100%;
-            padding: 16px;
-            border-radius: var(--radius-md);
-            font-size: 16px;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
-            transition: all var(--duration-fast);
-            margin-bottom: 16px;
-        }
-
-        .btn-primary {
-            background-color: var(--accent-primary);
-            color: #fff;
-            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
-        }
-
-        .btn-primary:hover { background-color: var(--accent-hover); transform: translateY(-2px); }
-        .btn-primary:active { transform: translateY(1px); }
-
-        .btn-secondary {
-            background-color: transparent;
-            border: 1px solid var(--border-subtle);
-            color: var(--text-main);
-        }
-        .btn-secondary:hover { background-color: var(--bg-surface-elevated); }
-
-        .divider-text {
-            display: flex;
-            align-items: center;
-            text-align: center;
-            margin: 32px 0;
-            color: var(--text-muted);
-            font-size: 12px;
-            font-weight: 600;
-        }
-        .divider-text::before, .divider-text::after {
-            content: ''; flex: 1; border-bottom: 1px solid var(--border-subtle);
-        }
-        .divider-text span { padding: 0 16px; }
-
-        /* ==========================================================================
-           4. ASOSIY INTERFEYS (TOOLBarlar)
-           ========================================================================== */
-        #ui-layer {
-            position: absolute;
-            inset: 0;
-            pointer-events: none;
-            z-index: var(--z-ui);
-            display: none;
-        }
-
-        /* Top Status Bar */
-        .top-bar {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            right: 20px;
-            display: flex;
-            justify-content: space-between;
-            pointer-events: none;
-        }
-
-        .pill-group {
-            display: flex;
-            gap: 12px;
-            flex-wrap: wrap;
-        }
-
-        .status-pill {
-            background-color: rgba(18, 18, 18, 0.85);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            padding: 8px 16px;
-            border-radius: var(--radius-full);
-            font-size: 14px;
-            font-weight: 500;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            pointer-events: auto;
-            box-shadow: var(--shadow-subtle);
-        }
-
-        /* Bottom Toolbar */
-        .bottom-dock {
-            position: absolute;
-            bottom: 32px;
-            left: 0;
-            right: 0;
-            display: flex;
-            justify-content: center;
-            pointer-events: none;
-            padding: 0 16px;
-        }
-
-        .toolbar-glass {
-            background-color: rgba(24, 24, 24, 0.85);
-            backdrop-filter: blur(24px);
-            -webkit-backdrop-filter: blur(24px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 28px;
-            padding: 10px;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            pointer-events: auto;
-            box-shadow: var(--shadow-float);
-            max-width: 100%;
-            overflow-x: auto;
-            scrollbar-width: none;
-        }
-        .toolbar-glass::-webkit-scrollbar { display: none; }
-
-        .toolbar-divider {
-            width: 1px;
-            height: 32px;
-            background-color: var(--border-subtle);
-            margin: 0 6px;
-        }
-
-        .action-btn {
-            width: 48px;
-            height: 48px;
-            border-radius: 18px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--text-muted);
-            transition: all var(--duration-fast);
-            position: relative;
-            flex-shrink: 0;
-        }
-
-        .action-btn:hover {
-            color: var(--text-main);
-            background-color: rgba(255, 255, 255, 0.05);
-        }
-        
-        .action-btn:active { transform: scale(0.9); }
-
-        .action-btn.active-tool {
-            color: var(--accent-primary);
-            background-color: var(--accent-alpha);
-        }
-
-        /* Audio Visualizer */
-        .audio-wave {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            background-color: rgba(0, 0, 0, 0.5);
-            padding: 0 16px;
-            height: 48px;
-            border-radius: 18px;
-            border: 1px inset rgba(255,255,255,0.02);
-        }
-
-        .wave-bars {
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            height: 24px;
-        }
-
-        .w-bar {
-            width: 4px;
-            min-height: 4px;
-            background-color: var(--accent-primary);
-            border-radius: 4px;
-            transition: height 0.07s ease;
-        }
-
-        .db-label {
-            font-size: 12px;
-            font-family: monospace;
-            color: var(--text-muted);
-            width: 50px;
-            text-align: right;
-            font-weight: 600;
-        }
-
-        .mic-on { color: var(--accent-primary) !important; background-color: var(--accent-alpha) !important; }
-        .mic-off { color: var(--status-danger) !important; background-color: var(--status-danger-alpha) !important; }
-        .mic-speaking { color: var(--status-success) !important; background-color: rgba(16, 185, 129, 0.15) !important; animation: pulseMic 1.5s infinite; }
-
-        @keyframes pulseMic {
-            0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.3); }
-            70% { box-shadow: 0 0 0 12px rgba(16, 185, 129, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
-        }
-
-        .color-dot {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            border: 3px solid rgba(255,255,255,0.9);
-            box-shadow: 0 2px 8px rgba(0,0,0,0.5);
-            transition: transform 0.2s;
-        }
-        .color-dot:hover { transform: scale(1.15); }
-
-        .notification-badge {
-            position: absolute;
-            top: 2px;
-            right: 2px;
-            background-color: var(--status-danger);
-            color: #fff;
-            font-size: 10px;
-            font-weight: 800;
-            min-width: 20px;
-            height: 20px;
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 0 6px;
-            border: 2px solid var(--bg-surface);
-        }
-
-        /* ==========================================================================
-           5. YON MENYULAR (SIDEBARS & MODALS)
-           ========================================================================== */
-        .backdrop {
-            position: fixed;
-            inset: 0;
-            background-color: rgba(0,0,0,0.6);
-            backdrop-filter: blur(4px);
-            -webkit-backdrop-filter: blur(4px);
-            z-index: var(--z-sidebar);
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity var(--duration-normal);
-        }
-        .backdrop.visible { opacity: 1; pointer-events: auto; }
-
-        .drawer {
-            position: fixed;
-            top: 0;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            max-width: 400px;
-            background-color: var(--bg-surface);
-            border-right: 1px solid var(--border-subtle);
-            z-index: calc(var(--z-sidebar) + 1);
-            transform: translateX(-100%);
-            transition: transform var(--duration-normal) var(--ease-out-expo);
-            display: flex;
-            flex-direction: column;
-        }
-
-        .drawer.right-side {
-            left: auto;
-            right: 0;
-            border-right: none;
-            border-left: 1px solid var(--border-subtle);
-            transform: translateX(100%);
-        }
-
-        .drawer.open { transform: translateX(0); box-shadow: var(--shadow-float); }
-
-        .drawer-header {
-            padding: 24px;
-            border-bottom: 1px solid var(--border-subtle);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .drawer-title {
-            font-size: 20px;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .icon-btn {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background-color: var(--bg-surface-elevated);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--text-muted);
-            transition: all 0.2s;
-        }
-        .icon-btn:hover { background-color: var(--border-subtle); color: #fff; }
-
-        .drawer-body {
-            flex: 1;
-            overflow-y: auto;
-            padding: 24px;
-        }
-
-        /* Settings Items */
-        .heading-sm {
-            font-size: 13px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            color: var(--text-muted);
-            margin-bottom: 16px;
-            font-weight: 600;
-        }
-
-        .action-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 12px;
-            margin-bottom: 32px;
-        }
-
-        .grid-card {
-            background-color: var(--bg-surface-elevated);
-            border: 1px solid var(--border-subtle);
-            border-radius: var(--radius-md);
-            padding: 20px 12px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 12px;
-            cursor: pointer;
-            transition: all 0.2s;
-            font-size: 14px;
-            font-weight: 500;
-        }
-
-        .grid-card:hover { border-color: var(--border-active); background-color: #2a2a2a; transform: translateY(-2px); }
-        .grid-card:active { transform: scale(0.96); }
-        
-        .grid-card.danger-zone {
-            color: var(--status-danger);
-            border-color: rgba(239, 68, 68, 0.3);
-            background-color: rgba(239, 68, 68, 0.05);
-        }
-
-        .slider-box {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            margin-bottom: 32px;
-            background-color: var(--bg-surface-elevated);
-            padding: 20px;
-            border-radius: var(--radius-md);
-        }
-
-        input[type=range] {
-            flex: 1;
-            height: 8px;
-            -webkit-appearance: none;
-            background: var(--border-subtle);
-            border-radius: 8px;
-        }
-        
-        input[type=range]::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            width: 24px;
-            height: 24px;
-            border-radius: 50%;
-            background: var(--accent-primary);
-            border: 4px solid var(--bg-surface);
-            box-shadow: 0 2px 5px rgba(0,0,0,0.5);
-            cursor: pointer;
-        }
-
-        /* Color Picker */
-        .wheel-container {
-            width: 100%;
-            aspect-ratio: 1;
-            max-width: 280px;
-            margin: 0 auto 32px;
-            position: relative;
-        }
-
-        #color-canvas {
-            width: 100%;
-            height: 100%;
-            border-radius: 50%;
+        /* Minimap (Radar) */
+        #minimap-wrap {
+            position: absolute; bottom: 100px; right: 24px; z-index: var(--z-minimap);
+            width: 180px; height: 120px; background: var(--bg-panel);
+            border: 2px solid var(--border-color); border-radius: var(--radius-md);
+            box-shadow: var(--shadow-md); overflow: hidden;
+            transition: transform 0.3s var(--ease-elastic), opacity 0.3s;
             cursor: crosshair;
-            box-shadow: 0 0 0 6px var(--bg-surface-elevated), var(--shadow-float);
+        }
+        #minimap-canvas { width: 100%; height: 100%; }
+        #minimap-viewport {
+            position: absolute; border: 2px solid var(--accent); background: var(--accent-light);
+            pointer-events: none; transition: all 0.1s linear; box-shadow: 0 0 0 9999px rgba(0,0,0,0.3);
+        }
+        .minimap-toggle {
+            position: absolute; top: -15px; right: -15px; background: var(--bg-panel);
+            border: 1px solid var(--border-color); border-radius: 50%; width: 30px; height: 30px;
+            display: flex; align-items: center; justify-content: center; z-index: 2; box-shadow: var(--shadow-sm);
         }
 
-        .color-preview-box {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            background-color: var(--bg-surface-elevated);
-            padding: 16px 20px;
-            border-radius: var(--radius-md);
-            margin-bottom: 32px;
-            font-weight: 500;
-        }
-
-        .swatch-display {
-            width: 48px;
-            height: 48px;
-            border-radius: 12px;
-            border: 2px solid rgba(255,255,255,0.2);
-            box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
-        }
-
-        .palette-grid {
-            display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            gap: 12px;
-        }
-
-        .palette-color {
-            width: 100%;
-            aspect-ratio: 1;
-            border-radius: 10px;
-            cursor: pointer;
-            border: 2px solid rgba(255,255,255,0.1);
-            transition: transform 0.2s;
-        }
-        .palette-color:hover { transform: scale(1.1); border-color: #fff; }
-
-        /* Student List */
-        .user-list {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        .user-row {
-            background-color: var(--bg-surface-elevated);
-            border: 1px solid var(--border-subtle);
-            border-radius: var(--radius-md);
-            padding: 16px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .user-meta {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-        }
-
-        .user-avatar {
-            width: 44px;
-            height: 44px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, var(--accent-primary), #8b5cf6);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
-            font-size: 18px;
-            color: #fff;
-            text-transform: uppercase;
-            box-shadow: var(--shadow-subtle);
-        }
-
-        .perm-toggles { display: flex; gap: 10px; }
-
-        .toggle-btn {
-            width: 44px;
-            height: 44px;
-            border-radius: 12px;
-            background-color: var(--bg-surface);
-            border: 1px solid var(--border-subtle);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--text-muted);
-            transition: all 0.2s;
-        }
-
-        .host-mode .toggle-btn { cursor: pointer; }
-        .host-mode .toggle-btn:hover { border-color: var(--text-main); color: var(--text-main); }
+        /* ==========================================================================
+           3. AUTHENTICATION VIEW (SECURE & ELASTIC)
+           ========================================================================== */
+        #auth-view { position: fixed; inset: 0; z-index: var(--z-modal); background: var(--bg-glass); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); display: flex; align-items: center; justify-content: center; padding: 20px; transition: opacity 0.5s var(--ease-smooth); }
+        .auth-card { background: var(--bg-panel); border-radius: var(--radius-lg); padding: 48px; width: 100%; max-width: 440px; box-shadow: var(--shadow-lg); transform: scale(0.9); opacity: 0; animation: popElastic 0.8s var(--ease-elastic) forwards; border: 1px solid var(--border-color); }
+        @keyframes popElastic { 0% { transform: scale(0.85) translateY(30px); opacity: 0; } 100% { transform: scale(1) translateY(0); opacity: 1; } }
         
-        .toggle-btn.is-active {
-            background-color: var(--accent-alpha);
-            color: var(--accent-primary);
-            border-color: rgba(59, 130, 246, 0.4);
-        }
+        .brand { font-size: 40px; font-weight: 900; text-align: center; letter-spacing: -2px; margin-bottom: 5px; color: var(--text-main); }
+        .brand span { color: var(--accent); }
+        .brand-sub { text-align: center; color: var(--text-muted); margin-bottom: 40px; font-size: 15px; font-weight: 600; letter-spacing: 0.5px; }
+        
+        .inp-wrap { margin-bottom: 24px; position: relative; }
+        .inp-label { display: block; font-size: 12px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; margin-bottom: 10px; letter-spacing: 1px; }
+        .inp-field { width: 100%; padding: 18px 20px; background: var(--bg-base); border: 2px solid var(--border-color); border-radius: var(--radius-md); color: var(--text-main); font-size: 16px; font-weight: 700; transition: all 0.3s; }
+        .inp-field:focus { border-color: var(--accent); box-shadow: 0 0 0 4px var(--accent-light); outline: none; }
+        
+        .btn { width: 100%; padding: 18px; border-radius: var(--radius-md); font-size: 16px; font-weight: 800; display: flex; align-items: center; justify-content: center; gap: 12px; transition: all 0.3s var(--ease-elastic); }
+        .btn:active { transform: scale(0.95); }
+        .btn-primary { background: var(--accent); color: #fff; box-shadow: var(--shadow-sm); }
+        .btn-primary:hover { background: var(--accent-hover); transform: translateY(-4px); box-shadow: 0 10px 25px rgba(37, 99, 235, 0.4); }
+        .btn-outline { background: transparent; border: 2px solid var(--border-color); color: var(--text-main); }
+        .btn-outline:hover { border-color: var(--text-muted); background: var(--bg-hover); }
+        
+        .div-line { display: flex; align-items: center; margin: 30px 0; color: var(--text-muted); font-size: 12px; font-weight: 800; }
+        .div-line::before, .div-line::after { content: ''; flex: 1; border-bottom: 2px dashed var(--border-color); }
+        .div-line span { padding: 0 16px; }
 
-        /* Chat System */
-        .chat-layout {
-            display: flex;
-            flex-direction: column;
-            height: 100%;
-        }
+        /* ==========================================================================
+           4. TITAN UI LAYER (DOCKS & TOOLBARS)
+           ========================================================================== */
+        #ui-layer { position: absolute; inset: 0; pointer-events: none; z-index: var(--z-ui); display: none; }
+        
+        /* Tooltips */
+        .ttip { position: absolute; bottom: -24px; background: var(--text-main); color: var(--bg-panel); font-size: 11px; font-weight: 800; padding: 4px 8px; border-radius: 6px; opacity: 0; pointer-events: none; transition: all 0.2s; white-space: nowrap; box-shadow: var(--shadow-md); z-index: 100; transform: translateY(10px); }
+        .tool-btn:hover .ttip { opacity: 1; transform: translateY(0); }
+        
+        /* Top Indicators */
+        .top-dock { position: absolute; top: 24px; left: 24px; right: 24px; display: flex; justify-content: space-between; align-items: flex-start; pointer-events: none; }
+        .badge-group { display: flex; gap: 12px; }
+        .pill { background: var(--bg-glass); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid var(--border-color); border-radius: var(--radius-pill); padding: 10px 20px; font-size: 14px; font-weight: 800; display: flex; align-items: center; gap: 10px; box-shadow: var(--shadow-sm); pointer-events: auto; transition: transform 0.2s; cursor: pointer; }
+        .pill:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
 
-        .chat-feed {
-            flex: 1;
-            overflow-y: auto;
-            padding: 24px;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-            scrollbar-width: thin;
-            scrollbar-color: var(--border-active) transparent;
-        }
-        .chat-feed::-webkit-scrollbar { width: 6px; }
-        .chat-feed::-webkit-scrollbar-thumb { background-color: var(--border-active); border-radius: 10px; }
+        /* Sub-Toolbar (Shapes Menu) */
+        #sub-toolbar { position: absolute; bottom: 100px; left: 50%; transform: translateX(-50%) translateY(20px); background: var(--bg-panel); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 8px; display: flex; gap: 8px; box-shadow: var(--shadow-lg); opacity: 0; pointer-events: none; transition: all 0.3s var(--ease-elastic); }
+        #sub-toolbar.open { opacity: 1; pointer-events: auto; transform: translateX(-50%) translateY(0); }
 
-        .msg-bubble {
-            max-width: 85%;
-            padding: 14px 18px;
-            border-radius: 20px;
-            font-size: 15px;
-            line-height: 1.5;
-            position: relative;
-            animation: msgPopIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            word-wrap: break-word;
-        }
+        /* Bottom Main Toolbar */
+        .bottom-dock { position: absolute; bottom: 32px; left: 0; right: 0; display: flex; justify-content: center; pointer-events: none; padding: 0 16px; perspective: 1000px; }
+        .glass-bar { background: var(--bg-glass); backdrop-filter: blur(30px); -webkit-backdrop-filter: blur(30px); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 10px; display: flex; align-items: center; gap: 6px; pointer-events: auto; box-shadow: var(--shadow-lg); max-width: 100%; overflow-x: auto; scrollbar-width: none; transform-origin: bottom center; animation: dockUp 0.6s var(--ease-elastic); }
+        @keyframes dockUp { 0% { transform: translateY(100px) rotateX(20deg); opacity: 0; } 100% { transform: translateY(0) rotateX(0); opacity: 1; } }
+        .glass-bar::-webkit-scrollbar { display: none; }
+        
+        .sep { width: 2px; height: 36px; background: var(--border-color); border-radius: 2px; margin: 0 6px; }
+        
+        .tool-btn { width: 54px; height: 54px; border-radius: var(--radius-md); display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--text-muted); transition: all 0.3s var(--ease-elastic); position: relative; flex-shrink: 0; }
+        .tool-btn:hover { color: var(--text-main); background: var(--bg-hover); transform: translateY(-5px); }
+        .tool-btn:active { transform: scale(0.85); }
+        .tool-btn.active { color: var(--accent); background: var(--accent-light); border: 1px solid rgba(37,99,235,0.2); }
+        
+        .color-wheel-btn { width: 34px; height: 34px; border-radius: 50%; border: 4px solid var(--bg-panel); box-shadow: 0 4px 12px rgba(0,0,0,0.2); transition: transform 0.3s var(--ease-elastic); }
+        .tool-btn:hover .color-wheel-btn { transform: scale(1.3) rotate(15deg); }
 
-        @keyframes msgPopIn {
-            from { opacity: 0; transform: scale(0.9) translateY(10px); }
-            to { opacity: 1; transform: scale(1) translateY(0); }
-        }
+        /* Advanced Audio Visualizer */
+        .audio-rack { display: flex; align-items: center; gap: 12px; background: rgba(0,0,0,0.03); padding: 0 16px; height: 54px; border-radius: var(--radius-md); border: 1px inset var(--border-color); }
+        .eq-box { display: flex; align-items: center; gap: 4px; height: 28px; }
+        .eq-bar { width: 5px; min-height: 5px; background: var(--accent); border-radius: 5px; transition: height 0.05s ease-out; }
+        
+        .mic-active { color: var(--success) !important; background: rgba(16, 185, 129, 0.1) !important; animation: glowPulse 2s infinite; }
+        .mic-muted { color: var(--danger) !important; background: rgba(239, 68, 68, 0.1) !important; }
+        @keyframes glowPulse { 0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); } 70% { box-shadow: 0 0 0 15px rgba(16, 185, 129, 0); } 100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); } }
 
-        .msg-mine {
-            background-color: var(--accent-primary);
-            color: #fff;
-            align-self: flex-end;
-            border-bottom-right-radius: 4px;
-        }
+        .notif-badge { position: absolute; top: -2px; right: -2px; background: var(--danger); color: #fff; font-size: 11px; font-weight: 900; min-width: 22px; height: 22px; padding: 0 6px; border-radius: 11px; display: flex; align-items: center; justify-content: center; border: 3px solid var(--bg-panel); box-shadow: var(--shadow-sm); }
 
-        .msg-other {
-            background-color: var(--bg-surface-elevated);
-            border: 1px solid var(--border-subtle);
-            align-self: flex-start;
-            border-bottom-left-radius: 4px;
-        }
+        /* ==========================================================================
+           5. SIDEBARS (SETTINGS, USERS, CHAT, COLORS)
+           ========================================================================== */
+        .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(5px); z-index: var(--z-overlay); opacity: 0; pointer-events: none; transition: opacity 0.4s var(--ease-smooth); }
+        .overlay.active { opacity: 1; pointer-events: auto; }
+        
+        .drawer { position: fixed; top: 0; bottom: 0; left: 0; width: 100%; max-width: 420px; background: var(--bg-panel); border-right: 1px solid var(--border-color); z-index: calc(var(--z-overlay) + 1); transform: translateX(-100%); transition: transform 0.6s var(--ease-elastic); display: flex; flex-direction: column; box-shadow: var(--shadow-lg); }
+        .drawer.right { left: auto; right: 0; border-right: none; border-left: 1px solid var(--border-color); transform: translateX(100%); }
+        .drawer.open { transform: translateX(0); }
+        
+        .dr-header { padding: 32px 32px 24px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; background: var(--bg-hover); }
+        .dr-title { font-size: 24px; font-weight: 900; display: flex; align-items: center; gap: 16px; letter-spacing: -0.5px; }
+        .dr-close { width: 44px; height: 44px; border-radius: 50%; background: var(--bg-panel); border: 2px solid var(--border-color); display: flex; align-items: center; justify-content: center; color: var(--text-muted); transition: all 0.3s var(--ease-elastic); box-shadow: var(--shadow-sm); }
+        .dr-close:hover { background: var(--danger); color: white; border-color: var(--danger); transform: rotate(90deg) scale(1.1); }
+        
+        .dr-body { flex: 1; overflow-y: auto; padding: 32px; }
+        .dr-body::-webkit-scrollbar { width: 8px; }
+        .dr-body::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 10px; }
+        
+        .sec-title { font-size: 13px; font-weight: 900; text-transform: uppercase; color: var(--accent); margin-bottom: 20px; letter-spacing: 1.5px; display: flex; align-items: center; gap: 8px; }
+        
+        /* Grid Actions */
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 40px; }
+        .action-card { background: var(--bg-base); border: 2px solid var(--border-color); border-radius: var(--radius-md); padding: 24px 16px; display: flex; flex-direction: column; align-items: center; gap: 16px; font-size: 15px; font-weight: 800; cursor: pointer; transition: all 0.3s var(--ease-elastic); text-align: center; }
+        .action-card:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-light); transform: translateY(-6px); box-shadow: var(--shadow-md); }
+        .action-card:active { transform: scale(0.9); }
+        .action-card.danger { color: var(--danger); } .action-card.danger:hover { border-color: var(--danger); background: var(--danger-light); }
+        .action-card.success { color: var(--success); } .action-card.success:hover { border-color: var(--success); background: rgba(16,185,129,0.1); }
+        
+        /* Complex Slider */
+        .range-wrap { display: flex; align-items: center; gap: 20px; background: var(--bg-base); padding: 24px; border-radius: var(--radius-md); border: 2px solid var(--border-color); margin-bottom: 40px; }
+        .range-wrap i { color: var(--accent); }
+        input[type=range] { flex: 1; height: 8px; -webkit-appearance: none; background: var(--border-strong); border-radius: 4px; }
+        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 28px; height: 28px; border-radius: 50%; background: var(--accent); box-shadow: 0 4px 12px rgba(0,0,0,0.4); cursor: pointer; border: 4px solid var(--bg-panel); transition: transform 0.3s var(--ease-elastic); }
+        input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.5); }
+        .range-val { font-weight: 900; font-size: 16px; width: 45px; text-align: right; font-family: monospace; color: var(--accent); }
 
-        .msg-author {
-            font-size: 12px;
-            font-weight: 700;
-            margin-bottom: 6px;
-            color: var(--text-muted);
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-        .msg-mine .msg-author { color: rgba(255,255,255,0.8); }
+        /* Ultimate Color Wheel */
+        .color-picker-box { width: 100%; aspect-ratio: 1; max-width: 320px; margin: 0 auto 40px; position: relative; }
+        #color-wheel-cvs { width: 100%; height: 100%; border-radius: 50%; cursor: crosshair; box-shadow: 0 0 0 8px var(--bg-base), var(--shadow-lg); }
+        .palette-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px; }
+        .color-swatch { width: 100%; aspect-ratio: 1; border-radius: var(--radius-sm); cursor: pointer; box-shadow: inset 0 0 0 2px rgba(0,0,0,0.1); transition: transform 0.3s var(--ease-elastic); }
+        .color-swatch:hover { transform: scale(1.25) rotate(15deg); z-index: 2; box-shadow: 0 12px 24px rgba(0,0,0,0.4); border: 2px solid #fff; }
 
-        .msg-timestamp {
-            font-size: 11px;
-            opacity: 0.6;
-            text-align: right;
-            margin-top: 8px;
-        }
+        /* Users & Permissions */
+        .user-col { display: flex; flex-direction: column; gap: 16px; }
+        .user-row { background: var(--bg-base); border: 2px solid var(--border-color); border-radius: var(--radius-md); padding: 16px 24px; display: flex; justify-content: space-between; align-items: center; transition: transform 0.3s var(--ease-elastic); }
+        .user-row:hover { transform: translateX(8px); border-color: var(--border-strong); }
+        .u-left { display: flex; align-items: center; gap: 16px; font-weight: 800; font-size: 16px; }
+        .u-avatar { width: 48px; height: 48px; border-radius: 50%; background: linear-gradient(135deg, var(--accent), #8b5cf6); color: white; display: flex; align-items: center; justify-content: center; font-size: 20px; box-shadow: var(--shadow-sm); border: 2px solid var(--bg-panel); }
+        .u-right { display: flex; gap: 12px; }
+        .perm-btn { width: 46px; height: 46px; border-radius: 14px; background: var(--bg-panel); border: 2px solid var(--border-color); display: flex; align-items: center; justify-content: center; color: var(--text-muted); transition: all 0.3s var(--ease-elastic); }
+        .host-mode .perm-btn { cursor: pointer; } 
+        .host-mode .perm-btn:hover { border-color: var(--accent); transform: scale(1.15) rotate(5deg); }
+        .perm-btn.granted { background: var(--accent-light); color: var(--accent); border-color: var(--accent); }
 
-        .chat-composer {
-            padding: 20px;
-            background-color: var(--bg-surface);
-            border-top: 1px solid var(--border-subtle);
-            display: flex;
-            gap: 12px;
-        }
+        /* Advanced Chat */
+        .chat-container { display: flex; flex-direction: column; height: 100%; }
+        .chat-feed { flex: 1; overflow-y: auto; padding: 24px 32px; display: flex; flex-direction: column; gap: 24px; scrollbar-width: none; }
+        .msg-box { max-width: 85%; padding: 16px 20px; border-radius: var(--radius-md); font-size: 15px; font-weight: 500; line-height: 1.6; animation: popElastic 0.5s var(--ease-elastic) forwards; word-wrap: break-word; box-shadow: var(--shadow-sm); position: relative; }
+        .msg-box.mine { background: var(--accent); color: white; align-self: flex-end; border-bottom-right-radius: 4px; }
+        .msg-box.others { background: var(--bg-base); border: 1px solid var(--border-color); align-self: flex-start; border-bottom-left-radius: 4px; }
+        .msg-author { font-size: 12px; font-weight: 900; margin-bottom: 8px; opacity: 0.9; display: flex; align-items: center; gap: 6px; letter-spacing: 0.5px; }
+        .msg-time { font-size: 11px; text-align: right; margin-top: 10px; opacity: 0.7; font-weight: 700; }
+        .chat-input-area { padding: 24px 32px; border-top: 1px solid var(--border-color); display: flex; gap: 16px; background: var(--bg-hover); }
+        .chat-input { flex: 1; padding: 18px 24px; border-radius: var(--radius-pill); background: var(--bg-canvas); border: 2px solid var(--border-color); color: var(--text-main); font-weight: 600; font-size: 15px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.02); transition: all 0.3s; }
+        .chat-input:focus { border-color: var(--accent); box-shadow: 0 0 0 4px var(--accent-light); }
+        .chat-send { width: 56px; height: 56px; border-radius: 50%; background: var(--accent); color: white; display: flex; align-items: center; justify-content: center; transition: transform 0.3s var(--ease-elastic); box-shadow: var(--shadow-md); }
+        .chat-send:active { transform: scale(0.8); }
 
-        .chat-input-field {
-            flex: 1;
-            padding: 14px 20px;
-            background-color: var(--bg-surface-elevated);
-            border: 1px solid var(--border-subtle);
-            border-radius: 30px;
-            color: var(--text-main);
-            font-size: 15px;
-            transition: border-color 0.2s;
-        }
-        .chat-input-field:focus { border-color: var(--accent-primary); }
+        /* ==========================================================================
+           6. MODALS & TOAST NOTIFICATIONS
+           ========================================================================== */
+        .dialog { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.9); background: var(--bg-panel); padding: 40px; border-radius: var(--radius-lg); width: 90%; max-width: 480px; box-shadow: var(--shadow-lg); border: 1px solid var(--border-color); opacity: 0; pointer-events: none; transition: all 0.5s var(--ease-elastic); z-index: calc(var(--z-modal) + 1); }
+        .dialog.active { transform: translate(-50%, -50%) scale(1); opacity: 1; pointer-events: auto; }
+        .dialog-title { font-size: 24px; font-weight: 900; margin-bottom: 24px; color: var(--text-main); }
+        .dialog textarea { width: 100%; min-height: 140px; padding: 20px; border-radius: var(--radius-md); background: var(--bg-base); border: 2px solid var(--border-color); color: var(--text-main); resize: none; font-size: 18px; font-weight: 600; transition: border-color 0.3s; }
+        .dialog textarea:focus { border-color: var(--accent); }
+        .dialog-acts { display: flex; justify-content: flex-end; gap: 16px; margin-top: 24px; }
+        .dialog-acts .btn { width: auto; padding: 16px 32px; }
 
-        .send-btn {
-            width: 52px;
-            height: 52px;
-            border-radius: 50%;
-            background-color: var(--accent-primary);
-            color: #fff;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.2s;
-        }
-        .send-btn:hover { background-color: var(--accent-hover); transform: scale(1.05); }
+        #toast-container { position: fixed; top: 30px; left: 50%; transform: translateX(-50%); z-index: var(--z-toast); display: flex; flex-direction: column; gap: 16px; pointer-events: none; }
+        .toast { background: var(--bg-panel); color: var(--text-main); padding: 18px 32px; border-radius: var(--radius-pill); font-weight: 800; font-size: 16px; box-shadow: var(--shadow-lg); display: flex; align-items: center; gap: 16px; border: 2px solid var(--border-color); animation: toastAnim 0.6s var(--ease-elastic) forwards; }
+        .toast.error { border-left: 6px solid var(--danger); }
+        .toast.success { border-left: 6px solid var(--success); }
+        .toast.warning { border-left: 6px solid var(--warning); }
+        @keyframes toastAnim { 0% { opacity: 0; transform: translateY(-60px) scale(0.8); } 100% { opacity: 1; transform: translateY(0) scale(1); } }
+        
+        #hidden-audio-pool { display: none; }
 
-        /* Text Input Modal */
-        .text-dialog {
-            background-color: var(--bg-surface);
-            border: 1px solid var(--border-subtle);
-            border-radius: var(--radius-lg);
-            padding: 32px;
-            width: 90%;
-            max-width: 420px;
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%) scale(0.95);
-            opacity: 0;
-            pointer-events: none;
-            transition: all var(--duration-normal) var(--ease-out-expo);
-            z-index: calc(var(--z-modal) + 2);
-            box-shadow: var(--shadow-float);
-        }
-
-        .text-dialog.visible {
-            transform: translate(-50%, -50%) scale(1);
-            opacity: 1;
-            pointer-events: auto;
-        }
-
-        .text-dialog textarea {
-            width: 100%;
-            background-color: var(--bg-base);
-            border: 1px solid var(--border-subtle);
-            border-radius: var(--radius-md);
-            padding: 20px;
-            color: var(--text-main);
-            font-size: 16px;
-            min-height: 120px;
-            resize: none;
-            margin: 24px 0;
-        }
-        .text-dialog textarea:focus { border-color: var(--accent-primary); }
-
-        /* Toast Notifications */
-        #toast-zone {
-            position: fixed;
-            top: 24px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: var(--z-toast);
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            pointer-events: none;
-        }
-
-        .toast-msg {
-            background-color: var(--bg-surface-elevated);
-            border-left: 4px solid var(--accent-primary);
-            color: var(--text-main);
-            padding: 16px 24px;
-            border-radius: var(--radius-sm);
-            box-shadow: var(--shadow-float);
-            font-size: 15px;
-            font-weight: 500;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            animation: toastDrop 0.4s var(--ease-out-expo) forwards;
-        }
-
-        .toast-msg.error { border-left-color: var(--status-danger); }
-
-        @keyframes toastDrop {
-            from { opacity: 0; transform: translateY(-30px) scale(0.9); }
-            to { opacity: 1; transform: translateY(0) scale(1); }
-        }
-
-        /* WebRTC Hidden Audio */
-        #rtc-audio-pool { display: none; }
-
-        /* Responsive qoidalar */
         @media (max-width: 768px) {
-            .drawer { max-width: 100%; }
-            .top-bar { flex-direction: column; gap: 10px; }
-            .bottom-dock { padding: 0 10px; bottom: 16px; }
-            .action-btn { width: 42px; height: 42px; }
-            .audio-wave { display: none; } /* Mobilda joyni tejash uchun to'lqin yashiriladi */
-            .auth-container { border: none; border-radius: 0; min-height: 100vh; display: flex; flex-direction: column; justify-content: center; }
+            .drawer { max-width: 100%; } .top-dock { flex-direction: column; gap: 12px; left: 16px; right: 16px; } .bottom-dock { padding: 0 8px; bottom: 16px; } .glass-bar { padding: 6px; } .tool-btn { width: 48px; height: 48px; } .audio-rack, .ttip { display: none; } .auth-card { box-shadow: none; border: none; background: transparent; padding: 24px; } #auth-view { background: var(--bg-canvas); } #minimap-wrap { display: none; } /* Mobilda radar yashiriladi */
         }
     </style>
 </head>
 <body>
 
-    <div id="rtc-audio-pool"></div>
-    <div id="toast-zone"></div>
+    <div id="hidden-audio-pool"></div>
+    
+    <div id="toast-container"></div>
 
-    <div id="auth-screen">
-        <div class="auth-container">
-            <h1 class="brand-title">MR Board Pro</h1>
-            <p class="brand-subtitle">Guruhlar uchun ideal hamkorlik doskasi</p>
+    <div id="auth-view">
+        <div class="auth-card">
+            <h1 class="brand">MR <span>BOARD</span></h1>
+            <p class="brand-sub">Titan Edition · All in One</p>
             
-            <div class="input-group">
-                <label class="input-label">Ismingiz</label>
-                <input type="text" id="inp-name" class="auth-input" placeholder="Ismni kiriting" autocomplete="off" spellcheck="false">
+            <div class="inp-wrap">
+                <label class="inp-label">Ismingiz</label>
+                <input type="text" id="auth-name" class="inp-field" placeholder="Masalan: Alisher" autocomplete="off" spellcheck="false" maxlength="20">
             </div>
 
-            <button id="btn-host" class="btn-primary">
-                <i data-lucide="crown"></i> Host bo'lish (Yangi xona)
+            <button class="btn btn-primary" id="btn-host">
+                <i data-lucide="shield-check" size="24"></i> Xona yaratish (Host)
             </button>
 
-            <div class="divider-text"><span>YOKI XONAGA QO'SHILISH</span></div>
+            <div class="div-line"><span>YOKI XONAGA KIRISH</span></div>
 
-            <div class="input-group">
-                <label class="input-label">Xona Kodi</label>
-                <input type="text" id="inp-room" class="auth-input" placeholder="Masalan: MR-X8A2" autocomplete="off" style="text-transform: uppercase;">
+            <div class="inp-wrap">
+                <label class="inp-label">Xona Kodi</label>
+                <input type="text" id="auth-room" class="inp-field" placeholder="KOD: MR-XXX" style="text-transform: uppercase;" autocomplete="off" maxlength="10">
             </div>
 
-            <button id="btn-join" class="btn-secondary">
-                <i data-lucide="log-in"></i> Xonaga kirish
+            <button class="btn btn-outline" id="btn-join">
+                <i data-lucide="log-in" size="24"></i> Xonaga ulanish
             </button>
         </div>
     </div>
 
-    <div id="canvas-wrapper">
-        <canvas id="main-canvas"></canvas>
+    <div id="workspace">
+        <canvas id="canvas-main"></canvas>
+        <canvas id="canvas-laser"></canvas>
+        
+        <div id="minimap-wrap">
+            <div class="minimap-toggle"><i data-lucide="map" size="16"></i></div>
+            <canvas id="minimap-canvas"></canvas>
+            <div id="minimap-viewport"></div>
+        </div>
     </div>
 
     <div id="ui-layer">
         
-        <div class="top-bar">
-            <div class="pill-group">
-                <div class="status-pill" title="Xona Kodi">
-                    <i data-lucide="hash" size="16" style="color: var(--text-muted)"></i>
-                    <span id="ui-roomcode" style="font-family: monospace; letter-spacing: 1.5px;">---</span>
+        <div class="top-dock">
+            <div class="badge-group">
+                <div class="pill" title="Xona Kodi" id="pill-room">
+                    <i data-lucide="hash" style="color: var(--text-muted)"></i> <span id="ui-room-val" style="letter-spacing: 2px;">---</span>
                 </div>
-                <div class="status-pill">
-                    <i data-lucide="search" size="16" style="color: var(--text-muted)"></i>
-                    <span id="ui-zoom">100%</span>
+                <div class="pill" title="Kamera (Zoom)" id="pill-zoom">
+                    <i data-lucide="search" style="color: var(--text-muted)"></i> <span id="ui-zoom-val">100%</span>
                 </div>
             </div>
-            <div class="pill-group">
-                <div class="status-pill" id="ui-role">
-                    <i data-lucide="eye" size="16"></i> Kuzatuvchi
-                </div>
+            <div class="pill" id="ui-role-val">
+                <i data-lucide="eye"></i> Kuzatuvchi
             </div>
         </div>
 
+        <div id="sub-toolbar">
+            <button class="tool-btn" data-tool="rect" title="To'rtburchak"><i data-lucide="square"></i></button>
+            <button class="tool-btn" data-tool="circle" title="Aylana"><i data-lucide="circle"></i></button>
+            <button class="tool-btn" data-tool="line" title="Chiziq"><i data-lucide="minus"></i></button>
+            <button class="tool-btn" data-tool="arrow" title="O'q"><i data-lucide="arrow-up-right"></i></button>
+        </div>
+
         <div class="bottom-dock">
-            <div class="toolbar-glass">
-                <button class="action-btn" id="t-settings" title="Sozlamalar"><i data-lucide="settings-2"></i></button>
-                <button class="action-btn" id="t-colors" title="Ranglar">
-                    <div class="color-dot" id="ui-color-dot" style="background-color: #3b82f6;"></div>
-                </button>
-
-                <div class="toolbar-divider"></div>
-
-                <button class="action-btn active-tool" data-action="draw" title="Qalam"><i data-lucide="pencil"></i></button>
-                <button class="action-btn" data-action="erase" title="O'chirg'ich"><i data-lucide="eraser"></i></button>
-                <button class="action-btn" data-action="pan" title="Surish"><i data-lucide="hand"></i></button>
-                <button class="action-btn" data-action="text" title="Matn"><i data-lucide="type"></i></button>
-                <button class="action-btn" id="t-undo" title="Bekor qilish"><i data-lucide="undo-2"></i></button>
-
-                <div class="toolbar-divider"></div>
-
-                <div class="audio-wave">
-                    <div class="wave-bars" id="audio-bars">
-                        <div class="w-bar"></div><div class="w-bar"></div><div class="w-bar"></div>
-                        <div class="w-bar"></div><div class="w-bar"></div><div class="w-bar"></div>
-                        <div class="w-bar"></div><div class="w-bar"></div>
+            <div class="glass-bar">
+                <button class="tool-btn" id="btn-settings"><i data-lucide="settings-2" size="24"></i><span class="ttip">Sozlamalar</span></button>
+                <button class="tool-btn" id="btn-colors"><div class="color-wheel-btn" id="ui-color-dot" style="background: #2563eb;"></div><span class="ttip">Ranglar</span></button>
+                
+                <div class="sep"></div>
+                
+                <button class="tool-btn active" data-tool="draw"><i data-lucide="pencil" size="24"></i><span class="ttip">Qalam (B)</span></button>
+                <button class="tool-btn" data-tool="laser"><i data-lucide="wand-2" size="24" style="color: var(--danger)"></i><span class="ttip">Lazer (L)</span></button>
+                <button class="tool-btn" id="btn-toggle-shapes"><i data-lucide="shapes" size="24"></i><span class="ttip">Shakllar (S)</span></button>
+                <button class="tool-btn" data-tool="erase"><i data-lucide="eraser" size="24"></i><span class="ttip">O'chirg'ich (E)</span></button>
+                <button class="tool-btn" data-tool="pan"><i data-lucide="hand" size="24"></i><span class="ttip">Surish (H)</span></button>
+                <button class="tool-btn" data-tool="text"><i data-lucide="type" size="24"></i><span class="ttip">Matn (T)</span></button>
+                
+                <button class="tool-btn" id="btn-undo"><i data-lucide="undo-2" size="24"></i><span class="ttip">Bekor qilish (Ctrl+Z)</span></button>
+                
+                <div class="sep"></div>
+                
+                <div class="audio-rack">
+                    <i data-lucide="activity" size="18" style="color: var(--text-muted)"></i>
+                    <div class="eq-box" id="ui-eq-bars">
+                        <div class="eq-bar"></div><div class="eq-bar"></div><div class="eq-bar"></div>
+                        <div class="eq-bar"></div><div class="eq-bar"></div><div class="eq-bar"></div><div class="eq-bar"></div>
                     </div>
-                    <span class="db-label" id="audio-db">-∞ dB</span>
                 </div>
 
-                <button class="action-btn mic-off" id="t-mic" title="Mikrofon"><i data-lucide="mic-off"></i></button>
-                
-                <button class="action-btn" id="t-chat" title="Chat">
-                    <i data-lucide="message-square"></i>
-                    <div class="notification-badge" id="badge-chat" style="display: none;">0</div>
+                <button class="tool-btn mic-muted" id="btn-mic"><i data-lucide="mic-off" size="24"></i><span class="ttip">Mikrofon (M)</span></button>
+                <button class="tool-btn" id="btn-chat">
+                    <i data-lucide="message-square" size="24"></i>
+                    <div class="notif-badge" id="badge-chat" style="display: none;">0</div>
+                    <span class="ttip">Chat (C)</span>
+                </button>
+                <button class="tool-btn" id="btn-users" style="display: none;">
+                    <i data-lucide="users" size="24"></i>
+                    <div class="notif-badge" id="badge-users">0</div>
+                    <span class="ttip">A'zolar (U)</span>
                 </button>
                 
-                <button class="action-btn" id="t-users" title="Guruh a'zolari" style="display: none;">
-                    <i data-lucide="users"></i>
-                    <div class="notification-badge" id="badge-users">0</div>
-                </button>
-                
-                <button class="action-btn" id="t-exit" title="Chiqish"><i data-lucide="log-out"></i></button>
+                <button class="tool-btn" id="btn-exit"><i data-lucide="log-out" size="24" style="color: var(--danger)"></i><span class="ttip">Chiqish</span></button>
             </div>
         </div>
     </div>
 
-    <div class="backdrop" id="ui-backdrop"></div>
+    <div class="overlay" id="main-overlay"></div>
 
     <div class="drawer" id="side-settings">
-        <div class="drawer-header">
-            <h2 class="drawer-title"><i data-lucide="settings"></i> Sozlamalar</h2>
-            <button class="icon-btn" data-close-sidebar><i data-lucide="x"></i></button>
+        <div class="dr-header">
+            <div class="dr-title"><i data-lucide="settings" size="28"></i> Sozlamalar</div>
+            <button class="dr-close" data-close><i data-lucide="x" size="24"></i></button>
         </div>
-        <div class="drawer-body">
-            <div class="heading-sm">Qalam Qalinligi</div>
-            <div class="slider-box">
-                <i data-lucide="pen-tool" size="20" style="color: var(--text-muted)"></i>
-                <input type="range" id="inp-size" min="1" max="50" value="4">
-                <span style="font-family: monospace; font-size: 15px; width: 45px; text-align: right;"><span id="ui-size-val">4</span>px</span>
+        <div class="dr-body">
+            
+            <div class="sec-title"><i data-lucide="pen-tool"></i> Qalam Qalinligi</div>
+            <div class="range-wrap">
+                <input type="range" id="inp-size" min="1" max="60" value="4">
+                <div class="range-val"><span id="val-size">4</span>px</div>
             </div>
 
-            <div class="heading-sm">Harakatlar</div>
-            <div class="action-grid">
-                <button class="grid-card" id="act-undo"><i data-lucide="undo-2" size="24"></i>Bekor qilish</button>
-                <button class="grid-card" id="act-image"><i data-lucide="image" size="24"></i>Rasm yuklash</button>
-                <button class="grid-card" id="act-center"><i data-lucide="target" size="24"></i>Markazlashtirish</button>
-                <button class="grid-card" id="act-export"><i data-lucide="download" size="24"></i>Saqlash (PNG)</button>
+            <div class="sec-title"><i data-lucide="layers"></i> Asosiy Harakatlar</div>
+            <div class="grid-2">
+                <div class="action-card" id="ac-undo"><i data-lucide="undo-2" size="32"></i>Bekor qilish</div>
+                <div class="action-card" id="ac-image"><i data-lucide="image" size="32"></i>Rasm yuklash</div>
+                <div class="action-card" id="ac-center"><i data-lucide="target" size="32"></i>Markazga qaytish</div>
+            </div>
+
+            <div class="sec-title"><i data-lucide="save"></i> Fayl Tizimi (JSON)</div>
+            <div class="grid-2">
+                <div class="action-card success" id="ac-export-json"><i data-lucide="download-cloud" size="32"></i>Loyihani saqlash</div>
+                <div class="action-card" id="ac-import-json"><i data-lucide="upload-cloud" size="32"></i>Loyihani yuklash</div>
+                <div class="action-card" id="ac-export-png"><i data-lucide="camera" size="32"></i>PNG rasmga olish</div>
             </div>
 
             <div id="host-controls" style="display: none;">
-                <div class="heading-sm" style="color: var(--status-danger); margin-top: 24px;">Host Boshqaruvi</div>
-                <div class="action-grid" style="grid-template-columns: 1fr;">
-                    <button class="grid-card danger-zone" id="act-clear">
-                        <i data-lucide="trash-2" size="24"></i>Barcha ma'lumotlarni o'chirish
-                    </button>
+                <div class="sec-title" style="color: var(--danger); margin-top: 20px;"><i data-lucide="shield-alert"></i> Host Boshqaruvi</div>
+                <div class="grid-2" style="grid-template-columns: 1fr;">
+                    <div class="action-card danger" id="ac-clear-all"><i data-lucide="trash-2" size="32"></i>Barcha ma'lumotlarni o'chirish</div>
                 </div>
             </div>
+
         </div>
     </div>
 
     <div class="drawer" id="side-colors">
-        <div class="drawer-header">
-            <h2 class="drawer-title"><i data-lucide="palette"></i> Ranglar</h2>
-            <button class="icon-btn" data-close-sidebar><i data-lucide="x"></i></button>
+        <div class="dr-header">
+            <div class="dr-title"><i data-lucide="palette" size="28"></i> Ranglar</div>
+            <button class="dr-close" data-close><i data-lucide="x" size="24"></i></button>
         </div>
-        <div class="drawer-body">
-            <div class="wheel-container">
-                <canvas id="color-canvas" width="280" height="280"></canvas>
-            </div>
-            
-            <div class="heading-sm">Yorug'lik</div>
-            <div class="slider-box">
-                <i data-lucide="sun" size="20" style="color: var(--text-muted)"></i>
+        <div class="dr-body">
+            <div class="color-picker-box"><canvas id="color-wheel-cvs" width="320" height="320"></canvas></div>
+            <div class="sec-title"><i data-lucide="sun"></i> Yorug'lik darajasi</div>
+            <div class="range-wrap" style="margin-bottom: 40px;">
                 <input type="range" id="inp-bright" min="0" max="100" value="100">
             </div>
-
-            <div class="color-preview-box">
-                <span>Hozirgi Rang:</span>
-                <div class="swatch-display" id="ui-color-preview" style="background-color: #3b82f6;"></div>
-            </div>
-
-            <div class="heading-sm">Palitra</div>
-            <div class="palette-grid" id="color-palette"></div>
+            <div class="sec-title"><i data-lucide="grid"></i> Tezkor Palitra</div>
+            <div class="palette-grid" id="ui-palette"></div>
         </div>
     </div>
 
-    <div class="drawer right-side" id="side-users">
-        <div class="drawer-header">
-            <h2 class="drawer-title"><i data-lucide="users"></i> Guruh a'zolari</h2>
-            <button class="icon-btn" data-close-sidebar><i data-lucide="x"></i></button>
+    <div class="drawer right" id="side-users">
+        <div class="dr-header">
+            <div class="dr-title"><i data-lucide="users" size="28"></i> Guruh a'zolari</div>
+            <button class="dr-close" data-close><i data-lucide="x" size="24"></i></button>
         </div>
-        <div class="drawer-body">
-            <div class="user-list" id="ui-users-list"></div>
+        <div class="dr-body">
+            <div class="user-col" id="ui-user-list"></div>
         </div>
     </div>
 
-    <div class="drawer right-side" id="side-chat">
-        <div class="drawer-header">
-            <h2 class="drawer-title"><i data-lucide="message-square"></i> Chat</h2>
-            <button class="icon-btn" data-close-sidebar><i data-lucide="x"></i></button>
+    <div class="drawer right" id="side-chat">
+        <div class="dr-header">
+            <div class="dr-title"><i data-lucide="message-square" size="28"></i> Chat</div>
+            <button class="dr-close" data-close><i data-lucide="x" size="24"></i></button>
         </div>
-        <div class="chat-layout">
+        <div class="chat-container">
             <div class="chat-feed" id="ui-chat-feed"></div>
-            <div class="chat-composer">
-                <input type="text" id="inp-chat-msg" class="chat-input-field" placeholder="Xabar yozing..." autocomplete="off">
-                <button class="send-btn" id="btn-send"><i data-lucide="send" size="20"></i></button>
+            <div class="chat-input-area">
+                <input type="text" id="inp-chat-msg" class="chat-input" placeholder="Xabar yozing..." maxlength="300" autocomplete="off">
+                <button class="chat-send" id="btn-send-msg"><i data-lucide="send" size="24"></i></button>
             </div>
         </div>
     </div>
 
-    <div class="text-dialog" id="dialog-text">
-        <h3 style="font-size: 20px; font-weight: 700;">Matn kiritish</h3>
-        <textarea id="inp-text-content" placeholder="Doskaga nima yozmoqchisiz?"></textarea>
-        <div style="display: flex; justify-content: flex-end; gap: 16px;">
-            <button class="btn-secondary" id="btn-text-cancel" style="width: auto; padding: 12px 24px;">Bekor qilish</button>
-            <button class="btn-primary" id="btn-text-ok" style="width: auto; padding: 12px 24px; margin: 0;">Qo'shish</button>
+    <div class="dialog" id="dialog-text">
+        <div class="dialog-title">Doskaga matn yozish</div>
+        <textarea id="inp-text-content" placeholder="Maksimal 300 ta harf yozishingiz mumkin..." maxlength="300"></textarea>
+        <div class="dialog-acts">
+            <button class="btn btn-outline" id="btn-text-cancel">Bekor qilish</button>
+            <button class="btn btn-primary" id="btn-text-add">Qo'shish</button>
         </div>
     </div>
+
+    <input type="file" id="hidden-file-upload" accept="image/png, image/jpeg, image/webp" style="display: none;">
+    <input type="file" id="hidden-json-upload" accept=".mrboard, .json" style="display: none;">
 
     <script>
-        /**
-         * MR Board Pro - Single File Application Logic
-         * Uses IIFE to prevent global scope pollution and ensure strict encapsulation.
-         */
         (function() {
             'use strict';
-
+            
+            // Render Icons
             lucide.createIcons();
 
-            // ==========================================
-            // 1. CORE UTILITIES
-            // ==========================================
+            /** =========================================================================
+             * 1. CORE SYSTEM & SECURITY UTILS
+             * ========================================================================= */
             const Core = {
+                // Generates secure unique ID
+                generateId: (prefix = 'id') => `${prefix}_${Math.random().toString(36).substring(2, 12)}_${Date.now().toString(36)}`,
+                
+                // XSS Preventer
+                sanitize: (str) => {
+                    const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#x27;', "/": '&#x2F;' };
+                    const reg = /[&<>"'/]/ig;
+                    return str.replace(reg, (match) => (map[match]));
+                },
+                
+                // Haptic Engine
+                vibrate: (pattern) => { if (navigator.vibrate) navigator.vibrate(pattern); },
+                
+                // Throttle for performance
                 throttle: (func, limit) => {
                     let inThrottle;
                     return function(...args) {
@@ -1077,921 +510,1107 @@
                         }
                     };
                 },
-                generateId: (prefix = 'ID') => `${prefix}_${Math.random().toString(36).substr(2, 9)}_${Date.now()}`,
-                sanitizeHTML: (str) => {
-                    const temp = document.createElement('div');
-                    temp.textContent = str;
-                    return temp.innerHTML;
-                },
-                getTimeStr: () => new Date().toLocaleTimeString('uz-UZ', { hour: '2-digit', minute: '2-digit' })
+                
+                // File reader as Promise
+                readFile: (file, asText = false) => new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.onload = e => resolve(e.target.result);
+                    reader.onerror = e => reject(e);
+                    if(asText) reader.readAsText(file); else reader.readAsDataURL(file);
+                }),
+                
+                getTime: () => new Date().toLocaleTimeString('uz-UZ', { hour: '2-digit', minute: '2-digit' })
             };
 
-            // ==========================================
-            // 2. STATE MANAGEMENT (Store)
-            // ==========================================
-            class StateManager {
-                constructor() {
-                    // Auth & Room
-                    this.uid = Core.generateId('USR');
-                    this.uname = '';
-                    this.isHost = false;
-                    this.roomId = '';
+            /** =========================================================================
+             * 2. GLOBAL STATE (Store)
+             * ========================================================================= */
+            const Store = {
+                // User & Room
+                uid: Core.generateId('USR'),
+                name: '',
+                isHost: false,
+                roomId: '',
+                hostToken: '', // Security token for Host operations
+                
+                // Permissions
+                canDraw: false,
+                canSpeak: false,
+                micActive: false,
+                
+                // Tool State
+                tool: 'draw', // draw, erase, pan, text, laser, rect, circle, line, arrow
+                color: '#2563eb',
+                size: 4,
+                
+                // Camera Transform
+                cam: { x: 0, y: 0, z: 1 },
+                
+                // Memory Data Pools
+                elements: [],      // Main drawn elements (lines, shapes, text, images)
+                livePaths: {},     // Currently drawing paths (multiplayer)
+                laserPaths: {},    // Temporary laser paths
+                cursors: {},       // Multiplayer cursors
+                peers: {},         // Connected users info
+                
+                // UI Temp
+                unreadMsg: 0,
+                textPos: null,
+                lastMsgTime: 0
+            };
 
-                    // Permissions (For participants)
-                    this.permDraw = false;
-                    this.permSpeak = false;
+            /** =========================================================================
+             * 3. UI CONTROLLER (DOM & Events)
+             * ========================================================================= */
+            const UI = {
+                els: {
+                    auth: document.getElementById('auth-view'),
+                    ui: document.getElementById('ui-layer'),
+                    over: document.getElementById('main-overlay'),
+                    sbs: document.querySelectorAll('.drawer'),
+                    modTxt: document.getElementById('dialog-text')
+                },
 
-                    // Physical Toggles
-                    this.micActive = false;
-                    this.unreadChats = 0;
+                init() {
+                    this.bindAuth();
+                    this.bindToolbar();
+                    this.bindSidebars();
+                    this.bindSettings();
+                    this.bindShortcuts();
+                },
 
-                    // Canvas Tools
-                    this.tool = 'draw';
-                    this.color = '#3b82f6';
-                    this.size = 4;
-                    this.camera = { x: 0, y: 0, zoom: 1 };
+                bindAuth() {
+                    document.getElementById('btn-host').onclick = () => this.login(true);
+                    document.getElementById('btn-join').onclick = () => this.login(false);
+                },
 
-                    // Data Pools
-                    this.elements = [];
-                    this.livePaths = {};
-                    this.cursors = {};
-                    this.peers = {}; // Network peers
+                login(isHost) {
+                    let name = document.getElementById('auth-name').value.trim();
+                    if (!name) return this.toast("Iltimos, ismingizni kiriting", "error");
+                    name = Core.sanitize(name).substring(0, 20); // XSS and length guard
+
+                    let room = isHost ? `MR${Math.floor(1000 + Math.random() * 9000)}` : document.getElementById('auth-room').value.trim().toUpperCase();
+                    if (!room) return this.toast("Xona kodi kerak", "error");
+
+                    Store.name = name;
+                    Store.isHost = isHost;
+                    Store.roomId = room;
+                    if (isHost) Store.hostToken = Core.generateId('TOK'); // Generate secret
+
+                    Core.vibrate([15, 50, 15]);
+                    this.els.auth.style.opacity = '0';
                     
-                    // Temp
-                    this.textPos = null;
-                }
-
-                get canDraw() { return this.isHost || this.permDraw; }
-                get canSpeak() { return this.isHost || this.permSpeak; }
-            }
-            const AppState = new StateManager();
-
-            // ==========================================
-            // 3. UI CONTROLLER (DOM Management)
-            // ==========================================
-            class UIController {
-                constructor() {
-                    this.initDOM();
-                    this.bindEvents();
-                }
-
-                initDOM() {
-                    this.els = {
-                        // Views
-                        authView: document.getElementById('auth-screen'),
-                        uiLayer: document.getElementById('ui-layer'),
-                        backdrop: document.getElementById('ui-backdrop'),
-                        txtDialog: document.getElementById('dialog-text'),
+                    setTimeout(() => {
+                        this.els.auth.style.display = 'none';
+                        this.els.ui.style.display = 'block';
                         
-                        // Sidebars
-                        sidebars: document.querySelectorAll('.drawer'),
+                        document.getElementById('ui-room-val').innerText = room;
                         
-                        // Inputs
-                        inpName: document.getElementById('inp-name'),
-                        inpRoom: document.getElementById('inp-room'),
-                        inpChat: document.getElementById('inp-chat-msg'),
-                        inpTxt: document.getElementById('inp-text-content'),
+                        if (isHost) {
+                            document.getElementById('btn-users').style.display = 'flex';
+                            document.getElementById('host-controls').style.display = 'block';
+                            document.getElementById('ui-user-list').classList.add('host-mode');
+                        }
+
+                        this.updateRoleUI();
                         
-                        // Badges & Status
-                        roomIdStr: document.getElementById('ui-roomcode'),
-                        zoomStr: document.getElementById('ui-zoom'),
-                        roleStr: document.getElementById('ui-role'),
-                        badgeChat: document.getElementById('badge-chat'),
-                        badgeUsers: document.getElementById('badge-users'),
-                        micBtn: document.getElementById('t-mic')
-                    };
-                }
+                        // Initialize all Engines
+                        Database.init(room);
+                        Engine.init();
+                        ColorEngine.init();
+                        AudioEngine.init(); // Ask Mic perm exactly here
+                        
+                        this.toast("Titan tizimga kirdingiz!", "success");
+                    }, 500);
+                },
 
-                bindEvents() {
-                    // Auth
-                    document.getElementById('btn-host').onclick = () => this.handleAuth(true);
-                    document.getElementById('btn-join').onclick = () => this.handleAuth(false);
-
-                    // Sidebar Toggles
-                    const opens = {
-                        't-settings': 'side-settings',
-                        't-colors': 'side-colors',
-                        't-chat': 'side-chat',
-                        't-users': 'side-users'
-                    };
-                    for (let [btnId, sideId] of Object.entries(opens)) {
-                        document.getElementById(btnId).onclick = () => this.openSidebar(sideId);
-                    }
-
-                    // Closers
-                    document.querySelectorAll('[data-close-sidebar]').forEach(b => b.onclick = () => this.closeAll());
-                    this.els.backdrop.onclick = () => this.closeAll();
-
-                    // Tool Selectors
-                    document.querySelectorAll('[data-action]').forEach(b => {
-                        b.onclick = () => {
-                            this.setTool(b.dataset.action);
+                bindToolbar() {
+                    // Main Tools
+                    document.querySelectorAll('[data-tool]').forEach(btn => {
+                        btn.onclick = () => {
+                            this.setTool(btn.getAttribute('data-tool'));
                             this.closeAll();
                         };
                     });
 
-                    // Pen Size
-                    document.getElementById('inp-size').oninput = (e) => {
-                        AppState.size = parseInt(e.target.value);
-                        document.getElementById('ui-size-val').innerText = AppState.size;
+                    // Shapes Sub-Menu Toggle
+                    const btnShapes = document.getElementById('btn-toggle-shapes');
+                    const subShapes = document.getElementById('sub-toolbar');
+                    btnShapes.onclick = () => {
+                        Core.vibrate(10);
+                        subShapes.classList.toggle('open');
                     };
 
-                    // Action Grid
-                    document.getElementById('act-undo').onclick = () => { FirebaseEngine.undo(); this.closeAll(); };
-                    document.getElementById('t-undo').onclick = () => FirebaseEngine.undo();
-                    document.getElementById('act-clear').onclick = () => { FirebaseEngine.clearAll(); this.closeAll(); };
-                    document.getElementById('act-image').onclick = () => { this.uploadImage(); this.closeAll(); };
-                    document.getElementById('act-center').onclick = () => {
-                        AppState.camera = { x: 0, y: 0, zoom: 1 };
-                        CanvasEngine.requestRedraw();
-                        this.updateZoom();
-                        FirebaseEngine.syncCamera();
-                        this.closeAll();
-                    };
-                    document.getElementById('act-export').onclick = () => {
-                        const a = document.createElement('a');
-                        a.download = `MR_Board_${Date.now()}.png`;
-                        a.href = document.getElementById('main-canvas').toDataURL('image/png');
-                        a.click();
-                        this.closeAll();
-                    };
+                    // Action Buttons
+                    document.getElementById('btn-undo').onclick = () => Database.undoMyLast();
+                    document.getElementById('btn-mic').onclick = () => AudioEngine.toggleMic();
+                    document.getElementById('btn-exit').onclick = () => { if(confirm("Chiqishni xohlaysizmi?")) location.reload(); };
 
-                    // Text Dialog
-                    document.getElementById('btn-text-cancel').onclick = () => this.hideTextDialog();
-                    document.getElementById('btn-text-ok').onclick = () => {
-                        const txt = this.els.inpTxt.value.trim();
-                        if (txt && AppState.textPos) {
-                            FirebaseEngine.pushElement({
-                                type: 'text', text: txt,
-                                x: AppState.textPos.x, y: AppState.textPos.y,
-                                size: AppState.size * 3 + 14, color: AppState.color
-                            });
+                    // Modals
+                    document.getElementById('btn-text-cancel').onclick = () => this.closeTextModal();
+                    document.getElementById('btn-text-add').onclick = () => {
+                        let txt = document.getElementById('inp-text-content').value.trim();
+                        txt = Core.sanitize(txt).substring(0, 300);
+                        if (txt && Store.textPos) {
+                            Database.saveElement({ type: 'text', text: txt, x: Store.textPos.x, y: Store.textPos.y, size: Store.size * 3 + 16, color: Store.color });
                         }
-                        this.hideTextDialog();
+                        this.closeTextModal();
                     };
 
                     // Chat
-                    document.getElementById('btn-send').onclick = () => this.sendMsg();
-                    this.els.inpChat.onkeypress = (e) => { if (e.key === 'Enter') this.sendMsg(); };
+                    document.getElementById('btn-send-msg').onclick = () => this.sendChat();
+                    document.getElementById('inp-chat-msg').onkeypress = (e) => { if (e.key === 'Enter') this.sendChat(); };
+                },
 
-                    // Mic & Exit
-                    this.els.micBtn.onclick = () => AudioEngine.toggle();
-                    document.getElementById('t-exit').onclick = () => {
-                        if(confirm('Chiqishni tasdiqlaysizmi?')) location.reload();
+                bindSidebars() {
+                    const map = { 'btn-settings': 'side-settings', 'btn-colors': 'side-colors', 'btn-chat': 'side-chat', 'btn-users': 'side-users' };
+                    for (let [btnId, sideId] of Object.entries(map)) {
+                        const el = document.getElementById(btnId);
+                        if(el) el.onclick = () => this.openSidebar(sideId);
+                    }
+
+                    document.querySelectorAll('[data-close]').forEach(btn => btn.onclick = () => this.closeAll());
+                    this.els.over.onclick = () => this.closeAll();
+                },
+
+                bindSettings() {
+                    // Size
+                    document.getElementById('inp-size').oninput = (e) => {
+                        Store.size = parseInt(e.target.value);
+                        document.getElementById('val-size').innerText = Store.size;
                     };
-                }
 
-                // --- Auth ---
-                handleAuth(isHost) {
-                    const name = this.els.inpName.value.trim();
-                    if (!name) return this.toast("Ism kiriting", "error");
-
-                    let code = isHost ? `MR-${Math.floor(1000 + Math.random() * 9000)}` : this.els.inpRoom.value.trim().toUpperCase();
-                    if (!code) return this.toast("Xona kodini kiriting", "error");
-
-                    AppState.uname = name;
-                    AppState.isHost = isHost;
-                    
-                    this.bootApp(code);
-                }
-
-                bootApp(roomId) {
-                    this.els.authView.style.opacity = '0';
-                    setTimeout(() => {
-                        this.els.authView.style.display = 'none';
-                        this.els.uiLayer.style.display = 'block';
-                        
-                        this.els.roomIdStr.innerText = roomId;
-                        
-                        if (AppState.isHost) {
-                            document.getElementById('t-users').style.display = 'flex';
-                            document.getElementById('host-controls').style.display = 'block';
-                            document.getElementById('ui-users-list').classList.add('host-mode');
+                    // Settings Grid actions
+                    document.getElementById('ac-undo').onclick = () => { Database.undoMyLast(); this.closeAll(); };
+                    document.getElementById('ac-center').onclick = () => {
+                        Store.cam = { x: 0, y: 0, z: 1 };
+                        Engine.requestRender();
+                        this.updateZoomUI();
+                        Database.syncCamera();
+                        this.closeAll();
+                    };
+                    document.getElementById('ac-clear-all').onclick = () => {
+                        if (confirm("Bu amalni qaytarib bo'lmaydi. Barcha chiziqlar o'chadi!")) {
+                            Database.clearBoard();
+                            this.closeAll();
                         }
+                    };
 
-                        this.updateRoleInfo();
+                    // File IO
+                    const fileInp = document.getElementById('hidden-file-upload');
+                    const jsonInp = document.getElementById('hidden-json-upload');
 
-                        // Init Subsystems
-                        FirebaseEngine.connect(roomId);
-                        CanvasEngine.init();
-                        ColorEngine.init();
-                        AudioEngine.init();
+                    document.getElementById('ac-image').onclick = () => { fileInp.click(); this.closeAll(); };
+                    fileInp.onchange = async (e) => {
+                        const file = e.target.files[0];
+                        if (!file) return;
+                        if (file.size > 5 * 1024 * 1024) return this.toast("Rasm hajmi 5MB dan kichik bo'lishi kerak", "error");
+                        
+                        try {
+                            const dataUrl = await Core.readFile(file, false);
+                            const img = new Image();
+                            img.onload = () => {
+                                const center = Engine.screenToWorld(window.innerWidth / 2, window.innerHeight / 2);
+                                let w = img.width, h = img.height, maxW = 600 / Store.cam.z;
+                                if (w > maxW) { h = (maxW / w) * h; w = maxW; }
+                                Database.saveElement({ type: 'image', data: dataUrl, x: center.x - w/2, y: center.y - h/2, width: w, height: h });
+                            };
+                            img.src = dataUrl;
+                        } catch(err) { this.toast("Rasm o'qishda xato", "error"); }
+                        fileInp.value = '';
+                    };
 
-                        this.toast("Xonaga ulandingiz!");
-                    }, 300);
-                }
+                    document.getElementById('ac-export-png').onclick = () => {
+                        const link = document.createElement('a');
+                        link.download = `MR_BOARD_${Date.now()}.png`;
+                        link.href = document.getElementById('canvas-main').toDataURL('image/png');
+                        link.click();
+                        this.closeAll();
+                    };
 
-                // --- UI State Management ---
+                    document.getElementById('ac-export-json').onclick = () => {
+                        if(Store.elements.length === 0) return this.toast("Doska bo'sh", "warning");
+                        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(Store.elements));
+                        const link = document.createElement('a');
+                        link.download = `MR_Project_${Date.now()}.mrboard`;
+                        link.href = dataStr; link.click();
+                        this.closeAll();
+                    };
+
+                    document.getElementById('ac-import-json').onclick = () => {
+                        if(!Store.isHost) return this.toast("Faqat Host loyiha yuklay oladi", "error");
+                        jsonInp.click(); this.closeAll();
+                    };
+                    jsonInp.onchange = async (e) => {
+                        const file = e.target.files[0]; if(!file) return;
+                        try {
+                            const text = await Core.readFile(file, true);
+                            const data = JSON.parse(text);
+                            if(Array.isArray(data)) {
+                                Database.clearBoard();
+                                setTimeout(() => {
+                                    data.forEach(el => Database.saveElement(el));
+                                    this.toast("Loyiha muvaffaqiyatli yuklandi!", "success");
+                                }, 1000);
+                            } else { this.toast("Fayl formati noto'g'ri", "error"); }
+                        } catch(err) { this.toast("Faylni o'qishda xatolik", "error"); }
+                        jsonInp.value = '';
+                    };
+                },
+
+                bindShortcuts() {
+                    window.addEventListener('keydown', (e) => {
+                        if (['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)) return;
+                        const k = e.key.toLowerCase();
+                        
+                        if (e.ctrlKey || e.metaKey) {
+                            if (k === 'z') { e.preventDefault(); Database.undoMyLast(); }
+                        } else {
+                            if (k === 'b') this.setTool('draw');
+                            else if (k === 'e') this.setTool('erase');
+                            else if (k === 'h') this.setTool('pan');
+                            else if (k === 't') this.setTool('text');
+                            else if (k === 'l') this.setTool('laser');
+                            else if (k === 's') document.getElementById('sub-toolbar').classList.toggle('open');
+                            else if (k === 'm') AudioEngine.toggleMic();
+                            else if (k === 'c') this.openSidebar('side-chat');
+                            else if (k === 'u' && Store.isHost) this.openSidebar('side-users');
+                        }
+                    });
+                },
+
+                // --- UI State Managers ---
+                setTool(tool) {
+                    Core.vibrate(10);
+                    Store.tool = tool;
+                    
+                    document.querySelectorAll('[data-tool]').forEach(b => b.classList.remove('active'));
+                    const btn = document.querySelector(`[data-tool="${tool}"]`);
+                    if(btn) btn.classList.add('active');
+                    
+                    const shapes = ['rect', 'circle', 'line', 'arrow'];
+                    if (shapes.includes(tool)) {
+                        document.getElementById('btn-toggle-shapes').classList.add('active');
+                    } else {
+                        document.getElementById('btn-toggle-shapes').classList.remove('active');
+                    }
+                    if(!shapes.includes(tool)) document.getElementById('sub-toolbar').classList.remove('open');
+
+                    const cvs = document.getElementById('workspace');
+                    if (tool === 'pan') cvs.style.cursor = 'grab';
+                    else if (tool === 'text') cvs.style.cursor = 'text';
+                    else if (tool === 'laser') cvs.style.cursor = 'crosshair';
+                    else cvs.style.cursor = 'crosshair';
+                },
+
                 openSidebar(id) {
+                    Core.vibrate(10);
                     this.closeAll();
-                    this.els.backdrop.classList.add('visible');
+                    this.els.over.classList.add('active');
                     document.getElementById(id).classList.add('open');
                     
                     if (id === 'side-chat') {
-                        AppState.unreadChats = 0;
-                        this.els.badgeChat.style.display = 'none';
-                        setTimeout(() => this.els.inpChat.focus(), 300);
+                        Store.unreadMsg = 0;
+                        document.getElementById('badge-chat').style.display = 'none';
+                        setTimeout(() => document.getElementById('inp-chat-msg').focus(), 300);
                     }
-                }
+                },
 
                 closeAll() {
-                    this.els.sidebars.forEach(s => s.classList.remove('open'));
-                    this.els.backdrop.classList.remove('visible');
-                    this.hideTextDialog();
-                }
+                    this.els.sbs.forEach(s => s.classList.remove('open'));
+                    this.els.over.classList.remove('active');
+                    this.closeTextModal();
+                    document.getElementById('sub-toolbar').classList.remove('open');
+                },
 
-                setTool(t) {
-                    AppState.tool = t;
-                    document.querySelectorAll('[data-action]').forEach(b => b.classList.remove('active-tool'));
-                    document.querySelector(`[data-action="${t}"]`).classList.add('active-tool');
-                    
-                    const cvs = document.getElementById('main-canvas');
-                    if (t === 'pan') cvs.style.cursor = 'grab';
-                    else if (t === 'text') cvs.style.cursor = 'text';
-                    else cvs.style.cursor = 'crosshair';
-                }
+                closeTextModal() {
+                    this.els.modTxt.classList.remove('active');
+                    document.getElementById('inp-text-content').value = '';
+                    Store.textPos = null;
+                    if (!document.querySelector('.drawer.open')) this.els.over.classList.remove('active');
+                },
 
-                updateZoom() { this.els.zoomStr.innerText = Math.round(AppState.camera.zoom * 100) + '%'; }
+                updateZoomUI() { document.getElementById('ui-zoom-val').innerText = Math.round(Store.cam.z * 100) + '%'; },
 
-                updateRoleInfo() {
-                    if (AppState.isHost) this.els.roleStr.innerHTML = '<i data-lucide="crown" size="16" style="color:var(--status-warning)"></i> Host';
-                    else if (AppState.canDraw) this.els.roleStr.innerHTML = '<i data-lucide="pencil" size="16" style="color:var(--accent-primary)"></i> Yozuvchi';
-                    else this.els.roleStr.innerHTML = '<i data-lucide="eye" size="16" style="color:var(--text-muted)"></i> Kuzatuvchi';
+                updateRoleUI() {
+                    const el = document.getElementById('ui-role-val');
+                    if(Store.isHost) el.innerHTML = '<i data-lucide="crown" style="color:var(--warning)"></i> Host';
+                    else if(Store.canDraw) el.innerHTML = '<i data-lucide="pencil" style="color:var(--accent)"></i> Yozuvchi';
+                    else el.innerHTML = '<i data-lucide="eye" style="color:var(--text-muted)"></i> Kuzatuvchi';
                     lucide.createIcons();
                     this.syncMicUI();
-                }
+                },
 
                 syncMicUI() {
-                    const b = this.els.micBtn;
-                    b.classList.remove('mic-off', 'mic-on', 'mic-speaking');
-                    if (!AppState.canSpeak) { b.classList.add('mic-off'); b.innerHTML = '<i data-lucide="mic-off"></i>'; }
-                    else if (AppState.micActive) { b.classList.add('mic-on'); b.innerHTML = '<i data-lucide="mic"></i>'; }
-                    else { b.classList.add('mic-off'); b.innerHTML = '<i data-lucide="mic-off"></i>'; }
+                    const btn = document.getElementById('btn-mic');
+                    btn.className = 'tool-btn ' + (!Store.canSpeak ? 'mic-muted' : (Store.micActive ? 'mic-active' : 'mic-muted'));
+                    btn.innerHTML = `<i data-lucide="${Store.micActive && Store.canSpeak ? 'mic' : 'mic-off'}" size="24"></i><span class="ttip">Mikrofon (M)</span>`;
                     lucide.createIcons();
-                }
-
-                pulseMic(isSpeaking) {
-                    if (!AppState.canSpeak || !AppState.micActive) return;
-                    if (isSpeaking) { this.els.micBtn.classList.add('mic-speaking'); this.els.micBtn.classList.remove('mic-on'); }
-                    else { this.els.micBtn.classList.remove('mic-speaking'); this.els.micBtn.classList.add('mic-on'); }
-                }
-
-                // --- Tools & Modals ---
-                showTextDialog() {
-                    this.els.backdrop.classList.add('visible');
-                    this.els.txtDialog.classList.add('visible');
-                    setTimeout(() => this.els.inpTxt.focus(), 100);
-                }
-                
-                hideTextDialog() {
-                    this.els.txtDialog.classList.remove('visible');
-                    this.els.inpTxt.value = '';
-                    AppState.textPos = null;
-                    if (!document.querySelector('.drawer.open')) this.els.backdrop.classList.remove('visible');
-                }
-
-                uploadImage() {
-                    const inp = document.createElement('input'); inp.type = 'file'; inp.accept = 'image/*';
-                    inp.onchange = e => {
-                        const file = e.target.files[0];
-                        if (!file) return;
-                        if (file.size > 5e6) return this.toast("Rasm 5MB dan kichik bo'lishi shart", "error");
-
-                        const reader = new FileReader();
-                        reader.onload = ev => {
-                            const img = new Image();
-                            img.onload = () => {
-                                const ctr = CanvasEngine.toWorld(window.innerWidth / 2, window.innerHeight / 2);
-                                const maxW = 600 / AppState.camera.zoom;
-                                let w = img.width, h = img.height;
-                                if (w > maxW) { h = (maxW / w) * h; w = maxW; }
-                                
-                                FirebaseEngine.pushElement({
-                                    type: 'image', data: ev.target.result,
-                                    x: ctr.x - w / 2, y: ctr.y - h / 2, width: w, height: h
-                                });
-                            };
-                            img.src = ev.target.result;
-                        };
-                        reader.readAsDataURL(file);
-                    };
-                    inp.click();
-                }
+                },
 
                 // --- Live Data Rendering ---
-                sendMsg() {
-                    const txt = this.els.inpChat.value.trim();
-                    if (!txt) return;
-                    FirebaseEngine.pushChat(txt);
-                    this.els.inpChat.value = '';
-                }
-
-                renderMsg(m) {
-                    const feed = document.getElementById('ui-chat-feed');
-                    const isMe = m.uid === AppState.uid;
-                    const div = document.createElement('div');
-                    div.className = `msg-bubble ${isMe ? 'msg-mine' : 'msg-other'}`;
+                sendChat() {
+                    if (Date.now() - Store.lastMsgTime < 1000) return this.toast("Xavfsizlik: Sekinroq yozing!", "warning");
+                    Store.lastMsgTime = Date.now();
                     
-                    let icon = m.isHost ? '<i data-lucide="crown" size="12"></i>' : '';
+                    let txt = document.getElementById('inp-chat-msg').value.trim();
+                    if (!txt) return;
+                    txt = Core.sanitize(txt).substring(0, 300);
+                    Database.sendChat(txt);
+                    document.getElementById('inp-chat-msg').value = '';
+                },
+
+                renderMessage(msg) {
+                    const feed = document.getElementById('ui-chat-feed');
+                    const isMine = msg.uid === Store.uid;
+                    const div = document.createElement('div');
+                    div.className = `msg-box ${isMine ? 'mine' : 'others'}`;
+                    
                     div.innerHTML = `
-                        <div class="msg-author">${m.name} ${icon}</div>
-                        <div>${m.text}</div>
-                        <div class="msg-timestamp">${m.time}</div>
+                        <div class="msg-author">${Core.sanitize(msg.name)} ${msg.isHost ? '<i data-lucide="shield-check" size="14" style="color:var(--accent)"></i>' : ''}</div>
+                        <div>${Core.sanitize(msg.text)}</div>
+                        <div class="msg-time">${msg.time}</div>
                     `;
                     feed.appendChild(div);
                     lucide.createIcons();
                     feed.scrollTop = feed.scrollHeight;
 
-                    const sidebar = document.getElementById('side-chat');
-                    if (!sidebar.classList.contains('open') && !isMe) {
-                        AppState.unreadChats++;
-                        this.els.badgeChat.innerText = AppState.unreadChats > 9 ? '9+' : AppState.unreadChats;
-                        this.els.badgeChat.style.display = 'flex';
+                    if (!isMine && !document.getElementById('side-chat').classList.contains('open')) {
+                        Store.unreadMsg++;
+                        const b = document.getElementById('badge-chat');
+                        b.innerText = Store.unreadMsg > 9 ? '9+' : Store.unreadMsg;
+                        b.style.display = 'flex';
+                        Core.vibrate([10, 30, 10]);
                     }
-                }
+                },
 
-                renderUsers() {
-                    const list = document.getElementById('ui-users-list');
+                renderUserList() {
+                    const container = document.getElementById('ui-user-list');
                     let html = '', count = 0;
-
-                    Object.values(AppState.peers).forEach(p => {
-                        if (p.isHost) return; 
+                    
+                    Object.values(Store.peers).forEach(p => {
+                        if (p.isHost) return;
                         count++;
-                        const dCls = p.canDraw ? 'is-active' : '';
-                        const sCls = p.canSpeak ? 'is-active' : '';
-                        const initial = p.name ? p.name.charAt(0) : '?';
-
                         html += `
                         <div class="user-row">
-                            <div class="user-meta">
-                                <div class="user-avatar">${initial}</div>
-                                <span style="font-weight:600;">${Core.sanitizeHTML(p.name)}</span>
-                            </div>
-                            <div class="perm-toggles">
-                                <button class="toggle-btn ${dCls}" data-uid="${p.id}" data-type="canDraw"><i data-lucide="pencil" size="18"></i></button>
-                                <button class="toggle-btn ${sCls}" data-uid="${p.id}" data-type="canSpeak"><i data-lucide="mic" size="18"></i></button>
+                            <div class="u-left"><div class="u-avatar">${p.name.charAt(0)}</div><span>${Core.sanitize(p.name)}</span></div>
+                            <div class="u-right">
+                                <button class="perm-btn ${p.canDraw ? 'granted' : ''}" data-uid="${p.id}" data-perm="canDraw"><i data-lucide="pencil" size="18"></i></button>
+                                <button class="perm-btn ${p.canSpeak ? 'granted' : ''}" data-uid="${p.id}" data-perm="canSpeak"><i data-lucide="mic" size="18"></i></button>
                             </div>
                         </div>`;
                     });
 
-                    if (count === 0) html = '<div style="text-align:center;color:var(--text-muted);margin-top:20px;">Hozircha o\'quvchilar yo\'q</div>';
-                    list.innerHTML = html;
+                    if (count === 0) html = '<div style="text-align:center; color:var(--text-muted); font-weight:800; margin-top:20px;">Hozircha o\'quvchilar yo\'q</div>';
+                    container.innerHTML = html;
                     lucide.createIcons();
 
-                    this.els.badgeUsers.innerText = count;
-                    this.els.badgeUsers.style.display = count > 0 ? 'flex' : 'none';
+                    const b = document.getElementById('badge-users');
+                    b.innerText = count; b.style.display = count > 0 ? 'flex' : 'none';
 
-                    if (AppState.isHost) {
-                        list.querySelectorAll('.toggle-btn').forEach(btn => {
+                    if (Store.isHost) {
+                        container.querySelectorAll('.perm-btn').forEach(btn => {
                             btn.onclick = () => {
-                                const uid = btn.dataset.uid, t = btn.dataset.type;
-                                FirebaseEngine.updatePerm(uid, t, !AppState.peers[uid][t]);
+                                Database.updatePermission(btn.dataset.uid, btn.dataset.perm, !Store.peers[btn.dataset.uid][btn.dataset.perm]);
+                                Core.vibrate(10);
                             };
                         });
                     }
-                }
+                },
 
                 toast(msg, type = 'success') {
-                    const zone = document.getElementById('toast-zone');
-                    const t = document.createElement('div');
-                    t.className = `toast-msg ${type}`;
-                    t.innerHTML = `<i data-lucide="${type === 'success' ? 'check-circle' : 'alert-circle'}" size="20"></i><span>${Core.sanitizeHTML(msg)}</span>`;
-                    zone.appendChild(t);
-                    lucide.createIcons();
-                    setTimeout(() => {
-                        t.style.opacity = '0';
-                        t.style.transform = 'translateY(-20px)';
-                        setTimeout(() => t.remove(), 300);
-                    }, 3000);
-                }
-            }
-            const UI = new UIController();
-
-            // ==========================================
-            // 4. FIREBASE ENGINE (Data Sync)
-            // ==========================================
-            class FirebaseManager {
-                constructor() {
-                    const cfg = {
-                        apiKey: "AIzaSyDvbG7fChb2LN_nJhwTF1iMKMXNPcuGk5Y",
-                        databaseURL: "https://tictactoe-26434-default-rtdb.firebaseio.com",
-                        projectId: "tictactoe-26434"
-                    };
-                    if (!firebase.apps.length) firebase.initializeApp(cfg);
-                    this.db = firebase.database();
-                    this.ref = null;
-                }
-
-                connect(roomId) {
-                    AppState.roomId = roomId;
-                    this.ref = this.db.ref(`mr_board_pro/${roomId}`);
+                    Core.vibrate(type === 'error' ? [50, 50, 50] : 15);
+                    const container = document.getElementById('toast-container');
+                    const el = document.createElement('div');
+                    el.className = `toast ${type}`;
                     
-                    const meRef = this.ref.child(`users/${AppState.uid}`);
-                    meRef.onDisconnect().remove();
-
-                    if (AppState.isHost) { AppState.permDraw = true; AppState.permSpeak = true; AppState.micActive = true; }
-                    this.setPresence();
-                    this.setupListeners();
+                    let icon = 'check-circle';
+                    if (type === 'error') icon = 'shield-alert';
+                    else if (type === 'warning') icon = 'alert-triangle';
+                    
+                    el.innerHTML = `<i data-lucide="${icon}"></i> <span>${Core.sanitize(msg)}</span>`;
+                    container.appendChild(el);
+                    lucide.createIcons();
+                    
+                    setTimeout(() => {
+                        el.style.animation = 'none';
+                        el.style.opacity = '0';
+                        el.style.transform = 'translateY(-50px)';
+                        setTimeout(() => el.remove(), 300);
+                    }, 3500);
                 }
+            };
 
-                setPresence() {
-                    this.ref.child(`users/${AppState.uid}`).set({
-                        id: AppState.uid, name: AppState.uname, isHost: AppState.isHost,
-                        canDraw: AppState.permDraw, canSpeak: AppState.permSpeak
-                    });
-                }
+            /** =========================================================================
+             * 4. DATABASE ENGINE (Firebase Sync & Security)
+             * ========================================================================= */
+            const Database = {
+                ref: null,
+                
+                init(roomId) {
+                    // Firebase config (Foydalanuvchi ilovasi uchun)
+                    const cfg = { apiKey: "AIzaSyDvbG7fChb2LN_nJhwTF1iMKMXNPcuGk5Y", databaseURL: "https://tictactoe-26434-default-rtdb.firebaseio.com", projectId: "tictactoe-26434" };
+                    if (!firebase.apps.length) firebase.initializeApp(cfg);
+                    
+                    this.ref = firebase.database().ref(`mr_board_titan/${roomId}`);
+                    
+                    // Presence setup
+                    this.ref.child(`users/${Store.uid}`).onDisconnect().remove();
+                    if(Store.isHost) {
+                        Store.canDraw = true; Store.canSpeak = true; Store.micActive = true;
+                        this.ref.child('meta/hostToken').set(Store.hostToken);
+                    }
+                    this.ref.child(`users/${Store.uid}`).set({ id: Store.uid, name: Store.name, isHost: Store.isHost, canDraw: Store.canDraw, canSpeak: Store.canSpeak });
 
-                setupListeners() {
-                    // 1. Storage Elements
+                    this.attachListeners();
+                },
+
+                attachListeners() {
+                    // Elements array
                     this.ref.child('data/elements').on('value', s => {
-                        AppState.elements = s.val() ? Object.values(s.val()) : [];
-                        CanvasEngine.requestRedraw();
+                        Store.elements = s.val() ? Object.values(s.val()) : [];
+                        Engine.requestRender();
                     });
 
-                    // 2. Active Drawing
+                    // Live drawing paths
                     this.ref.child('data/live').on('value', s => {
-                        AppState.livePaths = s.val() || {};
-                        CanvasEngine.requestRedraw();
+                        Store.livePaths = s.val() || {};
+                        Engine.requestRender();
                     });
 
-                    // 3. Pointer Tracking
+                    // Laser paths (Temporary)
+                    this.ref.child('data/laser').on('value', s => {
+                        Store.laserPaths = s.val() || {};
+                        Engine.requestRender();
+                    });
+
+                    // Mouse Cursors
                     this.ref.child('data/cursors').on('value', s => {
-                        AppState.cursors = s.val() || {};
-                        CanvasEngine.requestRedraw();
+                        Store.cursors = s.val() || {};
+                        Engine.requestRender();
                     });
 
-                    // 4. Viewport Sync (Host -> Client)
-                    if (!AppState.isHost) {
+                    // Viewport Sync for Students
+                    if (!Store.isHost) {
                         this.ref.child('config/camera').on('value', s => {
-                            if (s.val() && !AppState.canDraw) {
-                                AppState.camera = s.val();
-                                CanvasEngine.requestRedraw();
-                                UI.updateZoom();
+                            if (s.val() && !Store.canDraw) {
+                                Store.cam = s.val();
+                                Engine.requestRender();
+                                UI.updateZoomUI();
                             }
                         });
                     }
 
-                    // 5. User Management & Permissions
+                    // User Management
                     this.ref.child('users').on('value', s => {
-                        AppState.peers = s.val() || {};
-                        
-                        if (!AppState.isHost && AppState.peers[AppState.uid]) {
-                            const me = AppState.peers[AppState.uid];
-                            let reRender = false;
-                            
-                            if (AppState.permDraw !== me.canDraw) { AppState.permDraw = me.canDraw; reRender = true; }
-                            if (AppState.permSpeak !== me.canSpeak) {
-                                AppState.permSpeak = me.canSpeak;
-                                if (!me.canSpeak) { AppState.micActive = false; AudioEngine.applyMicState(); }
-                                reRender = true;
+                        Store.peers = s.val() || {};
+                        if (!Store.isHost && Store.peers[Store.uid]) {
+                            const me = Store.peers[Store.uid];
+                            let changed = false;
+                            if (Store.canDraw !== me.canDraw) { Store.canDraw = me.canDraw; changed = true; }
+                            if (Store.canSpeak !== me.canSpeak) {
+                                Store.canSpeak = me.canSpeak;
+                                if (!me.canSpeak) { Store.micActive = false; AudioEngine.applyMicState(); }
+                                changed = true;
                             }
-                            if (reRender) UI.updateRoleInfo();
+                            if (changed) UI.updateRoleUI();
                         }
-                        UI.renderUsers();
+                        UI.renderUserList();
                     });
 
-                    // 6. Chat Feed
-                    this.ref.child('chat').on('child_added', s => UI.renderMsg(s.val()));
-                }
+                    // Chat messages
+                    this.ref.child('chat').on('child_added', s => UI.renderMessage(s.val()));
+                },
 
-                // Ops
-                setLivePath(id, d) { this.ref.child(`data/live/${id}`).set(d); }
-                updateLivePath(id, p) { this.ref.child(`data/live/${id}`).update({ points: p }); }
-                delLivePath(id) { this.ref.child(`data/live/${id}`).remove(); }
-                
-                pushElement(data) {
-                    data.uid = AppState.uid; data.ts = Date.now();
+                // Active Path Ops
+                setLivePath(id, data) { this.ref.child(`data/live/${id}`).set(data); },
+                updateLivePath(id, points) { this.ref.child(`data/live/${id}`).update({ points: points }); },
+                removeLivePath(id) { this.ref.child(`data/live/${id}`).remove(); },
+
+                // Laser Ops
+                setLaserPath(id, data) {
+                    this.ref.child(`data/laser/${id}`).set(data);
+                    // Lazer 1.5 sekundan keyin barchada o'chib ketishi kerak
+                    setTimeout(() => this.ref.child(`data/laser/${id}`).remove(), 1500);
+                },
+                updateLaserPath(id, points) { this.ref.child(`data/laser/${id}`).update({ points: points }); },
+
+                // Permanent Storage Ops
+                saveElement(data) {
+                    data.uid = Store.uid;
+                    data.ts = Date.now();
                     this.ref.child('data/elements').push(data);
-                }
+                },
 
-                syncCursor = Core.throttle((pos) => {
-                    this.ref.child(`data/cursors/${AppState.uid}`).set({ x: pos.x, y: pos.y, name: AppState.uname, isHost: AppState.isHost });
-                }, 40);
+                syncCursor: Core.throttle((pos) => {
+                    Database.ref.child(`data/cursors/${Store.uid}`).set({ x: pos.x, y: pos.y, name: Store.name, isHost: Store.isHost });
+                }, 40),
 
-                syncCamera() { if (AppState.isHost) this.ref.child('config/camera').set(AppState.camera); }
+                syncCamera() { if (Store.isHost) this.ref.child('config/camera').set(Store.cam); },
 
-                undo() {
+                undoMyLast() {
                     this.ref.child('data/elements').once('value', s => {
                         if (!s.val()) return;
-                        const arr = Object.keys(s.val()).map(k => ({ key: k, ...s.val()[k] }));
-                        const mine = arr.filter(i => i.uid === AppState.uid);
-                        if (mine.length) {
-                            mine.sort((a, b) => a.ts - b.ts);
-                            this.ref.child(`data/elements/${mine[mine.length - 1].key}`).remove();
+                        const arr = Object.keys(s.val()).map(k => ({ key: k, ...s.val()[k] })).filter(i => i.uid === Store.uid);
+                        if (arr.length) {
+                            arr.sort((a, b) => a.ts - b.ts);
+                            this.ref.child(`data/elements/${arr[arr.length - 1].key}`).remove();
+                            Core.vibrate(20);
                         }
                     });
-                }
+                },
 
-                clearAll() { if (AppState.isHost) this.ref.child('data').remove(); }
-                updatePerm(uid, perm, val) { if (AppState.isHost) this.ref.child(`users/${uid}`).update({ [perm]: val }); }
-                
-                pushChat(txt) {
+                clearBoard() {
+                    if (!Store.isHost) return;
+                    this.ref.child('meta/hostToken').once('value', s => {
+                        if (s.val() === Store.hostToken) {
+                            this.ref.child('data/elements').remove();
+                            this.ref.child('data/live').remove();
+                            UI.toast("Doska tozalandi", "success");
+                        }
+                    });
+                },
+
+                updatePermission(uid, perm, val) {
+                    if (!Store.isHost) return;
+                    this.ref.child('meta/hostToken').once('value', s => {
+                        if (s.val() === Store.hostToken) this.ref.child(`users/${uid}`).update({ [perm]: val });
+                    });
+                },
+
+                sendChat(text) {
                     this.ref.child('chat').push({
-                        uid: AppState.uid, name: AppState.uname, isHost: AppState.isHost,
-                        text: Core.sanitizeHTML(txt), time: Core.getTimeStr()
+                        uid: Store.uid, name: Store.name, isHost: Store.isHost,
+                        text: text, time: Core.getTime()
                     });
                 }
-            }
-            const FirebaseEngine = new FirebaseManager();
+            };
 
-            // ==========================================
-            // 5. CANVAS RENDERER (Optimized Graphics)
-            // ==========================================
-            class Renderer {
-                constructor() {
-                    this.cvs = document.getElementById('main-canvas');
-                    this.ctx = this.cvs.getContext('2d', { alpha: false, desynchronized: true });
-                    
-                    this.isDrawing = false;
-                    this.lastPt = null;
-                    this.activeId = null;
-                    this.dirty = true;
-                    
-                    this.pinchDist = null;
-                    this.pinchZoom = 1;
-                }
+            /** =========================================================================
+             * 5. TITAN CANVAS ENGINE (High-DPI, Shapes, Minimap, Laser)
+             * ========================================================================= */
+            const Engine = {
+                els: {
+                    main: document.getElementById('canvas-main'),
+                    laser: document.getElementById('canvas-laser'),
+                    mini: document.getElementById('minimap-canvas'),
+                    vp: document.getElementById('minimap-viewport'),
+                    wrap: document.getElementById('workspace')
+                },
+                ctx: { main: null, laser: null, mini: null },
+                dpr: 1,
+                
+                // Drawing state
+                isDrawing: false,
+                lastPos: null,
+                activeId: null,
+                needsRedraw: true,
+                
+                // Pinch to zoom state
+                pinchDist: null, pinchZoom: 1,
+
+                // Shape Temp State (Start point of shape)
+                shapeStart: null,
 
                 init() {
-                    this.resize();
+                    this.ctx.main = this.els.main.getContext('2d', { desynchronized: true });
+                    this.ctx.laser = this.els.laser.getContext('2d');
+                    this.ctx.mini = this.els.mini.getContext('2d');
+                    
                     window.addEventListener('resize', () => this.resize());
-                    this.attachIO();
-                    requestAnimationFrame(() => this.loop());
-                }
+                    this.resize();
+                    this.bindEvents();
+                    this.renderLoop();
+                },
 
-                resize() { this.cvs.width = window.innerWidth; this.cvs.height = window.innerHeight; this.requestRedraw(); }
-                requestRedraw() { this.dirty = true; }
+                resize() {
+                    this.dpr = window.devicePixelRatio || 1;
+                    const w = window.innerWidth, h = window.innerHeight;
+                    
+                    // Main Canvas High-DPI
+                    this.els.main.width = w * this.dpr; this.els.main.height = h * this.dpr;
+                    this.els.main.style.width = `${w}px`; this.els.main.style.height = `${h}px`;
+                    this.ctx.main.scale(this.dpr, this.dpr);
 
-                toWorld(x, y) { return { x: (x - AppState.camera.x) / AppState.camera.zoom, y: (y - AppState.camera.y) / AppState.camera.zoom }; }
-                toScreen(x, y) { return { x: x * AppState.camera.zoom + AppState.camera.x, y: y * AppState.camera.zoom + AppState.camera.y }; }
+                    // Laser Canvas
+                    this.els.laser.width = w * this.dpr; this.els.laser.height = h * this.dpr;
+                    this.els.laser.style.width = `${w}px`; this.els.laser.style.height = `${h}px`;
+                    this.ctx.laser.scale(this.dpr, this.dpr);
 
-                attachIO() {
-                    this.cvs.addEventListener('wheel', e => {
+                    // Minimap Setup (Fixed CSS size 180x120)
+                    this.els.mini.width = 180 * this.dpr; this.els.mini.height = 120 * this.dpr;
+                    this.ctx.mini.scale(this.dpr, this.dpr);
+
+                    this.requestRender();
+                },
+
+                requestRender() { this.needsRedraw = true; },
+
+                // Coordinate Transforms
+                screenToWorld(x, y) { return { x: (x - Store.cam.x) / Store.cam.z, y: (y - Store.cam.y) / Store.cam.z }; },
+                worldToScreen(x, y) { return { x: x * Store.cam.z + Store.cam.x, y: y * Store.cam.z + Store.cam.y }; },
+
+                bindEvents() {
+                    const el = this.els.wrap;
+                    
+                    // Wheel Zoom / Pan
+                    el.addEventListener('wheel', e => {
                         e.preventDefault();
-                        const wPos = this.toWorld(e.clientX, e.clientY);
-                        const factor = e.deltaY > 0 ? 0.9 : 1.1;
-                        let nz = Math.min(Math.max(0.1, AppState.camera.zoom * factor), 5.0);
-                        
-                        AppState.camera.zoom = nz;
-                        AppState.camera.x = e.clientX - wPos.x * nz;
-                        AppState.camera.y = e.clientY - wPos.y * nz;
-                        
-                        this.requestRedraw(); UI.updateZoom(); FirebaseEngine.syncCamera();
+                        if (e.ctrlKey || e.metaKey) {
+                            // Zoom
+                            const w = this.screenToWorld(e.clientX, e.clientY);
+                            const nz = Math.min(Math.max(0.1, Store.cam.z * (e.deltaY > 0 ? 0.9 : 1.1)), 5);
+                            Store.cam.z = nz; Store.cam.x = e.clientX - w.x * nz; Store.cam.y = e.clientY - w.y * nz;
+                            UI.updateZoomUI();
+                        } else {
+                            // Pan
+                            Store.cam.x -= e.deltaX; Store.cam.y -= e.deltaY;
+                        }
+                        this.requestRender(); Database.syncCamera();
                     }, { passive: false });
 
-                    this.cvs.addEventListener('pointerdown', e => {
+                    // Pointer Events
+                    el.addEventListener('pointerdown', e => {
                         if (!e.isPrimary) return;
-                        const wPos = this.toWorld(e.clientX, e.clientY);
+                        const wPos = this.screenToWorld(e.clientX, e.clientY);
 
-                        if (AppState.tool === 'text') {
-                            if (AppState.canDraw) { AppState.textPos = wPos; UI.showTextDialog(); }
-                            else UI.toast("Ruxsat yo'q", "error");
-                            return;
+                        if (Store.tool === 'text') {
+                            if (Store.canDraw) { Store.textPos = wPos; UI.els.over.classList.add('active'); UI.els.modTxt.classList.add('active'); setTimeout(()=>document.getElementById('inp-text-content').focus(), 100); }
+                            else UI.toast("Ruxsat yo'q", "error"); return;
                         }
 
-                        this.isDrawing = true; this.lastPt = { x: e.clientX, y: e.clientY };
+                        this.isDrawing = true; this.lastPos = { x: e.clientX, y: e.clientY };
+                        if (!Store.canDraw && Store.tool !== 'pan') { this.isDrawing = false; return; }
 
-                        if (!AppState.canDraw && AppState.tool !== 'pan') { this.isDrawing = false; return; }
+                        this.aId = Store.uid + '_' + Date.now();
 
-                        if (AppState.tool === 'draw' || AppState.tool === 'erase') {
-                            this.activeId = AppState.uid + '_' + Date.now();
-                            const c = AppState.tool === 'erase' ? '#000000' : AppState.color;
-                            const s = (AppState.tool === 'erase' ? 50 : AppState.size) / AppState.camera.zoom;
-                            FirebaseEngine.setLivePath(this.activeId, { uid: AppState.uid, points: [wPos], color: c, size: s });
+                        // Paths (Draw, Erase, Laser)
+                        if (['draw', 'erase', 'laser'].includes(Store.tool)) {
+                            let color = Store.tool === 'erase' ? '#ffffff' : (Store.tool === 'laser' ? '#ef4444' : Store.color);
+                            let size = (Store.tool === 'erase' ? 60 : Store.size) / Store.cam.z;
+                            let data = { uid: Store.uid, points: [wPos], color: color, size: size, tool: Store.tool };
+                            
+                            if (Store.tool === 'laser') Database.setLaserPath(this.aId, data);
+                            else Database.setLivePath(this.aId, data);
+                        } 
+                        // Shapes
+                        else if (['rect', 'circle', 'line', 'arrow'].includes(Store.tool)) {
+                            this.shapeStart = wPos;
+                            let data = { uid: Store.uid, type: Store.tool, start: wPos, end: wPos, color: Store.color, size: Store.size / Store.cam.z };
+                            Database.setLivePath(this.aId, data);
                         }
                     });
 
                     window.addEventListener('pointermove', e => {
                         if (!e.isPrimary) return;
-                        const wPos = this.toWorld(e.clientX, e.clientY);
-                        FirebaseEngine.syncCursor(wPos);
+                        const wPos = this.screenToWorld(e.clientX, e.clientY);
+                        Database.syncCursor(wPos);
 
                         if (!this.isDrawing) return;
 
-                        if (AppState.tool === 'pan') {
-                            AppState.camera.x += e.clientX - this.lastPt.x;
-                            AppState.camera.y += e.clientY - this.lastPt.y;
-                            this.lastPt = { x: e.clientX, y: e.clientY };
-                            this.requestRedraw(); return;
+                        if (Store.tool === 'pan') {
+                            Store.cam.x += e.clientX - this.lastPos.x; Store.cam.y += e.clientY - this.lastPos.y;
+                            this.lastPos = { x: e.clientX, y: e.clientY }; this.requestRender(); return;
                         }
 
-                        if (AppState.canDraw && (AppState.tool === 'draw' || AppState.tool === 'erase')) {
-                            const path = AppState.livePaths[this.activeId];
-                            if (path && path.points) {
-                                const lW = path.points[path.points.length - 1];
-                                if (Math.hypot(wPos.x - lW.x, wPos.y - lW.y) > 3 / AppState.camera.zoom) {
-                                    path.points.push(wPos);
-                                    FirebaseEngine.updateLivePath(this.activeId, path.points);
+                        if (Store.canDraw && this.aId) {
+                            // Path drawing
+                            if (['draw', 'erase', 'laser'].includes(Store.tool)) {
+                                const pathPool = Store.tool === 'laser' ? Store.laserPaths : Store.livePaths;
+                                const pt = pathPool[this.aId];
+                                if (pt && pt.points) {
+                                    if(pt.points.length > 300 && Store.tool !== 'laser') {
+                                        Database.saveElement({ type: 'path', points: pt.points, color: pt.color, size: pt.size });
+                                        Database.removeLivePath(this.aId);
+                                        this.aId = Store.uid + '_' + Date.now();
+                                        Database.setLivePath(this.aId, { uid: Store.uid, points: [wPos], color: pt.color, size: pt.size, tool: Store.tool });
+                                    }
+                                    const l = pt.points[pt.points.length - 1];
+                                    if (Math.hypot(wPos.x - l.x, wPos.y - l.y) > 2 / Store.cam.z) {
+                                        pt.points.push(wPos);
+                                        if (Store.tool === 'laser') Database.updateLaserPath(this.aId, pt.points);
+                                        else Database.updateLivePath(this.aId, pt.points);
+                                    }
                                 }
+                            } 
+                            // Shape drawing
+                            else if (['rect', 'circle', 'line', 'arrow'].includes(Store.tool) && this.shapeStart) {
+                                Database.updateLivePath(this.aId, null); // Trick to trigger update, we will rewrite object
+                                Database.setLivePath(this.aId, { uid: Store.uid, type: Store.tool, start: this.shapeStart, end: wPos, color: Store.color, size: Store.size / Store.cam.z });
                             }
                         }
-                        this.lastPt = { x: e.clientX, y: e.clientY };
+                        this.lastPos = { x: e.clientX, y: e.clientY };
                     });
 
                     window.addEventListener('pointerup', e => {
                         if (!e.isPrimary || !this.isDrawing) return;
                         this.isDrawing = false;
                         
-                        if (AppState.canDraw && (AppState.tool === 'draw' || AppState.tool === 'erase') && this.activeId) {
-                            const path = AppState.livePaths[this.activeId];
-                            if (path && path.points && path.points.length > 1) {
-                                FirebaseEngine.pushElement({ type: 'path', points: path.points, color: path.color, size: path.size });
+                        if (Store.canDraw && this.aId) {
+                            if (['draw', 'erase'].includes(Store.tool)) {
+                                const pt = Store.livePaths[this.aId];
+                                if (pt && pt.points && pt.points.length > 1) Database.saveElement({ type: 'path', points: pt.points, color: pt.color, size: pt.size });
+                                Database.removeLivePath(this.aId);
+                            } 
+                            else if (Store.tool === 'laser') {
+                                // Laser fades automatically via DB setTimeout, no need to save to permanent elements
                             }
-                            FirebaseEngine.delLivePath(this.activeId);
-                            this.activeId = null;
+                            else if (['rect', 'circle', 'line', 'arrow'].includes(Store.tool)) {
+                                const pt = Store.livePaths[this.aId];
+                                if (pt && pt.start && pt.end && Math.hypot(pt.start.x - pt.end.x, pt.start.y - pt.end.y) > 5) {
+                                    Database.saveElement({ type: 'shape', shapeType: pt.type, start: pt.start, end: pt.end, color: pt.color, size: pt.size });
+                                }
+                                Database.removeLivePath(this.aId);
+                                this.shapeStart = null;
+                            }
+                            this.aId = null;
                         }
                     });
 
-                    // Mobile Pinch-to-zoom
-                    this.cvs.addEventListener('touchstart', e => {
-                        if(e.touches.length === 2) {
-                            e.preventDefault(); this.isDrawing = false;
-                            this.pinchDist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
-                            this.pinchZoom = AppState.camera.zoom;
-                        }
-                    }, {passive:false});
-                    this.cvs.addEventListener('touchmove', e => {
-                        if(e.touches.length === 2 && this.pinchDist) {
-                            e.preventDefault();
-                            const cd = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
-                            const cx = (e.touches[0].clientX + e.touches[1].clientX)/2, cy = (e.touches[0].clientY + e.touches[1].clientY)/2;
-                            const wPos = this.toWorld(cx, cy);
-                            
-                            let nz = Math.min(Math.max(0.1, this.pinchZoom * (cd / this.pinchDist)), 5.0);
-                            AppState.camera.zoom = nz;
-                            AppState.camera.x = cx - wPos.x * nz;
-                            AppState.camera.y = cy - wPos.y * nz;
-                            this.requestRedraw(); UI.updateZoom(); FirebaseEngine.syncCamera();
-                        }
-                    }, {passive:false});
-                    this.cvs.addEventListener('touchend', e => { if(e.touches.length < 2) this.pinchDist = null; });
-                }
+                    // Touch Multi (Pinch Zoom)
+                    el.addEventListener('touchstart', e => { if (e.touches.length === 2) { e.preventDefault(); this.isDrawing = false; this.pinchDist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY); this.pinchZoom = Store.cam.z; } }, { passive: false });
+                    el.addEventListener('touchmove', e => { if (e.touches.length === 2 && this.pinchDist) { e.preventDefault(); const cd = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY), cx = (e.touches[0].clientX + e.touches[1].clientX) / 2, cy = (e.touches[0].clientY + e.touches[1].clientY) / 2, w = this.screenToWorld(cx, cy), nz = Math.min(Math.max(0.1, this.pinchZoom * (cd / this.pinchDist)), 5); Store.cam.z = nz; Store.cam.x = cx - w.x * nz; Store.cam.y = cy - w.y * nz; this.requestRender(); UI.updateZoomUI(); Database.syncCamera(); } }, { passive: false });
+                    el.addEventListener('touchend', e => { if (e.touches.length < 2) this.pinchDist = null; });
+                },
 
-                drawSpline(pts, c, s) {
+                // --- Drawing Primitives ---
+                drawSpline(ctx, pts, c, s, isLaser = false) {
                     if (!pts || pts.length < 2) return;
-                    this.ctx.beginPath(); this.ctx.strokeStyle = c; this.ctx.lineWidth = s;
-                    this.ctx.lineCap = 'round'; this.ctx.lineJoin = 'round';
-                    this.ctx.moveTo(pts[0].x, pts[0].y);
-                    for (let i = 1; i < pts.length - 1; i++) {
-                        const xc = (pts[i].x + pts[i+1].x) / 2, yc = (pts[i].y + pts[i+1].y) / 2;
-                        this.ctx.quadraticCurveTo(pts[i].x, pts[i].y, xc, yc);
-                    }
-                    this.ctx.lineTo(pts[pts.length-1].x, pts[pts.length-1].y);
-                    this.ctx.stroke();
-                }
-
-                drawBg() {
-                    this.ctx.strokeStyle = '#1a1a1a'; this.ctx.lineWidth = 1;
-                    const gs = 60 * AppState.camera.zoom;
-                    if (gs < 20) return;
+                    ctx.beginPath(); ctx.strokeStyle = c; ctx.lineWidth = s; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+                    if (isLaser) { ctx.shadowBlur = 15; ctx.shadowColor = c; }
                     
-                    const ox = AppState.camera.x % gs, oy = AppState.camera.y % gs;
-                    this.ctx.beginPath();
-                    for (let x = ox; x < this.cvs.width; x += gs) { this.ctx.moveTo(x, 0); this.ctx.lineTo(x, this.cvs.height); }
-                    for (let y = oy; y < this.cvs.height; y += gs) { this.ctx.moveTo(0, y); this.ctx.lineTo(this.cvs.width, y); }
-                    this.ctx.stroke();
-                }
+                    ctx.moveTo(pts[0].x, pts[0].y);
+                    for (let i = 1; i < pts.length - 1; i++) ctx.quadraticCurveTo(pts[i].x, pts[i].y, (pts[i].x + pts[i + 1].x) / 2, (pts[i].y + pts[i + 1].y) / 2);
+                    ctx.lineTo(pts[pts.length - 1].x, pts[pts.length - 1].y); ctx.stroke();
+                    if (isLaser) { ctx.shadowBlur = 0; } // Reset
+                },
 
-                loop() {
+                drawShape(ctx, el) {
+                    ctx.beginPath(); ctx.strokeStyle = el.color; ctx.lineWidth = el.size; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+                    const s = el.start, e = el.end;
+                    
+                    if (el.shapeType === 'rect') {
+                        ctx.rect(s.x, s.y, e.x - s.x, e.y - s.y);
+                    } else if (el.shapeType === 'circle') {
+                        const r = Math.hypot(e.x - s.x, e.y - s.y);
+                        ctx.arc(s.x, s.y, r, 0, 2 * Math.PI);
+                    } else if (el.shapeType === 'line') {
+                        ctx.moveTo(s.x, s.y); ctx.lineTo(e.x, e.y);
+                    } else if (el.shapeType === 'arrow') {
+                        const angle = Math.atan2(e.y - s.y, e.x - s.x);
+                        const headLen = 20 / Store.cam.z;
+                        ctx.moveTo(s.x, s.y); ctx.lineTo(e.x, e.y);
+                        ctx.lineTo(e.x - headLen * Math.cos(angle - Math.PI/6), e.y - headLen * Math.sin(angle - Math.PI/6));
+                        ctx.moveTo(e.x, e.y);
+                        ctx.lineTo(e.x - headLen * Math.cos(angle + Math.PI/6), e.y - headLen * Math.sin(angle + Math.PI/6));
+                    }
+                    ctx.stroke();
+                },
+
+                // --- Render Loop ---
+                renderLoop() {
                     if (this.dirty) {
-                        this.ctx.setTransform(1, 0, 0, 1, 0, 0);
-                        this.ctx.fillStyle = '#000000';
-                        this.ctx.fillRect(0, 0, this.cvs.width, this.cvs.height);
-                        this.drawBg();
-                        
-                        this.ctx.setTransform(AppState.camera.zoom, 0, 0, AppState.camera.zoom, AppState.camera.x, AppState.camera.y);
-                        
-                        AppState.elements.forEach(el => {
-                            if (el.type === 'path') this.drawSpline(el.points, el.color, el.size);
-                            else if (el.type === 'text') {
-                                this.ctx.font = `600 ${el.size}px Inter, sans-serif`;
-                                this.ctx.fillStyle = el.color; this.ctx.fillText(el.text, el.x, el.y);
-                            } else if (el.type === 'image' && el.data) {
-                                if (!el._img) { el._img = new Image(); el._img.src = el.data; el._img.onload = () => this.requestRedraw(); }
-                                if (el._img.complete) this.ctx.drawImage(el._img, el.x, el.y, el.width, el.height);
+                        const { main, laser, mini } = this.ctx;
+                        const w = this.els.main.width / this.dpr, h = this.els.main.height / this.dpr;
+
+                        // 1. Clear All
+                        main.clearRect(0, 0, w, h);
+                        laser.clearRect(0, 0, w, h);
+                        mini.clearRect(0, 0, 180, 120);
+
+                        // 2. Setup Main Context Transform
+                        main.save();
+                        main.translate(Store.cam.x, Store.cam.y);
+                        main.scale(Store.cam.z, Store.cam.z);
+
+                        // Calculate bounds for Minimap (Find min/max coordinates)
+                        let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+
+                        // 3. Draw Elements
+                        Store.elements.forEach(el => {
+                            if (el.type === 'path') this.drawSpline(main, el.points, el.color, el.size);
+                            else if (el.type === 'shape') this.drawShape(main, el);
+                            else if (el.type === 'text') { main.font = `800 ${el.size}px -apple-system, sans-serif`; main.fillStyle = el.color; main.fillText(el.text, el.x, el.y); }
+                            else if (el.type === 'image' && el.data) { if (!el._i) { el._i = new Image(); el._i.src = el.data; el._i.onload = () => this.requestRender(); } if (el._i.complete) main.drawImage(el._i, el.x, el.y, el.width, el.height); }
+                            
+                            // Bounds calculation for minimap (Approximate using first point for paths to save CPU)
+                            if (el.x) { minX = Math.min(minX, el.x); maxX = Math.max(maxX, el.x + (el.width||100)); minY = Math.min(minY, el.y); maxY = Math.max(maxY, el.y + (el.height||100)); }
+                            else if (el.points && el.points[0]) { minX = Math.min(minX, el.points[0].x); maxX = Math.max(maxX, el.points[0].x); minY = Math.min(minY, el.points[0].y); maxY = Math.max(maxY, el.points[0].y); }
+                        });
+
+                        // 4. Draw Live Paths & Shapes
+                        Object.values(Store.livePaths).forEach(pt => {
+                            if (pt) {
+                                if (pt.points) this.drawSpline(main, pt.points, pt.color, pt.size);
+                                else if (pt.type) this.drawShape(main, pt);
                             }
                         });
                         
-                        Object.values(AppState.livePaths).forEach(p => { if (p && p.points) this.drawSpline(p.points, p.color, p.size); });
-                        
-                        this.ctx.setTransform(1, 0, 0, 1, 0, 0);
-                        Object.values(AppState.cursors).forEach(c => {
-                            if (c.name === AppState.uname || typeof c.x !== 'number') return;
-                            const sp = this.toScreen(c.x, c.y);
-                            
-                            this.ctx.beginPath(); this.ctx.arc(sp.x, sp.y, 6, 0, Math.PI * 2);
-                            this.ctx.fillStyle = c.isHost ? '#f59e0b' : '#ef4444'; this.ctx.fill();
-                            this.ctx.lineWidth = 2; this.ctx.strokeStyle = '#fff'; this.ctx.stroke();
+                        main.restore();
 
-                            this.ctx.font = '600 12px Inter, sans-serif'; this.ctx.fillStyle = '#fff';
-                            this.ctx.fillText(c.name, sp.x + 12, sp.y + 5);
+                        // 5. Draw Laser (Separate Canvas, glowing)
+                        laser.save();
+                        laser.translate(Store.cam.x, Store.cam.y);
+                        laser.scale(Store.cam.z, Store.cam.z);
+                        Object.values(Store.laserPaths).forEach(pt => { if (pt && pt.points) this.drawSpline(laser, pt.points, pt.color, pt.size, true); });
+                        laser.restore();
+
+                        // 6. Draw Multiplayer Cursors (Over Main)
+                        main.save();
+                        Object.values(Store.cursors).forEach(c => {
+                            if (c.name === Store.name || typeof c.x !== 'number') return;
+                            const s = this.worldToScreen(c.x, c.y);
+                            main.beginPath(); main.arc(s.x, s.y, 7, 0, Math.PI * 2); main.fillStyle = c.isHost ? '#f59e0b' : '#ef4444'; main.fill();
+                            main.lineWidth = 3; main.strokeStyle = '#fff'; main.stroke();
+                            main.font = '800 12px -apple-system, sans-serif'; main.fillStyle = getComputedStyle(document.body).getPropertyValue('--text-main'); main.fillText(c.name, s.x + 14, s.y + 5);
                         });
+                        main.restore();
+
+                        // 7. Update Minimap (Radar)
+                        if (minX === Infinity) { minX = 0; minY = 0; maxX = window.innerWidth; maxY = window.innerHeight; }
+                        // Add padding
+                        minX -= 500; minY -= 500; maxX += 500; maxY += 500;
+                        const boardW = maxX - minX, boardH = maxY - minY;
+                        
+                        // Minimap scale
+                        const scaleX = 180 / boardW, scaleY = 120 / boardH;
+                        const mScale = Math.min(scaleX, scaleY);
+                        
+                        mini.save();
+                        mini.translate(180/2 - (boardW/2 + minX)*mScale, 120/2 - (boardH/2 + minY)*mScale);
+                        mini.scale(mScale, mScale);
+                        
+                        // Draw mini representation
+                        Store.elements.forEach(el => {
+                            if (el.type === 'path') this.drawSpline(mini, el.points, el.color, el.size*2); // thicker on mini
+                            else if (el.type === 'shape') this.drawShape(mini, el);
+                        });
+                        mini.restore();
+
+                        // Update Minimap Viewport Rect
+                        const vp = this.els.vp;
+                        const vpW = (window.innerWidth / Store.cam.z) * mScale;
+                        const vpH = (window.innerHeight / Store.cam.z) * mScale;
+                        const vpX = 180/2 - (boardW/2 + minX)*mScale + (-(Store.cam.x)/Store.cam.z)*mScale;
+                        const vpY = 120/2 - (boardH/2 + minY)*mScale + (-(Store.cam.y)/Store.cam.z)*mScale;
+                        
+                        vp.style.width = `${vpW}px`; vp.style.height = `${vpH}px`;
+                        vp.style.transform = `translate(${vpX}px, ${vpY}px)`;
+
                         this.dirty = false;
                     }
-                    requestAnimationFrame(() => this.loop());
+                    requestAnimationFrame(() => this.renderLoop());
                 }
-            }
-            const CanvasEngine = new Renderer();
+            };
 
-            // ==========================================
-            // 6. WEBRTC AUDIO MESH NETWORK
-            // ==========================================
-            class VoiceNetwork {
-                constructor() {
-                    this.stream = null; this.rtcPeers = {}; this.aCtx = null; this.analyser = null; this.data = null;
-                    this.cfg = { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }, { urls: 'stun:stun1.l.google.com:19302' }] };
-                }
+            /** =========================================================================
+             * 6. AUDIO MESH ENGINE (WebRTC Auto-Healing & Spatial Volume)
+             * ========================================================================= */
+            const AudioEngine = {
+                stream: null, peers: {}, ctx: null, analyser: null, dataArray: null,
+                config: { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }, { urls: 'stun:stun1.l.google.com:19302' }] },
+                isSpeakingLocally: false,
 
                 async init() {
                     try {
-                        this.stream = await navigator.mediaDevices.getUserMedia({
-                            audio: { echoCancellation: true, noiseSuppression: false, autoGainControl: false }
-                        });
+                        this.stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true } });
                         this.applyMicState();
-                        this.setupViz();
-                        this.startSignaling();
-                    } catch (e) { console.error("Mic Err:", e); UI.toast("Mikrofon ulashda xatolik", "error"); }
-                }
+                        this.setupVisualizer();
+                        this.listenSignals();
+                    } catch (e) { UI.toast("Mikrofonni ulashda xatolik yuz berdi", "error"); }
+                },
 
-                toggle() {
-                    if (!AppState.canSpeak) return UI.toast("Huquq yo'q", "error");
-                    AppState.micActive = !AppState.micActive;
-                    this.applyMicState(); UI.syncMicUI();
-                }
+                toggleMic() {
+                    if (!Store.canSpeak) return UI.toast("Sizda gapirish huquqi yo'q", "error");
+                    Store.micActive = !Store.micActive;
+                    this.applyMicState(); UI.syncMicUI(); Core.vibrate(10);
+                },
 
                 applyMicState() {
                     if (this.stream) {
-                        const t = this.stream.getAudioTracks()[0];
-                        if (t) t.enabled = AppState.canSpeak && AppState.micActive;
+                        const track = this.stream.getAudioTracks()[0];
+                        if (track) track.enabled = Store.canSpeak && Store.micActive;
                     }
-                }
+                },
 
-                setupViz() {
-                    this.aCtx = new (window.AudioContext || window.webkitAudioContext)();
-                    this.analyser = this.aCtx.createAnalyser();
-                    this.aCtx.createMediaStreamSource(this.stream).connect(this.analyser);
+                setupVisualizer() {
+                    this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+                    this.analyser = this.ctx.createAnalyser();
+                    this.ctx.createMediaStreamSource(this.stream).connect(this.analyser);
                     this.analyser.fftSize = 256;
-                    this.data = new Uint8Array(this.analyser.frequencyBinCount);
-                    this.drawViz();
-                }
+                    this.dataArray = new Uint8Array(this.analyser.frequencyBinCount);
+                    this.renderWave();
+                },
 
-                drawViz = () => {
-                    requestAnimationFrame(this.drawViz);
-                    const bars = document.querySelectorAll('.w-bar'), txt = document.getElementById('audio-db');
-                    if (!(AppState.canSpeak && AppState.micActive)) {
-                        bars.forEach(b => b.style.height = '4px'); if(txt) txt.innerText = 'OFF';
-                        UI.pulseMic(false); return;
+                renderWave = () => {
+                    requestAnimationFrame(this.renderWave);
+                    const bars = document.querySelectorAll('.eq-bar');
+                    if (!(Store.canSpeak && Store.micActive)) {
+                        bars.forEach(b => b.style.height = '5px');
+                        if (this.isSpeakingLocally) { document.getElementById('btn-mic').classList.remove('mic-active'); this.isSpeakingLocally = false; }
+                        return;
                     }
                     
-                    this.analyser.getByteFrequencyData(this.data);
-                    let sum = 0; for(let i=0; i<this.data.length; i++) sum += this.data[i];
-                    let avg = sum / this.data.length;
+                    this.analyser.getByteFrequencyData(this.dataArray);
+                    let sum = 0; for(let i=0; i<this.dataArray.length; i++) sum += this.dataArray[i];
+                    let avg = sum / this.dataArray.length;
                     
-                    let db = Math.round(20 * Math.log10(avg/255 + 0.1));
-                    db = Math.max(-60, Math.min(0, db));
-                    if(txt) txt.innerText = avg < 5 ? '-∞ dB' : `${db} dB`;
-                    
-                    UI.pulseMic(avg > 15);
+                    const isSpk = avg > 15;
+                    if (isSpk !== this.isSpeakingLocally) {
+                        const m = document.getElementById('btn-mic');
+                        if (isSpk) m.classList.add('mic-active'); else m.classList.remove('mic-active');
+                        this.isSpeakingLocally = isSpk;
+                    }
                     
                     const norm = Math.min(1, avg / 120);
-                    bars.forEach((b, i) => {
-                        const f = Math.sin((i/bars.length) * Math.PI);
-                        b.style.height = `${Math.max(4, 4 + (norm * 20 * f))}px`;
-                    });
-                }
+                    bars.forEach((b, i) => { b.style.height = `${Math.max(5, 5 + (norm * 20 * Math.sin((i / bars.length) * Math.PI)))}px`; });
+                },
 
-                startSignaling() {
-                    const sig = FirebaseEngine.ref.child(`signals/${AppState.uid}`);
-                    sig.on('child_added', async s => {
-                        const d = s.val(); s.ref.remove();
+                listenSignals() {
+                    Database.ref.child(`sig/${Store.uid}`).on('child_added', async snap => {
+                        const d = snap.val(); snap.ref.remove();
                         try {
-                            if (d.type === 'offer') await this.handleOffer(d.from, d.sdp);
-                            else if (d.type === 'answer') await this.handleAnswer(d.from, d.sdp);
-                            else if (d.type === 'ice') await this.handleIce(d.from, d.ice);
-                        } catch (e) {}
+                            if (d.t === 'offer') await this.handleOffer(d.f, d.s);
+                            else if (d.t === 'answer') await this.handleAnswer(d.f, d.s);
+                            else if (d.t === 'ice') await this.handleIce(d.f, d.i);
+                        } catch(e) {}
                     });
 
-                    // Mesh Logic: Qachonki yangi a'zo kirsa, ulanamiz
-                    FirebaseEngine.ref.child('users').on('child_added', s => {
-                        const uid = s.key;
-                        if (uid !== AppState.uid) setTimeout(() => this.call(uid), 2000);
+                    Database.ref.child('users').on('child_added', s => { if(s.key !== Store.uid) setTimeout(() => this.callUser(s.key), 1500); });
+                    Database.ref.child('users').on('child_removed', s => { 
+                        if(this.peers[s.key]) { this.peers[s.key].close(); delete this.peers[s.key]; } 
+                        const a = document.getElementById(`audio_${s.key}`); if(a) a.remove(); 
                     });
-                    
-                    // Chiqib ketsa, peer ni o'chiramiz
-                    FirebaseEngine.ref.child('users').on('child_removed', s => {
-                        const uid = s.key;
-                        if(this.rtcPeers[uid]) { this.rtcPeers[uid].close(); delete this.rtcPeers[uid]; }
-                        const a = document.getElementById(`audio_${uid}`);
-                        if(a) a.remove();
-                    });
-                }
+                },
 
-                createPC(uid) {
-                    const pc = new RTCPeerConnection(this.cfg);
+                createPeerConnection(uid) {
+                    const pc = new RTCPeerConnection(this.config);
                     if (this.stream) this.stream.getTracks().forEach(t => pc.addTrack(t, this.stream));
                     
-                    pc.onicecandidate = e => { if (e.candidate) FirebaseEngine.ref.child(`signals/${uid}`).push({ from: AppState.uid, type: 'ice', ice: JSON.stringify(e.candidate) }); };
-                    pc.ontrack = e => {
-                        let a = document.getElementById(`audio_${uid}`);
-                        if (!a) { a = document.createElement('audio'); a.id = `audio_${uid}`; a.autoplay = true; document.getElementById('rtc-audio-pool').appendChild(a); }
-                        if (a.srcObject !== e.streams[0]) {
-                            a.srcObject = e.streams[0];
-                            a.play().catch(() => document.body.addEventListener('click', () => a.play(), {once:true}));
+                    pc.onicecandidate = e => { if (e.candidate) Database.ref.child(`sig/${uid}`).push({ f: Store.uid, t: 'ice', i: JSON.stringify(e.candidate) }); };
+                    
+                    // WebRTC Auto-Healing (Reconnection)
+                    pc.onconnectionstatechange = () => {
+                        if (pc.connectionState === 'disconnected' || pc.connectionState === 'failed') {
+                            console.log(`Connection failed with ${uid}. Healing...`);
+                            pc.close(); delete this.peers[uid];
+                            if(Store.peers[uid]) setTimeout(() => this.callUser(uid), 2000);
                         }
                     };
-                    this.rtcPeers[uid] = pc;
-                    return pc;
-                }
 
-                async call(uid) {
-                    if (this.rtcPeers[uid]) return;
-                    const pc = this.createPC(uid);
+                    pc.ontrack = e => {
+                        let audioEl = document.getElementById(`audio_${uid}`);
+                        if (!audioEl) {
+                            audioEl = document.createElement('audio'); audioEl.id = `audio_${uid}`; audioEl.autoplay = true;
+                            document.getElementById('hidden-audio-pool').appendChild(audioEl);
+                        }
+                        if (audioEl.srcObject !== e.streams[0]) {
+                            audioEl.srcObject = e.streams[0];
+                            audioEl.play().catch(() => document.body.addEventListener('click', () => audioEl.play(), { once: true }));
+                        }
+                    };
+                    return this.peers[uid] = pc;
+                },
+
+                async callUser(uid) {
+                    if (this.peers[uid]) return;
+                    const pc = this.createPeerConnection(uid);
                     const offer = await pc.createOffer(); await pc.setLocalDescription(offer);
-                    FirebaseEngine.ref.child(`signals/${uid}`).push({ from: AppState.uid, type: 'offer', sdp: JSON.stringify(offer) });
-                }
+                    Database.ref.child(`sig/${uid}`).push({ f: Store.uid, t: 'offer', s: JSON.stringify(offer) });
+                },
 
-                async handleOffer(uid, sdp) {
-                    const pc = this.createPC(uid);
-                    await pc.setRemoteDescription(new RTCSessionDescription(JSON.parse(sdp)));
+                async handleOffer(uid, sdpStr) {
+                    const pc = this.createPeerConnection(uid);
+                    await pc.setRemoteDescription(new RTCSessionDescription(JSON.parse(sdpStr)));
                     const answer = await pc.createAnswer(); await pc.setLocalDescription(answer);
-                    FirebaseEngine.ref.child(`signals/${uid}`).push({ from: AppState.uid, type: 'answer', sdp: JSON.stringify(answer) });
-                }
+                    Database.ref.child(`sig/${uid}`).push({ f: Store.uid, t: 'answer', s: JSON.stringify(answer) });
+                },
 
-                async handleAnswer(uid, sdp) { if (this.rtcPeers[uid]) await this.rtcPeers[uid].setRemoteDescription(new RTCSessionDescription(JSON.parse(sdp))); }
-                async handleIce(uid, ice) { if (this.rtcPeers[uid]) await this.rtcPeers[uid].addIceCandidate(new RTCIceCandidate(JSON.parse(ice))); }
-            }
-            const AudioEngine = new VoiceNetwork();
+                async handleAnswer(uid, sdpStr) { if (this.peers[uid]) await this.peers[uid].setRemoteDescription(new RTCSessionDescription(JSON.parse(sdpStr))); },
+                async handleIce(uid, iceStr) { if (this.peers[uid]) await this.peers[uid].addIceCandidate(new RTCIceCandidate(JSON.parse(iceStr))); }
+            };
 
-            // ==========================================
-            // 7. COLOR ENGINE (Custom Color Wheel)
-            // ==========================================
-            class ColorManager {
-                constructor() {
-                    this.cvs = document.getElementById('color-canvas');
-                    this.ctx = this.cvs.getContext('2d');
-                    this.h = 0.6; this.s = 0.8; this.v = 1.0;
-                }
+            /** =========================================================================
+             * 7. COLOR ENGINE (Custom Wheel & Quick Palette)
+             * ========================================================================= */
+            const ColorEngine = {
+                cvs: document.getElementById('color-wheel-cvs'),
+                ctx: document.getElementById('color-wheel-cvs').getContext('2d'),
+                h: 0.6, s: 0.8, v: 1.0,
 
                 init() {
-                    this.draw(); this.buildPalette();
-                    const move = e => {
+                    this.drawWheel();
+                    this.buildPalette();
+                    
+                    const interact = e => {
                         if (e.buttons === 0 && e.type !== 'pointerdown') return;
-                        const r = this.cvs.getBoundingClientRect();
-                        const x = (e.clientX || (e.touches && e.touches[0].clientX)) - r.left;
-                        const y = (e.clientY || (e.touches && e.touches[0].clientY)) - r.top;
-                        const cx = this.cvs.width/2, cy = this.cvs.height/2, rad = this.cvs.width/2;
+                        const rect = this.cvs.getBoundingClientRect();
+                        const x = (e.clientX || (e.touches && e.touches[0].clientX)) - rect.left;
+                        const y = (e.clientY || (e.touches && e.touches[0].clientY)) - rect.top;
+                        const cx = this.cvs.width / 2, cy = this.cvs.height / 2, r = this.cvs.width / 2;
                         
-                        const dist = Math.hypot(x-cx, y-cy);
-                        if (dist <= rad) {
-                            this.h = (Math.atan2(y-cy, x-cx) + Math.PI) / (2 * Math.PI);
-                            this.s = dist / rad;
-                            this.apply();
+                        const dist = Math.hypot(x - cx, y - cy);
+                        if (dist <= r) {
+                            this.h = (Math.atan2(y - cy, x - cx) + Math.PI) / (2 * Math.PI);
+                            this.s = dist / r;
+                            this.applyColor();
                         }
                     };
-                    this.cvs.addEventListener('pointerdown', move);
-                    this.cvs.addEventListener('pointermove', move);
-                    document.getElementById('inp-bright').oninput = e => { this.v = parseInt(e.target.value)/100; this.apply(); };
-                }
+                    
+                    this.cvs.addEventListener('pointerdown', interact);
+                    this.cvs.addEventListener('pointermove', interact);
+                    
+                    document.getElementById('inp-bright').oninput = e => { this.v = e.target.value / 100; this.applyColor(); };
+                },
 
-                draw() {
+                drawWheel() {
                     const w = this.cvs.width, h = this.cvs.height, cx = w/2, cy = h/2, r = w/2;
-                    const img = this.ctx.createImageData(w, h), d = img.data;
+                    const img = this.ctx.createImageData(w, h), data = img.data;
                     for (let y = 0; y < h; y++) {
                         for (let x = 0; x < w; x++) {
-                            const dist = Math.hypot(x-cx, y-cy);
+                            const dist = Math.hypot(x - cx, y - cy);
                             if (dist <= r) {
-                                const rgb = this.hsv2rgb((Math.atan2(y-cy, x-cx) + Math.PI) / (2 * Math.PI), dist/r, 1);
-                                const i = (y*w+x)*4; d[i]=rgb.r; d[i+1]=rgb.g; d[i+2]=rgb.b; d[i+3]=255;
+                                const rgb = this.hsv2rgb((Math.atan2(y - cy, x - cx) + Math.PI) / (2 * Math.PI), dist / r, 1);
+                                const i = (y * w + x) * 4;
+                                data[i] = rgb.r; data[i+1] = rgb.g; data[i+2] = rgb.b; data[i+3] = 255;
                             }
                         }
                     }
                     this.ctx.putImageData(img, 0, 0);
-                }
+                },
 
-                apply() {
+                applyColor() {
                     const rgb = this.hsv2rgb(this.h, this.s, this.v);
-                    const hex = "#" + ((1<<24)+(rgb.r<<16)+(rgb.g<<8)+rgb.b).toString(16).slice(1);
-                    AppState.color = hex;
-                    document.getElementById('ui-color-preview').style.backgroundColor = hex;
-                    document.getElementById('ui-color-dot').style.backgroundColor = hex;
-                    UI.setTool('draw');
-                }
+                    const hex = "#" + ((1 << 24) + (rgb.r << 16) + (rgb.g << 8) + rgb.b).toString(16).slice(1);
+                    this.setColor(hex);
+                },
+
+                setColor(hex) {
+                    Store.color = hex;
+                    document.getElementById('ui-color-dot').style.background = hex;
+                    UI.setTool('draw'); // Avto qalamga o'tish
+                },
 
                 buildPalette() {
-                    const p = document.getElementById('color-palette');
-                    ['#ffffff', '#a1a1aa', '#ef4444', '#f97316', '#f59e0b', '#84cc16', '#10b981', '#06b6d4', '#3b82f6', '#8b5cf6'].forEach(c => {
-                        const b = document.createElement('div'); b.className = 'palette-color'; b.style.backgroundColor = c;
-                        b.onclick = () => { AppState.color = c; document.getElementById('ui-color-preview').style.backgroundColor = c; document.getElementById('ui-color-dot').style.backgroundColor = c; UI.setTool('draw'); };
-                        p.appendChild(b);
+                    const cont = document.getElementById('ui-palette');
+                    const colors = ['#ffffff', '#000000', '#64748b', '#ef4444', '#f97316', '#f59e0b', '#84cc16', '#10b981', '#06b6d4', '#2563eb', '#8b5cf6', '#d946ef'];
+                    colors.forEach(c => {
+                        const el = document.createElement('div');
+                        el.className = 'color-swatch'; el.style.background = c;
+                        el.onclick = () => { this.setColor(c); Core.vibrate(10); };
+                        cont.appendChild(el);
                     });
-                }
+                },
 
                 hsv2rgb(h, s, v) {
-                    let r, g, b, i = Math.floor(h*6), f = h*6-i, p = v*(1-s), q = v*(1-f*s), t = v*(1-(1-f)*s);
-                    switch(i%6) { case 0: r=v; g=t; b=p; break; case 1: r=q; g=v; b=p; break; case 2: r=p; g=v; b=t; break; case 3: r=p; g=q; b=v; break; case 4: r=t; g=p; b=v; break; case 5: r=v; g=p; b=q; break; }
-                    return { r: Math.round(r*255), g: Math.round(g*255), b: Math.round(b*255) };
+                    let r, g, b, i = Math.floor(h * 6), f = h * 6 - i, p = v * (1 - s), q = v * (1 - f * s), t = v * (1 - (1 - f) * s);
+                    switch (i % 6) { case 0: r=v; g=t; b=p; break; case 1: r=q; g=v; b=p; break; case 2: r=p; g=v; b=t; break; case 3: r=p; g=q; b=v; break; case 4: r=t; g=p; b=v; break; case 5: r=v; g=p; b=q; break; }
+                    return { r: Math.round(r * 255), g: Math.round(g * 255), b: Math.round(b * 255) };
                 }
-            }
-            const ColorEngine = new ColorManager();
+            };
+
+            // Start Application Engine
+            UI.init();
 
         })();
     </script>
