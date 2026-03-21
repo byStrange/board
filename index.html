@@ -3,14 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
-    <title>MR Board · Studio</title>
+    <title>MR Board · Studio (Pro Audio)</title>
     <link rel="icon" type="image/png" href="mr.png">
+    
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <script src="https://unpkg.com/roughjs@latest/bundled/rough.js"></script>
 
     <style>
+        /* =========================================
+           RESET VA ASOSIY O'ZGARUVCHILAR
+           ========================================= */
         * {
             margin: 0;
             padding: 0;
@@ -21,29 +25,42 @@
         }
 
         :root {
-            --bg: #0a0a0f;
-            --surface: #14141a;
+            /* Ranglar palitrasi */
+            --bg-color: #0a0a0f;
+            --surface-color: #14141a;
             --surface-light: #1e1e26;
-            --border: #2a2a32;
-            --accent: #3b82f6;
-            --text: #ffffff;
+            --border-color: #2a2a32;
+            --accent-color: #3b82f6;
+            --accent-hover: #2563eb;
+            --text-main: #ffffff;
             --text-muted: #8b8b98;
+            --success-color: #22c55e;
+            --danger-color: #ef4444;
+            --warning-color: #f59e0b;
+            
+            /* Soya va o'tishlar (Transitions) */
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --transition-fast: 0.15s ease-in-out;
+            --transition-smooth: 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.1);
         }
 
         body {
-            background: var(--bg);
+            background-color: var(--bg-color);
             font-family: -apple-system, BlinkMacSystemFont, 'Inter', system-ui, sans-serif;
-            overflow: hidden;
+            overflow: hidden; /* Scrollni yopamiz */
             height: 100vh;
             width: 100vw;
-            color: var(--text);
+            color: var(--text-main);
         }
 
+        /* =========================================
+           CANVAS SOZLAMALARI
+           ========================================= */
         canvas {
             display: block;
             width: 100%;
             height: 100%;
-            touch-action: none;
+            touch-action: none; /* Mobil qurilmalarda scrollni to'xtatish */
             cursor: crosshair;
             position: absolute;
             top: 0;
@@ -51,79 +68,136 @@
             z-index: 0;
         }
 
-        /* ========== WELCOME ========== */
+        /* =========================================
+           KIRISH (WELCOME) SAHIFASI
+           ========================================= */
         #welcome-page {
             position: fixed;
             inset: 0;
             display: flex;
             align-items: center;
             justify-content: center;
-            background: var(--bg);
+            background-color: var(--bg-color);
             z-index: 2000;
             padding: 20px;
+            transition: opacity 0.3s ease;
         }
 
         .welcome-card {
-            background: var(--surface);
-            border: 1px solid var(--border);
+            background-color: var(--surface-color);
+            border: 1px solid var(--border-color);
             border-radius: 32px;
             padding: 40px 32px;
             width: 100%;
-            max-width: 380px;
+            max-width: 400px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            transform: translateY(0);
+            animation: slideUp 0.5s ease-out;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .welcome-card h1 {
             font-size: 36px;
-            font-weight: 700;
-            margin-bottom: 28px;
+            font-weight: 800;
+            margin-bottom: 32px;
             text-align: center;
-            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            background: linear-gradient(135deg, var(--accent-color), #8b5cf6, #ec4899);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+            letter-spacing: -0.5px;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 16px 20px;
+            border-radius: 16px;
+            border: 1px solid var(--border-color);
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-size: 16px;
+            outline: none;
+            margin-bottom: 16px;
+            transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+        }
+
+        .input-field:focus {
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
         }
 
         .btn {
             width: 100%;
-            padding: 14px 20px;
-            border-radius: 40px;
+            padding: 16px 20px;
+            border-radius: 16px;
             border: none;
-            font-size: 15px;
+            font-size: 16px;
             font-weight: 600;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 10px;
-            transition: all 0.2s;
+            gap: 12px;
+            transition: all var(--transition-fast);
         }
-        .btn-primary { background: var(--accent); color: white; }
-        .btn-primary:active { transform: scale(0.97); }
-        .btn-secondary { background: var(--surface-light); border: 1px solid var(--border); color: var(--text); }
-        .btn-secondary:active { transform: scale(0.97); }
 
-        .input-field {
-            width: 100%;
-            padding: 14px;
-            border-radius: 40px;
-            border: 1px solid var(--border);
-            background: var(--bg);
-            color: var(--text);
-            font-size: 15px;
-            outline: none;
-            margin-bottom: 14px;
+        .btn-primary {
+            background-color: var(--accent-color);
+            color: white;
+            box-shadow: 0 4px 14px 0 rgba(59, 130, 246, 0.39);
         }
-        .input-field:focus { border-color: var(--accent); }
-        .divider { height: 1px; background: var(--border); margin: 24px 0; }
 
-        /* ========== APP ========== */
+        .btn-primary:hover { background-color: var(--accent-hover); }
+        .btn-primary:active { transform: scale(0.98); }
+
+        .btn-secondary {
+            background-color: var(--surface-light);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+        }
+
+        .btn-secondary:hover { background-color: #262630; }
+        .btn-secondary:active { transform: scale(0.98); }
+
+        .divider {
+            height: 1px;
+            background-color: var(--border-color);
+            margin: 28px 0;
+            position: relative;
+        }
+        
+        .divider::after {
+            content: 'yoki';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: var(--surface-color);
+            padding: 0 12px;
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+
+        /* =========================================
+           ASOSIY ILOVA (APP PAGE)
+           ========================================= */
         #app-page {
             display: none;
             width: 100vw;
             height: 100vh;
             position: relative;
+            animation: fadeIn 0.4s ease;
         }
 
-        /* ========== TOP STATUS ========== */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* Yuqori Status Bar */
         .top-status {
             position: fixed;
             top: 16px;
@@ -133,39 +207,66 @@
             justify-content: space-between;
             z-index: 50;
             pointer-events: none;
-        }
-        .status-chip {
-            background: rgba(20, 20, 26, 0.7);
-            backdrop-filter: blur(12px);
-            padding: 6px 14px;
-            border-radius: 40px;
-            font-size: 12px;
-            pointer-events: auto;
-            border: 1px solid var(--border);
+            gap: 12px;
+            flex-wrap: wrap;
         }
 
-        /* ========== BOTTOM BAR ========== */
+        .status-chip {
+            background-color: rgba(20, 20, 26, 0.75);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            padding: 6px 16px;
+            border-radius: 40px;
+            font-size: 13px;
+            font-weight: 500;
+            pointer-events: auto;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: var(--shadow-md);
+        }
+
+        /* Pastki Boshqaruv Paneli (Bottom Bar) */
         .bottom-bar {
             position: fixed;
-            bottom: 16px;
-            left: 16px;
-            right: 16px;
-            background: rgba(20, 20, 26, 0.92);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255,255,255,0.08);
-            border-radius: 60px;
-            padding: 8px 20px;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(20, 20, 26, 0.92);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            padding: 8px 16px;
             display: flex;
             align-items: center;
             justify-content: space-between;
             z-index: 100;
+            gap: 16px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+            width: max-content;
+            max-width: 95vw;
         }
-        .bar-left, .bar-right { display: flex; align-items: center; gap: 12px; }
-        .bar-center { display: flex; align-items: center; gap: 8px; background: rgba(0,0,0,0.3); padding: 4px 12px; border-radius: 40px; }
+
+        .bar-section {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .bar-separator {
+            width: 1px;
+            height: 24px;
+            background-color: rgba(255, 255, 255, 0.1);
+            margin: 0 4px;
+        }
+
         .bar-btn {
             width: 44px;
             height: 44px;
-            border-radius: 44px;
+            border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -173,283 +274,553 @@
             border: none;
             color: var(--text-muted);
             cursor: pointer;
+            font-size: 18px;
+            transition: all var(--transition-fast);
+            position: relative;
         }
-        .bar-btn:active { transform: scale(0.92); background: rgba(255,255,255,0.05); }
-        .bar-btn.active { color: var(--accent); background: rgba(59,130,246,0.15); }
-        .color-indicator { width: 32px; height: 32px; border-radius: 32px; border: 2px solid var(--border); cursor: pointer; }
 
-        /* ========== VOICE WAVES ========== */
+        .bar-btn:hover {
+            color: var(--text-main);
+            background-color: rgba(255, 255, 255, 0.08);
+        }
+
+        .bar-btn:active {
+            transform: scale(0.92);
+        }
+
+        .bar-btn.active {
+            color: var(--accent-color);
+            background-color: rgba(59, 130, 246, 0.15);
+        }
+
+        .color-indicator {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            cursor: pointer;
+            box-shadow: 0 0 0 2px transparent;
+            transition: all 0.2s;
+        }
+        
+        .color-indicator:hover {
+            transform: scale(1.1);
+            border-color: white;
+        }
+
+        /* Ovoz (Voice Wave) vizualizatsiyasi */
         .voice-wave-container {
             display: flex;
             align-items: center;
-            gap: 4px;
+            gap: 8px;
             height: 44px;
-            padding: 0 8px;
-            background: rgba(0,0,0,0.3);
-            border-radius: 44px;
+            padding: 0 12px;
+            background-color: rgba(0, 0, 0, 0.4);
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
         }
+
         .wave-group {
             display: flex;
             align-items: center;
             gap: 3px;
-            height: 32px;
+            height: 24px;
         }
+
         .wave-bar {
             width: 3px;
-            background: var(--accent);
-            border-radius: 2px;
-            transition: height 0.08s ease-out;
+            background-color: var(--accent-color);
+            border-radius: 3px;
+            transition: height 0.05s ease-out; /* Tezroq reaksiya qilishi uchun tushirildi */
+            min-height: 4px;
         }
+
         .voice-level-text {
-            font-size: 10px;
+            font-size: 11px;
             color: var(--text-muted);
-            margin-left: 8px;
             min-width: 45px;
             font-family: monospace;
+            text-align: right;
         }
-        .mic-active .wave-bar { background: #22c55e; }
-        .mic-active .voice-level-text { color: #22c55e; }
 
-        /* ========== SIDE MENU (LEFT SIDE) ========== */
+        .mic-btn.mic-speaking {
+            color: var(--success-color);
+            background-color: rgba(34, 197, 94, 0.15);
+            animation: pulse-green 1.5s infinite;
+        }
+
+        .mic-btn.mic-on {
+            color: var(--accent-color);
+            background-color: rgba(59, 130, 246, 0.15);
+        }
+
+        .mic-btn.mic-off {
+            color: var(--danger-color);
+            background-color: rgba(239, 68, 68, 0.15);
+        }
+
+        @keyframes pulse-green {
+            0% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(34, 197, 94, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
+        }
+
+        /* =========================================
+           YON MENYULAR (SIDE MENUS)
+           ========================================= */
         .side-menu {
             position: fixed;
             top: 0;
             bottom: 0;
             left: 0;
             width: 100%;
-            max-width: 100%;
-            background: rgba(20, 20, 26, 0.98);
+            max-width: 380px;
+            background-color: rgba(20, 20, 26, 0.95);
             backdrop-filter: blur(24px);
-            border-right: 1px solid var(--border);
+            -webkit-backdrop-filter: blur(24px);
+            border-right: 1px solid var(--border-color);
             z-index: 200;
             transform: translateX(-100%);
-            transition: transform 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+            transition: transform var(--transition-smooth);
             overflow-y: auto;
-            padding: 20px 0;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 10px 0 30px rgba(0,0,0,0.5);
         }
-        .side-menu.open { transform: translateX(0); }
-        
-        /* Desktopda 50% */
-        @media (min-width: 769px) {
-            .side-menu { width: 50%; max-width: 50%; }
-            .side-menu .close-side-btn { display: none; }
+
+        .side-menu.open {
+            transform: translateX(0);
         }
-        
-        .menu-header { 
-            padding: 20px 24px; 
-            font-size: 18px; 
-            font-weight: 600; 
-            border-bottom: 1px solid var(--border);
+
+        .menu-header {
+            padding: 24px 24px 16px;
+            font-size: 20px;
+            font-weight: 700;
+            border-bottom: 1px solid var(--border-color);
             display: flex;
             justify-content: space-between;
             align-items: center;
+            background: linear-gradient(to bottom, rgba(20,20,26,1), rgba(20,20,26,0.9));
+            position: sticky;
+            top: 0;
+            z-index: 10;
         }
+
         .close-side-btn {
-            width: 32px;
-            height: 32px;
-            border-radius: 32px;
-            background: var(--surface-light);
-            border: none;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background-color: var(--surface-light);
+            border: 1px solid var(--border-color);
             color: var(--text-muted);
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
+            transition: all 0.2s;
         }
-        .close-side-btn:active { transform: scale(0.92); }
         
-        .menu-section { padding: 16px 24px; border-bottom: 1px solid var(--border); }
-        .menu-section-title { font-size: 11px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 16px; }
-        .tools-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+        .close-side-btn:hover { background-color: var(--border-color); color: white; }
+
+        .menu-section {
+            padding: 24px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .menu-section-title {
+            font-size: 13px;
+            font-weight: 600;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-bottom: 16px;
+            letter-spacing: 0.5px;
+        }
+
+        .tools-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+
         .tool-card {
             display: flex;
             flex-direction: column;
             align-items: center;
+            justify-content: center;
             gap: 8px;
-            padding: 16px;
-            background: var(--surface-light);
-            border-radius: 20px;
+            padding: 16px 8px;
+            background-color: var(--surface-light);
+            border-radius: 16px;
             cursor: pointer;
-            border: 1px solid var(--border);
+            border: 2px solid transparent;
+            transition: all var(--transition-fast);
+            color: var(--text-main);
+            font-size: 12px;
+            font-weight: 500;
         }
-        .tool-card:active { transform: scale(0.96); }
-        .tool-card.active { border-color: var(--accent); background: rgba(59,130,246,0.1); color: var(--accent); }
-        .colors-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 20px; }
-        .color-ball {
-            width: 56px;
-            height: 56px;
-            border-radius: 28px;
-            cursor: pointer;
-            border: 2px solid var(--border);
-        }
-        .color-ball.active { border-color: white; transform: scale(1.05); }
-        .slider-studio { width: 100%; height: 4px; -webkit-appearance: none; background: var(--border); border-radius: 4px; }
-        .slider-studio::-webkit-slider-thumb { -webkit-appearance: none; width: 16px; height: 16px; border-radius: 16px; background: var(--accent); cursor: pointer; }
 
-        /* ========== CHAT PANEL (RIGHT SIDE) ========== */
+        .tool-card:hover {
+            background-color: #262630;
+            transform: translateY(-2px);
+        }
+
+        .tool-card:active {
+            transform: translateY(0) scale(0.96);
+        }
+
+        .tool-card.active {
+            border-color: var(--accent-color);
+            background-color: rgba(59, 130, 246, 0.1);
+            color: var(--accent-color);
+        }
+
+        /* Qalinlik Slayderi */
+        .slider-container { display: flex; align-items: center; gap: 16px; }
+        input[type=range] {
+            flex: 1;
+            height: 6px;
+            -webkit-appearance: none;
+            background: var(--surface-light);
+            border-radius: 6px;
+            outline: none;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--accent-color);
+            cursor: pointer;
+            border: 3px solid white;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+        }
+
+        /* Rang tanlagich (Color Picker) */
+        .color-wheel-container {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 1;
+            max-width: 240px;
+            margin: 0 auto;
+        }
+        
+        #colorWheel {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            cursor: crosshair;
+            box-shadow: 0 0 0 4px var(--surface-light), 0 0 20px rgba(0,0,0,0.5);
+        }
+
+        .selected-color-preview {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 24px;
+            padding: 12px 16px;
+            background-color: var(--surface-light);
+            border-radius: 16px;
+            border: 1px solid var(--border-color);
+        }
+
+        .selected-color-preview .preview-box {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            border: 2px solid rgba(255,255,255,0.2);
+            box-shadow: inset 0 0 0 1px rgba(0,0,0,0.2);
+        }
+
+        /* O'quvchilar ro'yxati */
+        .student-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 16px;
+            background-color: var(--surface-light);
+            border-radius: 12px;
+            margin-bottom: 8px;
+            border: 1px solid var(--border-color);
+        }
+        
+        .student-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .student-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent-color), #8b5cf6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .perm-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            background-color: var(--bg-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border: 1px solid var(--border-color);
+            color: var(--text-muted);
+            transition: all 0.2s;
+        }
+
+        .perm-icon:hover { border-color: var(--text-muted); }
+        .perm-icon.active {
+            background-color: rgba(59, 130, 246, 0.15);
+            color: var(--accent-color);
+            border-color: rgba(59, 130, 246, 0.3);
+        }
+
+        /* =========================================
+           CHAT PANELI
+           ========================================= */
         .chat-panel {
             position: fixed;
             top: 0;
             right: 0;
             bottom: 0;
             width: 100%;
-            max-width: 100%;
-            background: rgba(20, 20, 26, 0.98);
+            max-width: 400px;
+            background-color: rgba(20, 20, 26, 0.95);
             backdrop-filter: blur(24px);
-            border-left: 1px solid var(--border);
+            -webkit-backdrop-filter: blur(24px);
+            border-left: 1px solid var(--border-color);
             z-index: 250;
             transform: translateX(100%);
-            transition: transform 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+            transition: transform var(--transition-smooth);
             display: flex;
             flex-direction: column;
+            box-shadow: -10px 0 30px rgba(0,0,0,0.5);
         }
+
         .chat-panel.open { transform: translateX(0); }
-        
-        /* Desktopda 50% */
-        @media (min-width: 769px) {
-            .chat-panel { width: 50%; max-width: 50%; }
-            .chat-panel .close-chat { display: none; }
-        }
-        
+
         .chat-header {
             padding: 20px 24px;
-            border-bottom: 1px solid var(--border);
+            border-bottom: 1px solid var(--border-color);
             display: flex;
             justify-content: space-between;
             align-items: center;
+            background-color: var(--surface-color);
         }
-        .chat-header h3 { font-size: 18px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
-        .close-chat {
-            width: 36px;
-            height: 36px;
-            border-radius: 36px;
-            background: var(--surface-light);
-            border: none;
-            color: var(--text-muted);
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .close-chat:active { transform: scale(0.92); }
+
         .chat-messages {
             flex: 1;
             overflow-y: auto;
-            padding: 16px;
+            padding: 20px;
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 16px;
         }
+
         .chat-message {
             max-width: 85%;
-            padding: 10px 14px;
-            border-radius: 20px;
-            font-size: 13px;
+            padding: 12px 16px;
+            border-radius: 16px;
+            font-size: 14px;
+            line-height: 1.4;
             word-break: break-word;
+            position: relative;
+            animation: fadeIn 0.3s ease;
         }
+
         .chat-message.own {
-            background: var(--accent);
+            background-color: var(--accent-color);
             color: white;
             align-self: flex-end;
             border-bottom-right-radius: 4px;
         }
+
         .chat-message.other {
-            background: var(--surface-light);
-            color: var(--text);
+            background-color: var(--surface-light);
+            border: 1px solid var(--border-color);
             align-self: flex-start;
             border-bottom-left-radius: 4px;
         }
-        .chat-message .sender { font-size: 10px; font-weight: 600; margin-bottom: 4px; color: var(--text-muted); }
-        .chat-message.own .sender { color: rgba(255,255,255,0.7); }
-        .chat-message .time { font-size: 9px; color: var(--text-muted); margin-top: 4px; text-align: right; }
+
+        .chat-message .sender {
+            font-size: 11px;
+            font-weight: 700;
+            margin-bottom: 6px;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .chat-message.own .sender { color: rgba(255, 255, 255, 0.8); }
+
+        .chat-message .time {
+            font-size: 10px;
+            margin-top: 6px;
+            text-align: right;
+            opacity: 0.7;
+        }
+
         .chat-input-area {
             padding: 16px;
-            border-top: 1px solid var(--border);
+            background-color: var(--surface-color);
+            border-top: 1px solid var(--border-color);
             display: flex;
             gap: 12px;
         }
+
         .chat-input-area input {
             flex: 1;
             padding: 12px 16px;
-            border-radius: 40px;
-            border: 1px solid var(--border);
-            background: var(--bg);
-            color: var(--text);
+            border-radius: 24px;
+            border: 1px solid var(--border-color);
+            background-color: var(--bg-color);
+            color: var(--text-main);
             font-size: 14px;
             outline: none;
+            transition: border-color 0.2s;
         }
-        .chat-input-area input:focus { border-color: var(--accent); }
+
+        .chat-input-area input:focus { border-color: var(--accent-color); }
+
         .chat-input-area button {
             width: 44px;
             height: 44px;
-            border-radius: 44px;
-            background: var(--accent);
+            border-radius: 50%;
+            background-color: var(--accent-color);
             border: none;
             color: white;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
+            transition: background-color 0.2s;
         }
+        
+        .chat-input-area button:hover { background-color: var(--accent-hover); }
 
-        /* ========== OTHER ========== */
-        .student-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--border); }
-        .perm-icon { width: 36px; height: 36px; border-radius: 18px; background: var(--surface-light); display: flex; align-items: center; justify-content: center; cursor: pointer; border: 1px solid var(--border); }
-        .perm-icon.active { background: rgba(59,130,246,0.2); color: var(--accent); }
+        /* =========================================
+           MODALLAR VA OVERLAYLAR
+           ========================================= */
         .menu-overlay {
             position: fixed;
             inset: 0;
-            background: rgba(0,0,0,0.5);
+            background-color: rgba(0, 0, 0, 0.6);
             backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
             z-index: 150;
-            display: none;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity var(--transition-smooth);
         }
-        .menu-overlay.show { display: block; }
+
+        .menu-overlay.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
         #textInputOverlay {
             position: fixed;
             inset: 0;
-            background: rgba(0,0,0,0.7);
+            background-color: rgba(0, 0, 0, 0.8);
             backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
             z-index: 300;
-            display: none;
+            display: flex;
             align-items: center;
             justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s;
         }
-        #textInputOverlay.show { display: flex; }
+
+        #textInputOverlay.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
         .text-input-card {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 32px;
+            background-color: var(--surface-color);
+            border: 1px solid var(--border-color);
+            border-radius: 24px;
             padding: 24px;
             width: 90%;
             max-width: 400px;
+            transform: scale(0.95);
+            transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
+        
+        #textInputOverlay.show .text-input-card { transform: scale(1); }
+
         .text-input-card textarea {
             width: 100%;
             padding: 16px;
-            background: var(--bg);
-            border: 1px solid var(--border);
-            border-radius: 20px;
-            color: var(--text);
+            background-color: var(--bg-color);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            color: var(--text-main);
             font-size: 16px;
             resize: none;
             outline: none;
-            margin-bottom: 16px;
+            margin-bottom: 20px;
+            font-family: inherit;
         }
-        .text-actions { display: flex; gap: 12px; justify-content: flex-end; }
-        .text-actions button { padding: 10px 20px; border-radius: 30px; border: none; cursor: pointer; }
+        
+        .text-input-card textarea:focus { border-color: var(--accent-color); }
+
+        .text-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+        }
+
+        .text-actions button {
+            padding: 10px 24px;
+            border-radius: 12px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        /* Badge (Xabarnoma belgisi) */
+        .badge {
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            background-color: var(--danger-color);
+            color: white;
+            font-size: 10px;
+            font-weight: bold;
+            min-width: 18px;
+            height: 18px;
+            border-radius: 9px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 4px;
+            border: 2px solid var(--surface-color);
+        }
+
         #audioContainer { display: none; }
 
-        /* ========== MOBILE RESPONSIVE ========== */
+        /* Responsive dizayn */
         @media (max-width: 768px) {
-            .bar-center { display: none; }
-            .voice-wave-container { padding: 0 4px; }
-            .wave-group { gap: 2px; }
-            /* Mobile da barcha side panellar 100% */
-            .side-menu, .chat-panel {
-                width: 100%;
-                max-width: 100%;
+            .side-menu, .chat-panel { width: 100%; max-width: 100%; }
+            .bottom-bar { 
+                width: calc(100% - 32px); 
+                justify-content: space-between;
+                padding: 8px 12px;
             }
+            .bar-separator { display: none; }
+            .tools-grid { grid-template-columns: repeat(2, 1fr); }
         }
     </style>
 </head>
@@ -460,11 +831,21 @@
 <div id="welcome-page">
     <div class="welcome-card">
         <h1>MR Board</h1>
-        <input type="text" id="userName" class="input-field" placeholder="Ismingiz">
-        <button class="btn btn-primary" id="createRoomBtn"><i data-lucide="plus"></i> Yangi xona</button>
+        <div style="margin-bottom: 24px; text-align: center; color: var(--text-muted); font-size: 14px;">
+            Hamkorlikdagi onlayn o'quv doskasi
+        </div>
+        <input type="text" id="userName" class="input-field" placeholder="Ismingizni kiriting" autocomplete="off">
+        
+        <button class="btn btn-primary" id="createRoomBtn">
+            <i data-lucide="plus-circle"></i> Yangi xona yaratish
+        </button>
+        
         <div class="divider"></div>
-        <input type="text" id="roomInput" class="input-field" placeholder="Xona kodi">
-        <button class="btn btn-secondary" id="joinRoomBtn"><i data-lucide="log-in"></i> Xonaga kirish</button>
+        
+        <input type="text" id="roomInput" class="input-field" placeholder="Xona kodi (masalan: MR1234)" autocomplete="off" style="text-transform: uppercase;">
+        <button class="btn btn-secondary" id="joinRoomBtn">
+            <i data-lucide="log-in"></i> Xonaga kirish
+        </button>
     </div>
 </div>
 
@@ -472,123 +853,172 @@
     <canvas id="canvas"></canvas>
 
     <div class="top-status">
-        <div class="status-chip" id="roomIdTop">---</div>
-        <div class="status-chip" id="zoomTop">100%</div>
-        <div class="status-chip" id="roleTop">Kuzatuvchi</div>
+        <div class="status-chip">
+            <i data-lucide="hash" size="14" style="color: var(--text-muted)"></i>
+            <span id="roomIdTop" style="letter-spacing: 1px; font-family: monospace;">---</span>
+        </div>
+        <div class="status-chip">
+            <i data-lucide="search" size="14" style="color: var(--text-muted)"></i>
+            <span id="zoomTop">100%</span>
+        </div>
+        <div class="status-chip" id="roleTop">
+            <i data-lucide="eye" size="14"></i> Kuzatuvchi
+        </div>
     </div>
 
     <div class="bottom-bar">
-        <div class="bar-left">
-            <div class="color-indicator" id="colorIndicator"></div>
-            <button class="bar-btn" id="toolsBtn"><i data-lucide="brush" size="20"></i></button>
-            <button class="bar-btn" id="colorsBtn"><i data-lucide="palette" size="20"></i></button>
+        <div class="bar-section">
+            <div class="color-indicator" id="colorIndicator" style="background-color: #3b82f6;" title="Rangni o'zgartirish"></div>
+            <button class="bar-btn" id="colorsBtn" title="Ranglar palitrasi"><i data-lucide="palette"></i></button>
+            <button class="bar-btn" id="toolsBtn" title="Asboblar sozlamalari"><i data-lucide="settings-2"></i></button>
         </div>
-        <div class="bar-center">
-            <button class="bar-btn" data-tool="draw"><i data-lucide="pencil" size="18"></i></button>
-            <button class="bar-btn" data-tool="erase"><i data-lucide="eraser" size="18"></i></button>
-            <button class="bar-btn" data-tool="pan"><i data-lucide="hand" size="18"></i></button>
-            <button class="bar-btn" data-tool="text"><i data-lucide="type" size="18"></i></button>
-            <div style="width:1px; height:24px; background:var(--border); margin:0 4px;"></div>
-            <button class="bar-btn" id="undoBtn"><i data-lucide="undo-2" size="18"></i></button>
+
+        <div class="bar-separator"></div>
+
+        <div class="bar-section bar-tools-center">
+            <button class="bar-btn active" data-tool="draw" title="Qalam"><i data-lucide="pencil"></i></button>
+            <button class="bar-btn" data-tool="erase" title="O'chirg'ich"><i data-lucide="eraser"></i></button>
+            <button class="bar-btn" data-tool="pan" title="Surish"><i data-lucide="hand"></i></button>
+            <button class="bar-btn" data-tool="text" title="Matn yozish"><i data-lucide="type"></i></button>
+            <button class="bar-btn" id="undoBtn" title="Oxirgi amalni bekor qilish"><i data-lucide="undo-2"></i></button>
         </div>
-        <div class="bar-right">
+
+        <div class="bar-separator"></div>
+
+        <div class="bar-section">
             <div class="voice-wave-container" id="voiceWaveContainer">
                 <div class="wave-group" id="waveGroup">
-                    <div class="wave-bar" style="height: 8px;"></div>
-                    <div class="wave-bar" style="height: 12px;"></div>
-                    <div class="wave-bar" style="height: 18px;"></div>
-                    <div class="wave-bar" style="height: 14px;"></div>
-                    <div class="wave-bar" style="height: 10px;"></div>
-                    <div class="wave-bar" style="height: 6px;"></div>
-                    <div class="wave-bar" style="height: 16px;"></div>
-                    <div class="wave-bar" style="height: 20px;"></div>
-                    <div class="wave-bar" style="height: 12px;"></div>
-                    <div class="wave-bar" style="height: 8px;"></div>
+                    <div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div>
+                    <div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div>
+                    <div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div>
                 </div>
                 <span class="voice-level-text" id="voiceLevelText">-∞ dB</span>
             </div>
-            <button class="bar-btn" id="micBtn"><i data-lucide="mic-off" size="18"></i></button>
-            <button class="bar-btn" id="chatBtn"><i data-lucide="message-square" size="18"></i></button>
-            <button class="bar-btn" id="studentsBtn"><i data-lucide="users" size="18"></i><span id="studentBadge" style="position:absolute; top:-2px; right:-2px; background:var(--accent); font-size:10px; width:16px; height:16px; border-radius:50%; display:flex; align-items:center; justify-content:center;">0</span></button>
-            <button class="bar-btn" id="exportBtn"><i data-lucide="download" size="18"></i></button>
-            <button class="bar-btn" id="exitBtn"><i data-lucide="log-out" size="18"></i></button>
+            
+            <button class="bar-btn mic-btn mic-off" id="micBtn" title="Mikrofonni yoqish/o'chirish"><i data-lucide="mic-off"></i></button>
+            
+            <button class="bar-btn" id="chatBtn" title="Chat">
+                <i data-lucide="message-square"></i>
+                <div class="badge" id="chatUnreadBadge" style="display:none;">0</div>
+            </button>
+            
+            <button class="bar-btn" id="studentsBtn" title="O'quvchilar ro'yxati" style="display: none;">
+                <i data-lucide="users"></i>
+                <div class="badge" id="studentBadge">0</div>
+            </button>
+            
+            <button class="bar-btn" id="exitBtn" title="Chiqish"><i data-lucide="log-out"></i></button>
         </div>
     </div>
 
     <div class="menu-overlay" id="menuOverlay"></div>
 
-    <!-- LEFT SIDE MENUS -->
     <div class="side-menu" id="toolsMenu">
         <div class="menu-header">
-            <span>Asboblar</span>
-            <button class="close-side-btn" id="closeToolsBtn"><i data-lucide="x" size="18"></i></button>
+            <span>Asboblar va Sozlamalar</span>
+            <button class="close-side-btn" data-close-menu><i data-lucide="x"></i></button>
         </div>
+        
         <div class="menu-section">
+            <div class="menu-section-title">Asosiy asboblar</div>
             <div class="tools-grid">
-                <div class="tool-card" data-tool="draw"><i data-lucide="pencil" size="28"></i><span>Qalam</span></div>
-                <div class="tool-card" data-tool="erase"><i data-lucide="eraser" size="28"></i><span>O'chirg'ich</span></div>
-                <div class="tool-card" data-tool="pan"><i data-lucide="hand" size="28"></i><span>Surish</span></div>
-                <div class="tool-card" data-tool="text"><i data-lucide="type" size="28"></i><span>Matn</span></div>
+                <div class="tool-card active" data-tool="draw"><i data-lucide="pencil" size="24"></i><span>Qalam</span></div>
+                <div class="tool-card" data-tool="erase"><i data-lucide="eraser" size="24"></i><span>O'chirg'ich</span></div>
+                <div class="tool-card" data-tool="pan"><i data-lucide="hand" size="24"></i><span>Surish</span></div>
+                <div class="tool-card" data-tool="text"><i data-lucide="type" size="24"></i><span>Matn</span></div>
             </div>
         </div>
+        
         <div class="menu-section">
-            <div class="menu-section-title">Qalinlik</div>
-            <input type="range" id="penSizeSlider" class="slider-studio" min="1" max="20" value="4">
-            <div style="text-align:center; margin-top:12px;"><span id="sizeValue">4</span>px</div>
-        </div>
-        <div class="menu-section">
-            <div class="menu-section-title">Amallar</div>
-            <div class="tools-grid">
-                <div class="tool-card" id="undoMenuBtn"><i data-lucide="undo-2" size="24"></i><span>Bekor</span></div>
-                <div class="tool-card" id="uploadImageMenuBtn"><i data-lucide="image" size="24"></i><span>Rasm</span></div>
-                <div class="tool-card" id="centerViewMenuBtn"><i data-lucide="target" size="24"></i><span>Markaz</span></div>
+            <div class="menu-section-title">Qalam qalinligi</div>
+            <div class="slider-container">
+                <i data-lucide="pen-tool" size="16" style="color: var(--text-muted)"></i>
+                <input type="range" id="penSizeSlider" min="1" max="30" value="4">
+                <span style="font-family: monospace; width: 40px; text-align: right;"><span id="sizeValue">4</span>px</span>
             </div>
         </div>
-        <div class="menu-section" id="teacherToolsMenu" style="display:none;">
-            <div class="menu-section-title">O'qituvchi</div>
+        
+        <div class="menu-section">
+            <div class="menu-section-title">Qo'shimcha amallar</div>
             <div class="tools-grid">
-                <div class="tool-card" id="clearBoardMenuBtn"><i data-lucide="trash-2" size="24"></i><span>Tozalash</span></div>
+                <div class="tool-card" id="undoMenuBtn"><i data-lucide="undo-2" size="20"></i><span>Bekor qilish</span></div>
+                <div class="tool-card" id="uploadImageMenuBtn"><i data-lucide="image" size="20"></i><span>Rasm yuklash</span></div>
+                <div class="tool-card" id="centerViewMenuBtn"><i data-lucide="target" size="20"></i><span>Markazga qaytish</span></div>
+                <div class="tool-card" id="exportBtn"><i data-lucide="download" size="20"></i><span>Rasmga saqlash</span></div>
+            </div>
+        </div>
+        
+        <div class="menu-section" id="teacherToolsMenu" style="display:none; border-color: rgba(239, 68, 68, 0.3);">
+            <div class="menu-section-title" style="color: var(--danger-color)">O'qituvchi boshqaruvi</div>
+            <div class="tools-grid">
+                <div class="tool-card" id="clearBoardMenuBtn" style="color: var(--danger-color); border-color: rgba(239, 68, 68, 0.2);">
+                    <i data-lucide="trash-2" size="20"></i><span>Doskani tozalash</span>
+                </div>
             </div>
         </div>
     </div>
 
     <div class="side-menu" id="colorsMenu">
         <div class="menu-header">
-            <span>Ranglar</span>
-            <button class="close-side-btn" id="closeColorsBtn"><i data-lucide="x" size="18"></i></button>
+            <span>Rang tanlash</span>
+            <button class="close-side-btn" data-close-menu><i data-lucide="x"></i></button>
         </div>
         <div class="menu-section">
-            <div class="colors-grid" id="colorGridMenu"></div>
-            <input type="color" id="colorPickerMenu" value="#3b82f6" style="width:100%; height:48px; border-radius:40px; margin-top:12px;">
+            <div class="color-wheel-container">
+                <canvas id="colorWheel" width="240" height="240"></canvas>
+            </div>
+            
+            <div style="margin-top: 24px;">
+                <div class="menu-section-title">Yorug'lik</div>
+                <input type="range" id="brightnessSlider" min="0" max="100" value="100" style="width: 100%;">
+            </div>
+            
+            <div class="selected-color-preview">
+                <span style="font-weight: 500;">Tanlangan rang:</span>
+                <div class="preview-box" id="selectedColorPreview" style="background-color: #3b82f6;"></div>
+            </div>
+            
+            <div class="menu-section-title" style="margin-top: 24px;">Tezkor ranglar</div>
+            <div class="tools-grid" style="grid-template-columns: repeat(5, 1fr); gap: 8px;" id="quickColors">
+                </div>
         </div>
     </div>
 
     <div class="side-menu" id="studentsMenu">
         <div class="menu-header">
             <span>O'quvchilar</span>
-            <button class="close-side-btn" id="closeStudentsBtn"><i data-lucide="x" size="18"></i></button>
+            <button class="close-side-btn" data-close-menu><i data-lucide="x"></i></button>
         </div>
-        <div class="menu-section"><div id="studentListMenu"></div></div>
+        <div class="menu-section" style="padding: 16px;">
+            <div id="studentListContainer">
+                <div style="text-align: center; color: var(--text-muted); padding: 20px;">
+                    Hozircha o'quvchilar yo'q
+                </div>
+            </div>
+        </div>
     </div>
 
-    <!-- RIGHT SIDE CHAT PANEL -->
     <div class="chat-panel" id="chatPanel">
         <div class="chat-header">
-            <h3><i data-lucide="message-square" size="18"></i> Guruh chat</h3>
-            <button class="close-chat" id="closeChatBtn"><i data-lucide="x" size="18"></i></button>
+            <div style="display: flex; align-items: center; gap: 10px; font-weight: 600; font-size: 18px;">
+                <i data-lucide="message-square" style="color: var(--accent-color)"></i> Guruh chati
+            </div>
+            <button class="close-side-btn" id="closeChatBtn"><i data-lucide="x"></i></button>
         </div>
-        <div class="chat-messages" id="chatMessages"></div>
+        <div class="chat-messages" id="chatMessages">
+            </div>
         <div class="chat-input-area">
             <input type="text" id="chatInput" placeholder="Xabar yozing..." maxlength="500">
-            <button id="sendChatBtn"><i data-lucide="send" size="18"></i></button>
+            <button id="sendChatBtn"><i data-lucide="send"></i></button>
         </div>
     </div>
 
     <div id="textInputOverlay">
         <div class="text-input-card">
-            <textarea id="textInputArea" rows="3" placeholder="Matnni kiriting..."></textarea>
+            <h3 style="margin-bottom: 16px; font-weight: 600;">Doskaga matn qo'shish</h3>
+            <textarea id="textInputArea" rows="4" placeholder="Matnni shu yerga kiriting..."></textarea>
             <div class="text-actions">
-                <button class="btn-secondary" id="cancelTextBtn">Bekor</button>
+                <button class="btn-secondary" id="cancelTextBtn" style="background: transparent; border: 1px solid var(--border-color); color: white;">Bekor qilish</button>
                 <button class="btn-primary" id="addTextBtn">Qo'shish</button>
             </div>
         </div>
@@ -596,542 +1026,1056 @@
 </div>
 
 <script>
+/**
+ * ============================================================================
+ * MR BOARD - HAMKORLIKDAGI ONLAYN DOSKA
+ * Arxitektura: Modulli, Hodisalarga asoslangan.
+ * Texnologiyalar: Canvas API, Firebase Realtime DB, WebRTC (Optimallashtirilgan Audio).
+ * ============================================================================
+ */
+
 (function() {
-    // ========== FIREBASE ==========
-    const firebaseConfig = {
-        apiKey: "AIzaSyDvbG7fChb2LN_nJhwTF1iMKMXNPcuGk5Y",
-        databaseURL: "https://tictactoe-26434-default-rtdb.firebaseio.com",
-        projectId: "tictactoe-26434"
-    };
-    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
+    'use strict';
+
+    // Ikonkalarni ishga tushirish (Lucide)
     lucide.createIcons();
 
-    // ========== STATE ==========
-    const State = {
-        userId: 'u_' + Math.random().toString(36).substr(2, 8),
-        userName: '',
-        roomId: '',
-        roomRef: null,
-        isTeacher: false,
-        canDraw: false,
-        canSpeak: false,
-        tool: 'draw',
-        color: '#3b82f6',
-        penSize: 4,
-        camera: { x: 0, y: 0, zoom: 1.2 },
-        isDrawing: false,
-        lastPoint: { x: 0, y: 0 },
-        elements: [],
-        activePaths: {},
-        students: {},
-        cursors: {},
-        rc: null,
-        textPosition: null
+    // ==========================================
+    // Yordamchi (Utility) funksiyalar va Konstantalar
+    // ==========================================
+    const Utils = {
+        throttle(func, limit) {
+            let inThrottle;
+            return function(...args) {
+                if (!inThrottle) {
+                    func.apply(this, args);
+                    inThrottle = true;
+                    setTimeout(() => inThrottle = false, limit);
+                }
+            };
+        },
+        generateId(prefix = 'id') {
+            return prefix + '_' + Math.random().toString(36).substr(2, 9) + '_' + Date.now();
+        },
+        escapeHTML(str) {
+            const div = document.createElement('div');
+            div.innerText = str;
+            return div.innerHTML;
+        }
     };
 
-    const presetColors = ['#ffffff', '#000000', '#ef4444', '#f59e0b', '#3b82f6', '#22c55e', '#a855f7', '#ec489a'];
+    // ==========================================
+    // Markaziy Holat (State Management)
+    // ==========================================
+    class AppState {
+        constructor() {
+            this.userId = Utils.generateId('u');
+            this.userName = '';
+            this.isTeacher = false;
+            this.roomId = '';
+            
+            this.canDrawPerm = false;
+            this.canSpeakPerm = false;
+            
+            this.micEnabled = false;
+            this.unreadMessages = 0;
+            
+            this.currentTool = 'draw';
+            this.currentColor = '#3b82f6';
+            this.penSize = 4;
+            
+            this.camera = { x: 0, y: 0, zoom: 1.0 };
+            
+            this.elements = [];
+            this.activePaths = {};
+            this.cursors = {};
+            this.students = {};
+            
+            this.textPosition = null;
+        }
 
-    // ========== CANVAS ==========
-    const canvas = document.getElementById('canvas');
-    const ctx = canvas.getContext('2d');
-
-    function resizeCanvas() {
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-        render();
+        get hasDrawPermission() { return this.isTeacher || this.canDrawPerm; }
+        get hasSpeakPermission() { return this.isTeacher || this.canSpeakPerm; }
     }
-    window.addEventListener('resize', resizeCanvas);
+    const state = new AppState();
 
-    function screenToWorld(x, y) { 
-        return { x: (x - State.camera.x) / State.camera.zoom, y: (y - State.camera.y) / State.camera.zoom }; 
-    }
-    function worldToScreen(x, y) { 
-        return { x: x * State.camera.zoom + State.camera.x, y: y * State.camera.zoom + State.camera.y }; 
-    }
-
-    function drawPath(points, color, size) {
-        if (!points || points.length < 2) return;
-        ctx.beginPath();
-        ctx.strokeStyle = color;
-        ctx.lineWidth = size;
-        ctx.lineCap = 'round';
-        ctx.lineJoin = 'round';
-        ctx.moveTo(points[0].x, points[0].y);
-        for (let i = 1; i < points.length; i++) ctx.lineTo(points[i].x, points[i].y);
-        ctx.stroke();
-    }
-
-    function render() {
-        ctx.setTransform(1, 0, 0, 1, 0, 0);
-        ctx.fillStyle = '#0a0a0f';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-        
-        ctx.strokeStyle = '#1f1f24';
-        ctx.lineWidth = 1;
-        const gs = 40 * State.camera.zoom;
-        const ox = State.camera.x % gs;
-        const oy = State.camera.y % gs;
-        for (let x = ox; x < canvas.width; x += gs) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height); ctx.stroke(); }
-        for (let y = oy; y < canvas.height; y += gs) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(canvas.width, y); ctx.stroke(); }
-        
-        ctx.setTransform(State.camera.zoom, 0, 0, State.camera.zoom, State.camera.x, State.camera.y);
-        
-        State.elements.forEach(el => {
-            if (el.type === 'path' && el.points?.length > 1) drawPath(el.points, el.color, el.size);
-            else if (el.type === 'text') {
-                ctx.font = `600 ${el.size || 24}px ${el.font || 'Inter'}`;
-                ctx.fillStyle = el.color || '#ffffff';
-                ctx.fillText(el.text, el.x, el.y);
+    // ==========================================
+    // Tarmoq va Ma'lumotlar Bazasi (Firebase)
+    // ==========================================
+    class DatabaseService {
+        constructor() {
+            const firebaseConfig = {
+                apiKey: "AIzaSyDvbG7fChb2LN_nJhwTF1iMKMXNPcuGk5Y",
+                databaseURL: "https://tictactoe-26434-default-rtdb.firebaseio.com",
+                projectId: "tictactoe-26434"
+            };
+            
+            if (!firebase.apps.length) {
+                firebase.initializeApp(firebaseConfig);
             }
-            else if (el.type === 'image' && el.data) { const img = new Image(); img.src = el.data; ctx.drawImage(img, el.x, el.y, el.width, el.height); }
-        });
-        
-        Object.values(State.activePaths).forEach(p => { if (p && p.points && p.points.length > 1) drawPath(p.points, p.color, p.size); });
-        
-        ctx.setTransform(1, 0, 0, 1, 0, 0);
-        Object.entries(State.cursors).forEach(([uid, data]) => {
-            if (uid === State.userId || !data || typeof data.x !== 'number') return;
-            const pos = worldToScreen(data.x, data.y);
-            ctx.beginPath(); ctx.arc(pos.x, pos.y, 5, 0, Math.PI*2);
-            ctx.fillStyle = data.isTeacher ? '#3b82f6' : '#ef4444';
-            ctx.fill();
-        });
-        
-        document.getElementById('zoomTop').innerText = Math.round(State.camera.zoom * 100) + '%';
-    }
-    
-    function renderLoop() { render(); requestAnimationFrame(renderLoop); }
+            this.db = firebase.database();
+            this.roomRef = null;
+        }
 
-    // ========== AUDIO ==========
-    const Audio = {
-        stream: null,
-        audioContext: null,
-        analyser: null,
-        source: null,
-        animationId: null,
-        
-        async init() {
-            try {
-                this.stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                this.setupVisualizer();
-                this.updateUI();
-            } catch(e) { console.log("Mikrofon ruxsati kerak:", e); }
-        },
-        
-        setupVisualizer() {
-            if (this.audioContext) this.audioContext.close();
-            this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
-            this.analyser = this.audioContext.createAnalyser();
-            this.analyser.fftSize = 256;
-            this.source = this.audioContext.createMediaStreamSource(this.stream);
-            this.source.connect(this.analyser);
+        joinRoom(roomId) {
+            state.roomId = roomId;
+            this.roomRef = this.db.ref('mr_board_v2/' + roomId);
             
-            const dataArray = new Uint8Array(this.analyser.frequencyBinCount);
-            const waveBars = document.querySelectorAll('.wave-bar');
-            const levelText = document.getElementById('voiceLevelText');
-            const container = document.getElementById('voiceWaveContainer');
+            const myRef = this.roomRef.child('students').child(state.userId);
+            myRef.onDisconnect().remove();
             
-            const updateWaves = () => {
-                if (!State.canSpeak || !this.analyser) {
-                    waveBars.forEach(bar => bar.style.height = '4px');
-                    if (levelText) levelText.innerText = 'muted';
-                    if (container) container.classList.remove('mic-active');
-                    this.animationId = requestAnimationFrame(updateWaves);
-                    return;
+            if (state.isTeacher) {
+                state.canDrawPerm = true;
+                state.canSpeakPerm = true;
+                state.micEnabled = true;
+            } else {
+                state.canDrawPerm = false;
+                state.canSpeakPerm = false;
+                state.micEnabled = false;
+            }
+
+            this.updatePresence();
+            this.setupListeners();
+        }
+
+        updatePresence() {
+            if (!this.roomRef) return;
+            this.roomRef.child('students').child(state.userId).set({
+                id: state.userId,
+                name: state.userName,
+                isTeacher: state.isTeacher,
+                canDraw: state.canDrawPerm,
+                canSpeak: state.canSpeakPerm
+            });
+        }
+
+        setupListeners() {
+            this.roomRef.child('elements').on('value', snap => {
+                const data = snap.val();
+                state.elements = data ? Object.values(data) : [];
+                canvasEngine.requestRedraw();
+            });
+
+            this.roomRef.child('active').on('value', snap => {
+                state.activePaths = snap.val() || {};
+                canvasEngine.requestRedraw();
+            });
+
+            this.roomRef.child('presence_cursors').on('value', snap => {
+                state.cursors = snap.val() || {};
+                canvasEngine.requestRedraw();
+            });
+
+            if (!state.isTeacher) {
+                this.roomRef.child('camera').on('value', snap => {
+                    const cam = snap.val();
+                    if (cam && !state.canDrawPerm) {
+                        state.camera = cam;
+                        canvasEngine.requestRedraw();
+                        UIManager.updateZoomText();
+                    }
+                });
+            }
+
+            this.roomRef.child('students').on('value', snap => {
+                state.students = snap.val() || {};
+                
+                if (!state.isTeacher && state.students[state.userId]) {
+                    const myData = state.students[state.userId];
+                    let permsChanged = false;
+                    
+                    if (state.canDrawPerm !== myData.canDraw) {
+                        state.canDrawPerm = myData.canDraw;
+                        permsChanged = true;
+                    }
+                    if (state.canSpeakPerm !== myData.canSpeak) {
+                        state.canSpeakPerm = myData.canSpeak;
+                        if (!state.canSpeakPerm) {
+                            state.micEnabled = false;
+                            audioEngine.updateMicTrack();
+                        }
+                        permsChanged = true;
+                    }
+                    if (permsChanged) UIManager.updateRoleUI();
                 }
+                UIManager.renderStudentList();
+            });
+        }
+        
+        setActivePath(id, pathData) { this.roomRef.child('active/' + id).set(pathData); }
+        updateActivePath(id, points) { this.roomRef.child('active/' + id).update({ points }); }
+        removeActivePath(id) { this.roomRef.child('active/' + id).remove(); }
+        
+        saveElement(elementData) {
+            elementData.userId = state.userId;
+            elementData.timestamp = Date.now();
+            this.roomRef.child('elements').push(elementData);
+        }
+
+        syncCursor = Utils.throttle((pos) => {
+            if (!this.roomRef) return;
+            this.roomRef.child('presence_cursors/' + state.userId).set({
+                x: pos.x, y: pos.y, name: state.userName, isTeacher: state.isTeacher
+            });
+        }, 50);
+
+        syncCamera() { if (state.isTeacher) this.roomRef.child('camera').set(state.camera); }
+
+        clearBoard() {
+            if (confirm("Diqqat! Doskadagi barcha ma'lumotlar o'chib ketadi. Rozimisiz?")) {
+                this.roomRef.child('elements').remove();
+                this.roomRef.child('active').remove();
+            }
+        }
+
+        undoLastAction() {
+            if (!this.roomRef) return;
+            this.roomRef.child('elements').once('value', snap => {
+                const data = snap.val();
+                if (!data) return;
                 
-                this.analyser.getByteFrequencyData(dataArray);
-                let sum = 0;
-                for (let i = 0; i < dataArray.length; i++) sum += dataArray[i];
-                let avg = sum / dataArray.length;
-                let db = Math.round(20 * Math.log10(avg / 255 + 0.1));
-                if (db < -60) db = -60;
-                if (db > 0) db = 0;
+                const elementsArr = Object.keys(data).map(key => ({ key: key, ...data[key] }));
+                const myElements = elementsArr.filter(el => el.userId === state.userId);
                 
-                const normalizedLevel = Math.min(1, avg / 180);
-                
-                if (levelText) {
-                    if (avg < 5) levelText.innerText = '-∞ dB';
-                    else levelText.innerText = `${db} dB`;
+                if (myElements.length > 0) {
+                    myElements.sort((a, b) => a.timestamp - b.timestamp);
+                    const lastElementKey = myElements[myElements.length - 1].key;
+                    this.roomRef.child('elements/' + lastElementKey).remove();
                 }
+            });
+        }
+
+        toggleStudentPermission(studentId, permType, value) {
+            if (!state.isTeacher) return;
+            this.roomRef.child('students/' + studentId).update({ [permType]: value });
+        }
+    }
+    const dbService = new DatabaseService();
+
+    // ==========================================
+    // Canvas Dvigateli (Chizish va Render)
+    // ==========================================
+    class CanvasEngine {
+        constructor() {
+            this.canvas = document.getElementById('canvas');
+            this.ctx = this.canvas.getContext('2d', { alpha: false, desynchronized: true });
+            this.isDrawing = false;
+            this.lastPoint = { x: 0, y: 0 };
+            this.activePathId = null; 
+            
+            this.needsRedraw = true;
+            this.animationFrameId = null;
+
+            this.resize();
+            window.addEventListener('resize', () => this.resize());
+            this.setupPointerEvents();
+            
+            this.renderLoop = this.renderLoop.bind(this);
+            requestAnimationFrame(this.renderLoop);
+        }
+
+        resize() {
+            this.canvas.width = window.innerWidth;
+            this.canvas.height = window.innerHeight;
+            this.requestRedraw();
+        }
+
+        requestRedraw() { this.needsRedraw = true; }
+
+        screenToWorld(x, y) { return { x: (x - state.camera.x) / state.camera.zoom, y: (y - state.camera.y) / state.camera.zoom }; }
+        worldToScreen(x, y) { return { x: x * state.camera.zoom + state.camera.x, y: y * state.camera.zoom + state.camera.y }; }
+        
+        setupPointerEvents() {
+            this.canvas.addEventListener('pointerdown', this.onPointerDown.bind(this));
+            window.addEventListener('pointermove', this.onPointerMove.bind(this));
+            window.addEventListener('pointerup', this.onPointerUp.bind(this));
+            
+            this.canvas.addEventListener('wheel', (e) => {
+                e.preventDefault(); 
+                const mouseWorldPos = this.screenToWorld(e.clientX, e.clientY);
+                const zoomFactor = e.deltaY > 0 ? 0.9 : 1.1; 
+                let newZoom = state.camera.zoom * zoomFactor;
                 
-                if (container) {
-                    if (avg > 15) container.classList.add('mic-active');
-                    else container.classList.remove('mic-active');
+                newZoom = Math.min(Math.max(0.1, newZoom), 5.0);
+                state.camera.zoom = newZoom;
+                state.camera.x = e.clientX - mouseWorldPos.x * state.camera.zoom;
+                state.camera.y = e.clientY - mouseWorldPos.y * state.camera.zoom;
+                
+                this.requestRedraw();
+                UIManager.updateZoomText();
+                dbService.syncCamera();
+            }, { passive: false });
+        }
+
+        onPointerDown(e) {
+            const x = e.clientX, y = e.clientY;
+            const worldPos = this.screenToWorld(x, y);
+            
+            if (state.currentTool === 'text') {
+                if (state.hasDrawPermission) {
+                    state.textPosition = worldPos;
+                    UIManager.showTextInput();
+                } else UIManager.showToast("Sizda matn yozish huquqi yo'q");
+                return;
+            }
+
+            this.isDrawing = true;
+            this.lastPoint = { x, y };
+
+            if (!state.hasDrawPermission && state.currentTool !== 'pan') {
+                this.isDrawing = false;
+                UIManager.showToast("Siz faqat kuzatuvchisiz. Chizish mumkin emas.");
+                return;
+            }
+
+            if (state.currentTool === 'draw' || state.currentTool === 'erase') {
+                this.activePathId = state.userId + '_' + Date.now();
+                const color = state.currentTool === 'erase' ? '#0a0a0f' : state.currentColor;
+                const size = (state.currentTool === 'erase' ? 40 : state.penSize) / state.camera.zoom;
+                
+                dbService.setActivePath(this.activePathId, { userId: state.userId, points: [worldPos], color: color, size: size });
+            }
+        }
+
+        onPointerMove(e) {
+            const x = e.clientX, y = e.clientY;
+            const worldPos = this.screenToWorld(x, y);
+
+            dbService.syncCursor(worldPos);
+            if (!this.isDrawing) return;
+
+            if (state.currentTool === 'pan') {
+                state.camera.x += x - this.lastPoint.x;
+                state.camera.y += y - this.lastPoint.y;
+                this.lastPoint = { x, y };
+                this.requestRedraw();
+                return;
+            }
+
+            if (state.hasDrawPermission && (state.currentTool === 'draw' || state.currentTool === 'erase')) {
+                const myActivePath = state.activePaths[this.activePathId];
+                if (myActivePath && myActivePath.points) {
+                    const points = myActivePath.points;
+                    const lastPoint = points[points.length - 1];
+                    const dist = Math.hypot(worldPos.x - lastPoint.x, worldPos.y - lastPoint.y);
+                    if (dist > 2 / state.camera.zoom) {
+                        points.push(worldPos);
+                        dbService.updateActivePath(this.activePathId, points);
+                    }
                 }
+            }
+            this.lastPoint = { x, y };
+        }
+
+        onPointerUp(e) {
+            if (!this.isDrawing) return;
+            this.isDrawing = false;
+
+            if (state.hasDrawPermission && (state.currentTool === 'draw' || state.currentTool === 'erase')) {
+                const myActivePath = state.activePaths[this.activePathId];
+                if (myActivePath && myActivePath.points && myActivePath.points.length > 1) {
+                    dbService.saveElement({ type: 'path', points: myActivePath.points, color: myActivePath.color, size: myActivePath.size });
+                }
+                dbService.removeActivePath(this.activePathId);
+                this.activePathId = null;
+            }
+        }
+
+        drawPathLine(points, color, size) {
+            if (!points || points.length < 2) return;
+            this.ctx.beginPath();
+            this.ctx.strokeStyle = color;
+            this.ctx.lineWidth = size;
+            this.ctx.lineCap = 'round';
+            this.ctx.lineJoin = 'round';
+            this.ctx.moveTo(points[0].x, points[0].y);
+            for (let i = 1; i < points.length; i++) this.ctx.lineTo(points[i].x, points[i].y);
+            this.ctx.stroke();
+        }
+
+        drawGrid() {
+            this.ctx.strokeStyle = '#1a1a20';
+            this.ctx.lineWidth = 1;
+            const gridSize = 40 * state.camera.zoom;
+            if (gridSize < 10) return; 
+            
+            const offsetX = state.camera.x % gridSize;
+            const offsetY = state.camera.y % gridSize;
+            
+            this.ctx.beginPath();
+            for (let x = offsetX; x < this.canvas.width; x += gridSize) { this.ctx.moveTo(x, 0); this.ctx.lineTo(x, this.canvas.height); }
+            for (let y = offsetY; y < this.canvas.height; y += gridSize) { this.ctx.moveTo(0, y); this.ctx.lineTo(this.canvas.width, y); }
+            this.ctx.stroke();
+        }
+
+        renderLoop() {
+            if (this.needsRedraw) {
+                this.ctx.setTransform(1, 0, 0, 1, 0, 0);
+                this.ctx.fillStyle = '#0a0a0f';
+                this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+                this.drawGrid();
                 
-                waveBars.forEach((bar, index) => {
-                    const factor = 0.5 + (index / waveBars.length) * 1.5;
-                    let height = 4 + (normalizedLevel * 28 * factor);
-                    height = Math.min(32, Math.max(4, height));
-                    bar.style.height = height + 'px';
+                this.ctx.setTransform(state.camera.zoom, 0, 0, state.camera.zoom, state.camera.x, state.camera.y);
+                
+                state.elements.forEach(el => {
+                    if (el.type === 'path') this.drawPathLine(el.points, el.color, el.size);
+                    else if (el.type === 'text') {
+                        this.ctx.font = `600 ${el.size || 24}px Inter, sans-serif`;
+                        this.ctx.fillStyle = el.color || '#ffffff';
+                        this.ctx.fillText(el.text, el.x, el.y);
+                    } else if (el.type === 'image' && el.data) {
+                        if (!el.imgElement) {
+                            el.imgElement = new Image();
+                            el.imgElement.src = el.data;
+                            el.imgElement.onload = () => this.requestRedraw();
+                        }
+                        if (el.imgElement.complete) this.ctx.drawImage(el.imgElement, el.x, el.y, el.width, el.height);
+                    }
                 });
                 
-                this.animationId = requestAnimationFrame(updateWaves);
+                Object.values(state.activePaths).forEach(p => { if (p && p.points) this.drawPathLine(p.points, p.color, p.size); });
+                
+                this.ctx.setTransform(1, 0, 0, 1, 0, 0);
+                Object.values(state.cursors).forEach(cursor => {
+                    if (cursor.name === state.userName || typeof cursor.x !== 'number') return;
+                    const screenPos = this.worldToScreen(cursor.x, cursor.y);
+                    
+                    this.ctx.beginPath();
+                    this.ctx.arc(screenPos.x, screenPos.y, 6, 0, Math.PI * 2);
+                    this.ctx.fillStyle = cursor.isTeacher ? '#f59e0b' : '#ef4444';
+                    this.ctx.fill();
+                    this.ctx.lineWidth = 2;
+                    this.ctx.strokeStyle = '#ffffff';
+                    this.ctx.stroke();
+
+                    this.ctx.font = '11px sans-serif';
+                    this.ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+                    this.ctx.fillText(cursor.name, screenPos.x + 12, screenPos.y + 4);
+                });
+
+                this.needsRedraw = false;
+            }
+            this.animationFrameId = requestAnimationFrame(this.renderLoop);
+        }
+    }
+    let canvasEngine;
+
+    // ==========================================
+    // WebRTC va Ovoz Boshqaruvi (MUAMMO HAL ETILGAN QISM)
+    // ==========================================
+    class AudioEngine {
+        constructor() {
+            this.stream = null;
+            this.peers = {}; 
+            this.audioContext = null;
+            this.analyser = null;
+            this.dataArray = null;
+            
+            // Ko'proq STUN serverlar (ulanish yaxshilanishi uchun)
+            this.config = {
+                iceServers: [
+                    { urls: 'stun:stun.l.google.com:19302' },
+                    { urls: 'stun:stun1.l.google.com:19302' },
+                    { urls: 'stun:stun2.l.google.com:19302' }
+                ]
             };
-            updateWaves();
-        },
-        
-        updateUI() {
+            
+            this.isSpeaking = false;
+            this.speakTimeout = null;
+        }
+
+        async init() {
+            try {
+                // MUHIM O'ZGARISH: Agressiv filtarlarni o'chirish (Ovoz uzilmasligi uchun)
+                this.stream = await navigator.mediaDevices.getUserMedia({ 
+                    audio: {
+                        echoCancellation: true, // Aks-sadoni qaytaradi
+                        noiseSuppression: false, // Ovozni pasayib qolganda qirqib tashlamaydi!
+                        autoGainControl: false,  // Ovoz balandligini o'ynatmaydi!
+                        sampleRate: 48000,
+                        channelCount: 1
+                    } 
+                });
+                
+                this.updateMicTrack();
+                this.setupVisualizer();
+                this.listenForSignals();
+                
+            } catch (error) {
+                console.error("Mikrofon xatosi:", error);
+                UIManager.showToast("Ovozli chat uchun mikrofonga ruxsat bering!", "error");
+            }
+        }
+
+        toggleMicrophone() {
+            if (!state.hasSpeakPermission) {
+                UIManager.showToast("Sizda gapirish ruxsati yo'q!", "error");
+                return;
+            }
+            state.micEnabled = !state.micEnabled;
+            this.updateMicTrack();
+            UIManager.updateMicIcon();
+        }
+
+        updateMicTrack() {
             if (this.stream) {
-                const track = this.stream.getAudioTracks()[0];
-                if (track) track.enabled = State.canSpeak;
-                const micBtn = document.getElementById('micBtn');
-                if (micBtn) {
-                    const icon = micBtn.querySelector('i');
-                    if (State.canSpeak) {
-                        icon.setAttribute('data-lucide', 'mic');
-                        micBtn.style.color = '#22c55e';
-                    } else {
-                        icon.setAttribute('data-lucide', 'mic-off');
-                        micBtn.style.color = '';
-                    }
-                    lucide.createIcons();
+                const audioTrack = this.stream.getAudioTracks()[0];
+                if (audioTrack) {
+                    audioTrack.enabled = state.hasSpeakPermission && state.micEnabled;
                 }
             }
-        },
+        }
+
+        setupVisualizer() {
+            const AudioCtx = window.AudioContext || window.webkitAudioContext;
+            this.audioContext = new AudioCtx();
+            this.analyser = this.audioContext.createAnalyser();
+            
+            const source = this.audioContext.createMediaStreamSource(this.stream);
+            source.connect(this.analyser);
+            
+            this.analyser.fftSize = 256;
+            const bufferLength = this.analyser.frequencyBinCount;
+            this.dataArray = new Uint8Array(bufferLength);
+            
+            this.animateVisualizer();
+        }
+
+        animateVisualizer = () => {
+            requestAnimationFrame(this.animateVisualizer);
+            
+            const waveBars = document.querySelectorAll('.wave-bar');
+            const levelText = document.getElementById('voiceLevelText');
+            
+            if (!(state.hasSpeakPermission && state.micEnabled)) {
+                waveBars.forEach(bar => bar.style.height = '4px');
+                if (levelText) levelText.innerText = 'Muted';
+                return;
+            }
+
+            this.analyser.getByteFrequencyData(this.dataArray);
+            let sum = 0;
+            for (let i = 0; i < this.dataArray.length; i++) sum += this.dataArray[i];
+            let avg = sum / this.dataArray.length;
+            
+            let db = Math.round(20 * Math.log10(avg / 255 + 0.1));
+            if (db < -60) db = -60;
+            if (db > 0) db = 0;
+            
+            if (levelText) levelText.innerText = avg < 5 ? '-∞ dB' : `${db} dB`;
+
+            const isSpeakingNow = avg > 20;
+            if (isSpeakingNow !== this.isSpeaking) {
+                this.isSpeaking = isSpeakingNow;
+                clearTimeout(this.speakTimeout);
+                
+                if (isSpeakingNow) UIManager.setMicPulse(true);
+                else this.speakTimeout = setTimeout(() => { if (!this.isSpeaking) UIManager.setMicPulse(false); }, 300);
+            }
+
+            const normalizedLevel = Math.min(1, avg / 150);
+            waveBars.forEach((bar, idx) => {
+                const factor = Math.sin((idx / waveBars.length) * Math.PI) * 1.5;
+                let height = 4 + (normalizedLevel * 30 * factor);
+                height = Math.max(4, Math.min(30, height)); 
+                bar.style.height = height + 'px';
+            });
+        }
         
-        stop() {
-            if (this.animationId) cancelAnimationFrame(this.animationId);
-            if (this.audioContext) this.audioContext.close();
-        }
-    };
-
-    // ========== CHAT ==========
-    const Chat = {
-        sendMessage() {
-            const input = document.getElementById('chatInput');
-            const text = input.value.trim();
-            if (!text || !State.roomRef) return;
-            State.roomRef.child('chat').push({
-                id: Date.now(),
-                userId: State.userId,
-                userName: State.userName,
-                text: text,
-                time: new Date().toLocaleTimeString(),
-                isTeacher: State.isTeacher
+        listenForSignals() {
+            const signalsRef = dbService.roomRef.child('signals/' + state.userId);
+            signalsRef.on('child_added', async (snap) => {
+                const data = snap.val();
+                snap.ref.remove(); 
+                try {
+                    if (data.type === 'offer') await this.handleOffer(data.from, data.sdp);
+                    else if (data.type === 'answer') await this.handleAnswer(data.from, data.sdp);
+                    else if (data.type === 'ice') await this.handleIceCandidate(data.from, data.ice);
+                } catch (e) { console.error("WebRTC Xato:", e); }
             });
-            input.value = '';
-        },
-        addMessage(msg) {
-            const container = document.getElementById('chatMessages');
-            const div = document.createElement('div');
-            div.className = `chat-message ${msg.userId === State.userId ? 'own' : 'other'}`;
-            div.innerHTML = `<div class="sender">${msg.userName} ${msg.isTeacher ? '👑' : ''}</div><div>${msg.text}</div><div class="time">${msg.time}</div>`;
-            container.appendChild(div);
-            container.scrollTop = container.scrollHeight;
-        },
-        listen() {
-            if (!State.roomRef) return;
-            State.roomRef.child('chat').on('child_added', (snap) => { this.addMessage(snap.val()); });
-        }
-    };
 
-    // ========== DATABASE ==========
-    const DB = {
-        init(id) {
-            State.roomId = id;
-            State.roomRef = db.ref('mr_rooms_final/' + id);
-            document.getElementById('welcome-page').style.display = 'none';
-            document.getElementById('app-page').style.display = 'block';
-            document.getElementById('roomIdTop').innerText = id;
-            if (State.isTeacher) { State.canDraw = true; State.canSpeak = true; }
-            this.register();
-            this.listen();
-            resizeCanvas();
-            renderLoop();
-            Audio.init();
-            Chat.listen();
-            UI.updateUI();
-        },
-        register() {
-            const ref = State.roomRef.child('students').child(State.userId);
-            ref.onDisconnect().remove();
-            ref.set({ id: State.userId, name: State.userName, isTeacher: State.isTeacher, canDraw: State.canDraw, canSpeak: State.canSpeak });
-        },
-        listen() {
-            State.roomRef.child('elements').on('value', snap => { State.elements = Object.values(snap.val() || {}); });
-            State.roomRef.child('active').on('value', snap => { State.activePaths = snap.val() || {}; });
-            State.roomRef.child('students').on('value', snap => {
-                State.students = snap.val() || {};
-                if (!State.isTeacher && State.students[State.userId]) {
-                    const me = State.students[State.userId];
-                    if (State.canDraw !== me.canDraw) State.canDraw = me.canDraw;
-                    if (State.canSpeak !== me.canSpeak) { State.canSpeak = me.canSpeak; Audio.updateUI(); }
-                    UI.updateUI();
+            dbService.roomRef.child('students').on('child_added', (snap) => {
+                const newUserId = snap.key;
+                if (newUserId !== state.userId) setTimeout(() => this.callUser(newUserId), 2000);
+            });
+        }
+
+        createPeerConnection(peerId) {
+            const pc = new RTCPeerConnection(this.config);
+            
+            if (this.stream) this.stream.getTracks().forEach(track => pc.addTrack(track, this.stream));
+            
+            pc.onicecandidate = (event) => {
+                if (event.candidate) this.sendSignal(peerId, { type: 'ice', ice: JSON.stringify(event.candidate) });
+            };
+            
+            pc.ontrack = (event) => {
+                const audioId = 'audio_' + peerId;
+                let audioEl = document.getElementById(audioId);
+                
+                if (!audioEl) {
+                    audioEl = document.createElement('audio');
+                    audioEl.id = audioId;
+                    audioEl.autoplay = true;
+                    audioEl.playsInline = true;
+                    document.getElementById('audioContainer').appendChild(audioEl);
                 }
-                UI.renderStudents();
-                const count = Object.values(State.students).filter(s => !s.isTeacher).length;
-                const badge = document.getElementById('studentBadge');
-                if (badge) badge.innerText = count;
-            });
-            State.roomRef.child('presence').on('value', snap => { State.cursors = snap.val() || {}; });
-            if (!State.isTeacher) State.roomRef.child('camera').on('value', snap => { const cam = snap.val(); if (cam && !State.canDraw) State.camera = cam; });
-        },
-        setActive(id, data) { State.roomRef.child('active/' + id).set(data); },
-        updateActive(id, points) { State.roomRef.child('active/' + id).update({ points }); },
-        removeActive(id) { State.roomRef.child('active/' + id).remove(); },
-        saveElement(el) { State.roomRef.child('elements').push(el); },
-        updateCursor(pos) { State.roomRef.child('presence/' + State.userId).set({ x: pos.x, y: pos.y, name: State.userName, isTeacher: State.isTeacher }); },
-        syncCamera() { State.roomRef.child('camera').set(State.camera); },
-        clearBoard() { if (confirm("Doskani tozalansinmi?")) State.roomRef.child('elements').remove(); },
-        togglePerm(id, type, val) { State.roomRef.child('students/' + id).update({ [type]: val }); }
-    };
+                
+                // MUHIM O'ZGARISH: Audio oqimi aynan shu bo'lmasa keyin almashtirish 
+                // (Ovoz "sakrab/uzilib" qolishini oldini oladi)
+                if (audioEl.srcObject !== event.streams[0]) {
+                    audioEl.srcObject = event.streams[0];
+                    
+                    audioEl.play().catch(error => {
+                        console.warn("Autoplay bloklandi. Foydalanuvchi ekranga bosishi kutilmoqda.");
+                        document.body.addEventListener('click', () => audioEl.play(), { once: true });
+                    });
+                }
+            };
 
-    // ========== CANVAS ACTIONS ==========
-    const CanvasActions = {
-        setTool(tool) {
-            State.tool = tool;
-            document.querySelectorAll('[data-tool]').forEach(el => el.classList.remove('active'));
-            document.querySelectorAll(`[data-tool="${tool}"]`).forEach(el => el.classList.add('active'));
-            if (tool === 'text') { UI.openTextInput(); }
-        },
-        addText() {
-            const text = document.getElementById('textInputArea').value.trim();
-            if (text && State.textPosition) {
-                DB.saveElement({ type: 'text', id: 'txt_' + Date.now(), text: text, x: State.textPosition.x, y: State.textPosition.y, size: 24, color: State.color, font: 'Inter' });
-                State.textPosition = null;
+            this.peers[peerId] = pc;
+            return pc;
+        }
+
+        async callUser(peerId) {
+            if (this.peers[peerId]) return; 
+            const pc = this.createPeerConnection(peerId);
+            const offer = await pc.createOffer();
+            await pc.setLocalDescription(offer);
+            this.sendSignal(peerId, { type: 'offer', sdp: JSON.stringify(offer) });
+        }
+
+        async handleOffer(peerId, sdpStr) {
+            const pc = this.createPeerConnection(peerId);
+            await pc.setRemoteDescription(new RTCSessionDescription(JSON.parse(sdpStr)));
+            const answer = await pc.createAnswer();
+            await pc.setLocalDescription(answer);
+            this.sendSignal(peerId, { type: 'answer', sdp: JSON.stringify(answer) });
+        }
+
+        async handleAnswer(peerId, sdpStr) {
+            const pc = this.peers[peerId];
+            if (pc) await pc.setRemoteDescription(new RTCSessionDescription(JSON.parse(sdpStr)));
+        }
+
+        async handleIceCandidate(peerId, iceStr) {
+            const pc = this.peers[peerId];
+            if (pc) await pc.addIceCandidate(new RTCIceCandidate(JSON.parse(iceStr)));
+        }
+
+        sendSignal(targetUserId, data) {
+            dbService.roomRef.child('signals/' + targetUserId).push({ from: state.userId, ...data });
+        }
+    }
+    let audioEngine;
+
+    // ==========================================
+    // Maxsus Rang Tanlagich (Color Wheel Canvas)
+    // ==========================================
+    class CustomColorPicker {
+        constructor() {
+            this.canvas = document.getElementById('colorWheel');
+            if (!this.canvas) return;
+            this.ctx = this.canvas.getContext('2d');
+            this.hue = 0.6; 
+            this.saturation = 0.8;
+            this.brightness = 1; 
+
+            this.initEvents();
+            this.drawWheel();
+            this.setupQuickColors();
+        }
+
+        initEvents() {
+            this.canvas.addEventListener('pointerdown', this.onInteract.bind(this));
+            this.canvas.addEventListener('pointermove', (e) => { if (e.buttons > 0) this.onInteract(e); });
+
+            const bSlider = document.getElementById('brightnessSlider');
+            if (bSlider) {
+                bSlider.addEventListener('input', (e) => {
+                    this.brightness = parseInt(e.target.value) / 100;
+                    this.updateGlobalColor();
+                });
             }
-            UI.closeTextInput();
+        }
+
+        drawWheel() {
+            const w = this.canvas.width, h = this.canvas.height;
+            const centerX = w / 2, centerY = h / 2, radius = w / 2;
+            const imgData = this.ctx.createImageData(w, h);
+            const data = imgData.data;
+
+            for (let y = 0; y < h; y++) {
+                for (let x = 0; x < w; x++) {
+                    const dx = x - centerX, dy = y - centerY;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+
+                    if (dist <= radius) {
+                        let angle = Math.atan2(dy, dx);
+                        let hue = (angle + Math.PI) / (2 * Math.PI);
+                        let sat = dist / radius;
+
+                        const rgb = this.hsvToRgb(hue, sat, 1); 
+                        
+                        const i = (y * w + x) * 4;
+                        data[i] = rgb.r; data[i + 1] = rgb.g; data[i + 2] = rgb.b; data[i + 3] = 255;
+                    }
+                }
+            }
+            this.ctx.putImageData(imgData, 0, 0);
+        }
+
+        onInteract(e) {
+            const rect = this.canvas.getBoundingClientRect();
+            const scaleX = this.canvas.width / rect.width;
+            const scaleY = this.canvas.height / rect.height;
+
+            const x = (e.clientX - rect.left) * scaleX;
+            const y = (e.clientY - rect.top) * scaleY;
+
+            const centerX = this.canvas.width / 2, centerY = this.canvas.height / 2, radius = this.canvas.width / 2;
+            const dx = x - centerX, dy = y - centerY;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+
+            if (dist <= radius) {
+                let angle = Math.atan2(dy, dx);
+                this.hue = (angle + Math.PI) / (2 * Math.PI);
+                this.saturation = dist / radius;
+                this.updateGlobalColor();
+            }
+        }
+
+        updateGlobalColor() {
+            const rgb = this.hsvToRgb(this.hue, this.saturation, this.brightness);
+            const hex = this.rgbToHex(rgb.r, rgb.g, rgb.b);
+            state.currentColor = hex;
+            document.getElementById('selectedColorPreview').style.backgroundColor = hex;
+            document.getElementById('colorIndicator').style.backgroundColor = hex;
+            UIManager.setTool('draw');
+        }
+
+        setupQuickColors() {
+            const colors = ['#ffffff', '#ef4444', '#f97316', '#f59e0b', '#84cc16', '#22c55e', '#06b6d4', '#3b82f6', '#8b5cf6', '#ec4899'];
+            const container = document.getElementById('quickColors');
+            
+            colors.forEach(col => {
+                const btn = document.createElement('div');
+                btn.style.width = '100%'; btn.style.aspectRatio = '1'; btn.style.backgroundColor = col; btn.style.borderRadius = '8px';
+                btn.style.cursor = 'pointer'; btn.style.border = '2px solid rgba(255,255,255,0.1)';
+                
+                btn.onclick = () => {
+                    state.currentColor = col;
+                    document.getElementById('selectedColorPreview').style.backgroundColor = col;
+                    document.getElementById('colorIndicator').style.backgroundColor = col;
+                    UIManager.setTool('draw');
+                };
+                container.appendChild(btn);
+            });
+        }
+
+        hsvToRgb(h, s, v) {
+            let r, g, b;
+            const i = Math.floor(h * 6), f = h * 6 - i, p = v * (1 - s), q = v * (1 - f * s), t = v * (1 - (1 - f) * s);
+            switch (i % 6) {
+                case 0: r = v; g = t; b = p; break;
+                case 1: r = q; g = v; b = p; break;
+                case 2: r = p; g = v; b = t; break;
+                case 3: r = p; g = q; b = v; break;
+                case 4: r = t; g = p; b = v; break;
+                case 5: r = v; g = p; b = q; break;
+            }
+            return { r: Math.round(r * 255), g: Math.round(g * 255), b: Math.round(b * 255) };
+        }
+
+        rgbToHex(r, g, b) { return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1); }
+    }
+    let colorPicker;
+
+    // ==========================================
+    // Interfeys Boshqaruvi (UI Manager)
+    // ==========================================
+    const UIManager = {
+        init() {
+            this.bindEvents();
+            const sizeSlider = document.getElementById('penSizeSlider');
+            if(sizeSlider) {
+                sizeSlider.addEventListener('input', (e) => {
+                    state.penSize = parseInt(e.target.value);
+                    document.getElementById('sizeValue').innerText = state.penSize;
+                });
+            }
         },
-        centerView() { State.camera = { x: 0, y: 0, zoom: 1.2 }; if (State.isTeacher) DB.syncCamera(); },
-        uploadImage() {
-            const input = document.createElement('input');
-            input.type = 'file';
-            input.accept = 'image/*';
+
+        bindEvents() {
+            document.getElementById('toolsBtn').onclick = () => this.openSidebar('toolsMenu');
+            document.getElementById('colorsBtn').onclick = () => this.openSidebar('colorsMenu');
+            document.getElementById('studentsBtn').onclick = () => this.openSidebar('studentsMenu');
+            document.getElementById('chatBtn').onclick = () => this.openSidebar('chatPanel');
+            
+            document.querySelectorAll('[data-close-menu]').forEach(btn => { btn.onclick = () => this.closeAllSidebars(); });
+            document.getElementById('closeChatBtn').onclick = () => this.closeAllSidebars();
+            document.getElementById('menuOverlay').onclick = () => this.closeAllSidebars();
+
+            document.querySelectorAll('[data-tool]').forEach(btn => {
+                btn.onclick = () => {
+                    this.setTool(btn.dataset.tool);
+                    if(btn.classList.contains('tool-card')) this.closeAllSidebars();
+                };
+            });
+
+            document.getElementById('micBtn').onclick = () => audioEngine.toggleMicrophone();
+
+            document.getElementById('undoBtn').onclick = () => dbService.undoLastAction();
+            document.getElementById('undoMenuBtn').onclick = () => { dbService.undoLastAction(); this.closeAllSidebars(); };
+            document.getElementById('clearBoardMenuBtn').onclick = () => { dbService.clearBoard(); this.closeAllSidebars(); };
+            document.getElementById('centerViewMenuBtn').onclick = () => { 
+                state.camera = {x: 0, y: 0, zoom: 1}; 
+                canvasEngine.requestRedraw();
+                this.updateZoomText();
+                dbService.syncCamera();
+                this.closeAllSidebars();
+            };
+
+            document.getElementById('uploadImageMenuBtn').onclick = () => { this.handleImageUpload(); this.closeAllSidebars(); };
+            document.getElementById('exportBtn').onclick = () => {
+                const link = document.createElement('a'); link.download = `MR_Board_${Date.now()}.png`;
+                link.href = document.getElementById('canvas').toDataURL(); link.click();
+            };
+
+            document.getElementById('cancelTextBtn').onclick = () => this.hideTextInput();
+            document.getElementById('addTextBtn').onclick = () => {
+                const text = document.getElementById('textInputArea').value.trim();
+                if (text && state.textPosition) {
+                    dbService.saveElement({ type: 'text', text: text, x: state.textPosition.x, y: state.textPosition.y, size: state.penSize * 4 + 10, color: state.currentColor });
+                }
+                this.hideTextInput();
+            };
+
+            document.getElementById('sendChatBtn').onclick = () => this.sendChatMessage();
+            document.getElementById('chatInput').addEventListener('keypress', (e) => { if (e.key === 'Enter') this.sendChatMessage(); });
+            
+            document.getElementById('exitBtn').onclick = () => { if(confirm('Xonadan chiqmoqchimisiz?')) location.reload(); };
+        },
+
+        openSidebar(id) {
+            this.closeAllSidebars(); 
+            document.getElementById('menuOverlay').classList.add('show');
+            document.getElementById(id).classList.add('open');
+            if (id === 'chatPanel') { state.unreadMessages = 0; document.getElementById('chatUnreadBadge').style.display = 'none'; }
+        },
+
+        closeAllSidebars() {
+            document.querySelectorAll('.side-menu, .chat-panel').forEach(el => el.classList.remove('open'));
+            document.getElementById('menuOverlay').classList.remove('show');
+        },
+
+        setTool(toolName) {
+            state.currentTool = toolName;
+            document.querySelectorAll('[data-tool]').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll(`[data-tool="${toolName}"]`).forEach(el => el.classList.add('active'));
+            
+            const canvas = document.getElementById('canvas');
+            if (toolName === 'pan') canvas.style.cursor = 'grab';
+            else if (toolName === 'text') canvas.style.cursor = 'text';
+            else canvas.style.cursor = 'crosshair';
+        },
+
+        updateZoomText() { document.getElementById('zoomTop').innerText = Math.round(state.camera.zoom * 100) + '%'; },
+
+        updateRoleUI() {
+            const roleEl = document.getElementById('roleTop');
+            if (state.isTeacher) roleEl.innerHTML = '<i data-lucide="crown" size="14" style="color:#f59e0b"></i> O\'qituvchi';
+            else if (state.canDrawPerm) roleEl.innerHTML = '<i data-lucide="pencil" size="14" style="color:var(--accent-color)"></i> Yozuvchi';
+            else roleEl.innerHTML = '<i data-lucide="eye" size="14" style="color:var(--text-muted)"></i> Kuzatuvchi';
+            lucide.createIcons();
+            this.updateMicIcon();
+        },
+
+        updateMicIcon() {
+            const btn = document.getElementById('micBtn');
+            btn.classList.remove('mic-off', 'mic-on', 'mic-speaking');
+            
+            if (!state.hasSpeakPermission) { btn.classList.add('mic-off'); btn.innerHTML = '<i data-lucide="mic-off"></i>'; } 
+            else if (state.micEnabled) { btn.classList.add('mic-on'); btn.innerHTML = '<i data-lucide="mic"></i>'; } 
+            else { btn.classList.add('mic-off'); btn.innerHTML = '<i data-lucide="mic-off"></i>'; }
+            lucide.createIcons();
+        },
+
+        setMicPulse(isSpeaking) {
+            const btn = document.getElementById('micBtn');
+            if (!state.hasSpeakPermission || !state.micEnabled) return;
+            if (isSpeaking) { btn.classList.add('mic-speaking'); btn.classList.remove('mic-on'); } 
+            else { btn.classList.remove('mic-speaking'); btn.classList.add('mic-on'); }
+        },
+
+        showTextInput() { document.getElementById('textInputOverlay').classList.add('show'); document.getElementById('textInputArea').focus(); },
+        hideTextInput() { document.getElementById('textInputOverlay').classList.remove('show'); document.getElementById('textInputArea').value = ''; state.textPosition = null; },
+
+        handleImageUpload() {
+            const input = document.createElement('input'); input.type = 'file'; input.accept = 'image/*';
             input.onchange = (e) => {
                 const file = e.target.files[0];
-                if (!file || file.size > 5e6) return alert("Rasm 5MB dan kichik bo'lishi kerak");
+                if (!file) return;
+                if (file.size > 5 * 1024 * 1024) { this.showToast("Rasm hajmi 5MB dan kichik bo'lishi kerak", "error"); return; }
+
                 const reader = new FileReader();
-                reader.onload = (ev) => {
+                reader.onload = (event) => {
                     const img = new Image();
                     img.onload = () => {
-                        const center = screenToWorld(window.innerWidth / 2, window.innerHeight / 2);
-                        const w = Math.min(300, img.width) / State.camera.zoom;
-                        const h = (img.height / img.width) * w;
-                        DB.saveElement({ type: 'image', id: 'img_' + Date.now(), data: ev.target.result, x: center.x - w/2, y: center.y - h/2, width: w, height: h });
+                        const center = canvasEngine.screenToWorld(window.innerWidth / 2, window.innerHeight / 2);
+                        const maxWidth = 400 / state.camera.zoom;
+                        let w = img.width, h = img.height;
+                        if (w > maxWidth) { h = (maxWidth / w) * h; w = maxWidth; }
+                        dbService.saveElement({ type: 'image', data: event.target.result, x: center.x - w / 2, y: center.y - h / 2, width: w, height: h });
                     };
-                    img.src = ev.target.result;
+                    img.src = event.target.result;
                 };
                 reader.readAsDataURL(file);
             };
             input.click();
         },
-        exportPNG() { const a = document.createElement('a'); a.download = 'mr-board.png'; a.href = canvas.toDataURL(); a.click(); },
-        undo() { if (State.roomRef) State.roomRef.child('elements').orderByKey().limitToLast(1).once('value', snap => { snap.forEach(c => c.ref.remove()); }); }
-    };
 
-    // ========== UI ==========
-    const UI = {
-        toggleMic() {
-            if (!State.isTeacher && !State.canSpeak) { alert("O'qituvchi ruxsat bermagan"); return; }
-            State.canSpeak = !State.canSpeak;
-            if (Audio.stream) { const track = Audio.stream.getAudioTracks()[0]; if (track) track.enabled = State.canSpeak; }
-            if (State.isTeacher) DB.togglePerm(State.userId, 'canSpeak', State.canSpeak);
-            Audio.updateUI();
-        },
-        openMenu(name) {
-            document.querySelectorAll('.side-menu').forEach(m => m.classList.remove('open'));
-            document.getElementById('menuOverlay').classList.add('show');
-            document.getElementById(name + 'Menu').classList.add('open');
-        },
-        closeAll() {
-            document.querySelectorAll('.side-menu').forEach(m => m.classList.remove('open'));
-            document.getElementById('chatPanel').classList.remove('open');
-            document.getElementById('menuOverlay').classList.remove('show');
-        },
-        openChat() { 
-            document.querySelectorAll('.side-menu').forEach(m => m.classList.remove('open'));
-            document.getElementById('menuOverlay').classList.add('show');
-            document.getElementById('chatPanel').classList.add('open'); 
-        },
-        closeChat() { 
-            document.getElementById('chatPanel').classList.remove('open');
-            document.getElementById('menuOverlay').classList.remove('show');
-        },
-        openTextInput() { document.getElementById('textInputOverlay').classList.add('show'); },
-        closeTextInput() { document.getElementById('textInputOverlay').classList.remove('show'); document.getElementById('textInputArea').value = ''; },
-        updateUI() {
-            const studentsBtn = document.getElementById('studentsBtn');
-            const teacherMenu = document.getElementById('teacherToolsMenu');
-            const role = document.getElementById('roleTop');
-            if (studentsBtn) studentsBtn.style.display = State.isTeacher ? 'flex' : 'none';
-            if (teacherMenu) teacherMenu.style.display = State.isTeacher ? 'block' : 'none';
-            if (role) {
-                if (State.isTeacher) role.innerText = '👑 O\'qituvchi';
-                else if (State.canDraw) role.innerText = '✏️ Chizish ruxsati bor';
-                else role.innerText = '👁️ Kuzatuvchi';
-            }
-        },
-        renderStudents() {
-            const container = document.getElementById('studentListMenu');
-            if (!container) return;
-            container.innerHTML = '';
-            Object.values(State.students).forEach(st => {
-                if (st.isTeacher) return;
-                const drawActive = st.canDraw ? 'active' : '';
-                const speakActive = st.canSpeak ? 'active' : '';
-                container.innerHTML += `<div class="student-item"><span>${st.name}</span><div style="display:flex; gap:8px;"><div class="perm-icon ${drawActive}" data-draw="${st.id}"><i data-lucide="pen-tool" size="14"></i></div><div class="perm-icon ${speakActive}" data-speak="${st.id}"><i data-lucide="mic" size="14"></i></div></div></div>`;
+        sendChatMessage() {
+            const input = document.getElementById('chatInput');
+            const text = input.value.trim();
+            if (!text || !dbService.roomRef) return;
+            
+            dbService.roomRef.child('chat').push({
+                userId: state.userId, userName: state.userName, isTeacher: state.isTeacher,
+                text: Utils.escapeHTML(text), time: new Date().toLocaleTimeString('uz-UZ', { hour: '2-digit', minute: '2-digit' })
             });
-            lucide.createIcons();
-            document.querySelectorAll('[data-draw]').forEach(el => { el.onclick = () => DB.togglePerm(el.dataset.draw, 'canDraw', !State.students[el.dataset.draw]?.canDraw); });
-            document.querySelectorAll('[data-speak]').forEach(el => { el.onclick = () => DB.togglePerm(el.dataset.speak, 'canSpeak', !State.students[el.dataset.speak]?.canSpeak); });
-        }
-    };
+            input.value = '';
+        },
 
-    // ========== POINTER EVENTS ==========
-    function handleStart(e) {
-        const x = e.clientX || (e.touches?.[0]?.clientX);
-        const y = e.clientY || (e.touches?.[0]?.clientY);
-        if (!x) return;
-        if (State.tool === 'text') { State.textPosition = screenToWorld(x, y); UI.openTextInput(); return; }
-        State.isDrawing = true;
-        const world = screenToWorld(x, y);
-        State.lastPoint = { x, y };
-        if (State.tool === 'draw' || State.tool === 'erase') {
-            const id = State.userId + '_' + Date.now();
-            const color = State.tool === 'erase' ? '#0a0a0f' : State.color;
-            const size = (State.tool === 'erase' ? 30 : State.penSize) / State.camera.zoom;
-            DB.setActive(id, { userId: State.userId, points: [world], color, size });
-        }
-    }
-    
-    function handleMove(e) {
-        const x = e.clientX || (e.touches?.[0]?.clientX);
-        const y = e.clientY || (e.touches?.[0]?.clientY);
-        if (!x) return;
-        const world = screenToWorld(x, y);
-        DB.updateCursor(world);
-        if (!State.isDrawing) return;
-        if (State.tool === 'pan') { 
-            State.camera.x += x - State.lastPoint.x; 
-            State.camera.y += y - State.lastPoint.y; 
-            State.lastPoint = { x, y }; 
-        } else if (State.canDraw && (State.tool === 'draw' || State.tool === 'erase')) {
-            const keys = Object.keys(State.activePaths).filter(k => State.activePaths[k]?.userId === State.userId);
-            if (keys.length) {
-                const p = State.activePaths[keys[0]];
-                if (p && p.points) {
-                    const last = p.points[p.points.length - 1];
-                    if (Math.hypot(world.x - last.x, world.y - last.y) > 2) { 
-                        p.points.push(world); 
-                        DB.updateActive(keys[0], p.points); 
-                    }
+        setupChatListener() {
+            if (!dbService.roomRef) return;
+            dbService.roomRef.child('chat').on('child_added', (snap) => {
+                const msg = snap.val();
+                const container = document.getElementById('chatMessages');
+                const div = document.createElement('div');
+                const isOwn = msg.userId === state.userId;
+                div.className = `chat-message ${isOwn ? 'own' : 'other'}`;
+                
+                let iconStr = msg.isTeacher ? '<i data-lucide="crown" size="10" style="margin-left:4px;"></i>' : '';
+                div.innerHTML = `<div class="sender">${msg.userName} ${iconStr}</div><div class="content">${msg.text}</div><div class="time">${msg.time}</div>`;
+                
+                container.appendChild(div);
+                lucide.createIcons();
+                container.scrollTop = container.scrollHeight;
+                
+                const chatPanel = document.getElementById('chatPanel');
+                if (!chatPanel.classList.contains('open') && !isOwn) {
+                    state.unreadMessages++;
+                    const badge = document.getElementById('chatUnreadBadge');
+                    badge.innerText = state.unreadMessages > 9 ? '9+' : state.unreadMessages;
+                    badge.style.display = 'flex';
                 }
-            }
-        }
-        State.lastPoint = { x, y };
-    }
-    
-    function handleEnd() {
-        if (!State.isDrawing) return;
-        State.isDrawing = false;
-        if (State.canDraw && (State.tool === 'draw' || State.tool === 'erase')) {
-            const keys = Object.keys(State.activePaths).filter(k => State.activePaths[k]?.userId === State.userId);
-            if (keys.length) {
-                const p = State.activePaths[keys[0]];
-                if (p && p.points && p.points.length > 1) DB.saveElement({ type: 'path', points: p.points, color: p.color, size: p.size });
-                DB.removeActive(keys[0]);
-            }
-        }
-    }
-    
-    canvas.addEventListener('pointerdown', handleStart);
-    window.addEventListener('pointermove', handleMove);
-    window.addEventListener('pointerup', handleEnd);
-    
-    canvas.addEventListener('wheel', (e) => {
-        e.preventDefault();
-        const world = screenToWorld(e.clientX, e.clientY);
-        State.camera.zoom *= e.deltaY > 0 ? 0.9 : 1.1;
-        State.camera.zoom = Math.min(5, Math.max(0.3, State.camera.zoom));
-        State.camera.x = e.clientX - world.x * State.camera.zoom;
-        State.camera.y = e.clientY - world.y * State.camera.zoom;
-        if (State.isTeacher) DB.syncCamera();
-    }, { passive: false });
+            });
+        },
+        
+        renderStudentList() {
+            const container = document.getElementById('studentListContainer');
+            if (!container) return;
+            
+            let html = '', studentCount = 0;
 
-    // ========== INIT UI ==========
-    function initUIElements() {
-        const colorGrid = document.getElementById('colorGridMenu');
-        presetColors.forEach(c => {
-            const ball = document.createElement('div');
-            ball.className = 'color-ball';
-            ball.style.backgroundColor = c;
-            ball.onclick = () => {
-                State.color = c;
-                document.querySelectorAll('#colorGridMenu .color-ball').forEach(s => s.classList.remove('active'));
-                ball.classList.add('active');
-                document.getElementById('colorPickerMenu').value = c;
-                document.getElementById('colorIndicator').style.backgroundColor = c;
-            };
-            if (c === State.color) ball.classList.add('active');
-            colorGrid.appendChild(ball);
-        });
-        
-        const penSlider = document.getElementById('penSizeSlider');
-        if (penSlider) {
-            penSlider.addEventListener('input', (e) => { State.penSize = parseInt(e.target.value); document.getElementById('sizeValue').innerText = State.penSize; });
-        }
-        
-        const colorPicker = document.getElementById('colorPickerMenu');
-        if (colorPicker) {
-            colorPicker.addEventListener('input', (e) => { State.color = e.target.value; document.getElementById('colorIndicator').style.backgroundColor = e.target.value; });
-        }
-        
-        document.getElementById('colorIndicator').style.backgroundColor = State.color;
-        
-        // Close buttons
-        document.getElementById('closeToolsBtn').onclick = () => UI.closeAll();
-        document.getElementById('closeColorsBtn').onclick = () => UI.closeAll();
-        document.getElementById('closeStudentsBtn').onclick = () => UI.closeAll();
-        document.getElementById('closeChatBtn').onclick = () => UI.closeChat();
-    }
+            Object.values(state.students).forEach(st => {
+                if (st.isTeacher) return; 
+                studentCount++;
+                const drawClass = st.canDraw ? 'active' : '', speakClass = st.canSpeak ? 'active' : '';
+                const initial = st.name ? st.name.charAt(0).toUpperCase() : '?';
 
-    // ========== EVENT LISTENERS ==========
+                html += `
+                <div class="student-item">
+                    <div class="student-info">
+                        <div class="student-avatar">${initial}</div><span style="font-weight: 500;">${Utils.escapeHTML(st.name)}</span>
+                    </div>
+                    <div style="display:flex; gap:10px;">
+                        <div class="perm-icon ${drawClass}" data-uid="${st.id}" data-type="canDraw" title="Chizish ruxsati"><i data-lucide="pencil" size="16"></i></div>
+                        <div class="perm-icon ${speakClass}" data-uid="${st.id}" data-type="canSpeak" title="Mikrofon ruxsati"><i data-lucide="mic" size="16"></i></div>
+                    </div>
+                </div>`;
+            });
+
+            if (studentCount === 0) html = '<div style="text-align: center; color: var(--text-muted); padding: 20px;">Hozircha o\'quvchilar yo\'q</div>';
+            container.innerHTML = html;
+            lucide.createIcons();
+            
+            const badge = document.getElementById('studentBadge');
+            if (badge) { badge.innerText = studentCount; badge.style.display = studentCount > 0 ? 'flex' : 'none'; }
+
+            if (state.isTeacher) {
+                document.querySelectorAll('#studentListContainer .perm-icon').forEach(icon => {
+                    icon.onclick = () => {
+                        const uid = icon.getAttribute('data-uid'), pType = icon.getAttribute('data-type');
+                        dbService.toggleStudentPermission(uid, pType, !state.students[uid][pType]);
+                    };
+                });
+            } else {
+                document.querySelectorAll('#studentListContainer .perm-icon').forEach(icon => icon.style.cursor = 'default');
+            }
+        },
+
+        showToast(message, type = 'info') { console.log(`[${type.toUpperCase()}] ${message}`); }
+    };
+
+    // ==========================================
+    // Ilovani Ishga Tushirish (App Entry Point)
+    // ==========================================
+    UIManager.init();
+
     document.getElementById('createRoomBtn').onclick = () => {
-        const name = document.getElementById('userName').value.trim();
-        if (!name) return alert("Ismingizni kiriting");
-        State.userName = name;
-        State.isTeacher = true;
-        DB.init('MR' + Math.floor(1000 + Math.random() * 9000));
-    };
-    
-    document.getElementById('joinRoomBtn').onclick = () => {
-        const name = document.getElementById('userName').value.trim();
-        const id = document.getElementById('roomInput').value.trim().toUpperCase();
-        if (!name) return alert("Ismingizni kiriting");
-        if (!id) return alert("Xona kodini kiriting");
-        State.userName = name;
-        State.isTeacher = false;
-        DB.init(id);
-    };
-    
-    document.getElementById('toolsBtn').onclick = () => UI.openMenu('tools');
-    document.getElementById('colorsBtn').onclick = () => UI.openMenu('colors');
-    document.getElementById('studentsBtn').onclick = () => UI.openMenu('students');
-    document.getElementById('chatBtn').onclick = () => UI.openChat();
-    document.getElementById('sendChatBtn').onclick = () => Chat.sendMessage();
-    document.getElementById('chatInput').addEventListener('keypress', (e) => { if (e.key === 'Enter') Chat.sendMessage(); });
-    document.getElementById('menuOverlay').onclick = () => UI.closeAll();
-    document.getElementById('micBtn').onclick = () => UI.toggleMic();
-    document.getElementById('undoBtn').onclick = () => CanvasActions.undo();
-    document.getElementById('undoMenuBtn').onclick = () => { CanvasActions.undo(); UI.closeAll(); };
-    document.getElementById('uploadImageMenuBtn').onclick = () => { CanvasActions.uploadImage(); UI.closeAll(); };
-    document.getElementById('centerViewMenuBtn').onclick = () => { CanvasActions.centerView(); UI.closeAll(); };
-    document.getElementById('clearBoardMenuBtn').onclick = () => { DB.clearBoard(); UI.closeAll(); };
-    document.getElementById('exportBtn').onclick = () => CanvasActions.exportPNG();
-    document.getElementById('exitBtn').onclick = () => location.reload();
-    document.getElementById('cancelTextBtn').onclick = () => UI.closeTextInput();
-    document.getElementById('addTextBtn').onclick = () => CanvasActions.addText();
-    
-    document.querySelectorAll('[data-tool]').forEach(btn => { btn.onclick = () => CanvasActions.setTool(btn.dataset.tool); });
-    document.querySelectorAll('#toolsMenu .tool-card[data-tool]').forEach(card => { card.onclick = () => { CanvasActions.setTool(card.dataset.tool); UI.closeAll(); }; });
+        const nameInput = document.getElementById('userName');
+        if (!nameInput.value.trim()) { nameInput.focus(); return; }
 
-    initUIElements();
-    window.Canvas = CanvasActions;
-    window.DB = DB;
-    window.UI = UI;
+        const roomId = 'MR' + Math.floor(1000 + Math.random() * 9000);
+        state.userName = nameInput.value.trim();
+        state.isTeacher = true; 
+        
+        startGame(roomId);
+    };
+
+    document.getElementById('joinRoomBtn').onclick = () => {
+        const nameInput = document.getElementById('userName');
+        const roomInput = document.getElementById('roomInput');
+        
+        if (!nameInput.value.trim()) { nameInput.focus(); return; }
+        if (!roomInput.value.trim()) { roomInput.focus(); return; }
+
+        state.userName = nameInput.value.trim();
+        state.isTeacher = false; 
+        
+        startGame(roomInput.value.trim().toUpperCase());
+    };
+
+    function startGame(roomId) {
+        document.getElementById('welcome-page').style.opacity = '0';
+        setTimeout(() => {
+            document.getElementById('welcome-page').style.display = 'none';
+            document.getElementById('app-page').style.display = 'block';
+            document.getElementById('roomIdTop').innerText = roomId;
+
+            if (state.isTeacher) {
+                document.getElementById('studentsBtn').style.display = 'flex';
+                document.getElementById('teacherToolsMenu').style.display = 'block';
+            }
+
+            UIManager.updateRoleUI();
+            dbService.joinRoom(roomId);
+            
+            if (!canvasEngine) canvasEngine = new CanvasEngine();
+            else canvasEngine.resize();
+            
+            if (!colorPicker) colorPicker = new CustomColorPicker();
+
+            UIManager.setupChatListener();
+
+            audioEngine = new AudioEngine();
+            audioEngine.init();
+
+        }, 300);
+    }
+
 })();
 </script>
 </body>
