@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="uz" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>MR BOARD · Enterprise Edition · To'liq Qo'llanma</title>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        /* ==================================================================
+           [1] DOKUMENTATSIYA ASOSIY DIZAYNI (Kengaytirilgan)
+           ================================================================== */
+        :root {
+            --bg-doc: #ffffff; --bg-doc-alt: #f8fafc; --text-doc: #0f172a; --text-doc-muted: #475569;
+            --brand-doc: #007aff; --border-doc: #e2e8f0; --sidebar-w: 320px;
+            
+            /* Tizim (MR BOARD) o'zgaruvchilari (Vizual maketlar uchun) */
+            --bg-base: #f8fafc; --bg-canvas: #e2e8f0; --bg-glass: rgba(255, 255, 255, 0.7);
+            --bg-panel: rgba(255, 255, 255, 0.9); --bg-hover: rgba(0, 0, 0, 0.05);
+            --border-subtle: rgba(255, 255, 255, 0.5); --border-strong: rgba(0, 0, 0, 0.1);
+            --brand-primary: #007aff; --brand-alpha: rgba(0, 122, 255, 0.15);
+            --state-danger: #ff3b30; --state-success: #34c759; --state-warning: #ffcc00;
+            --shadow-float: 0 24px 48px -12px rgba(0,0,0,0.15), 0 12px 24px -8px rgba(0,0,0,0.1);
+            --shadow-inner: inset 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Inter", sans-serif; }
+        html { scroll-behavior: smooth; }
+        body { display: flex; color: var(--text-doc); background: var(--bg-doc); line-height: 1.7; }
+
+        /* Sidebar Navigatsiya (Kengaytirilgan) */
+        .sidebar { width: var(--sidebar-w); height: 100vh; position: fixed; border-right: 1px solid var(--border-doc); padding: 32px 24px; background: var(--bg-doc-alt); overflow-y: auto; z-index: 100; scrollbar-width: thin; }
+        .sidebar-brand { font-size: 26px; font-weight: 900; margin-bottom: 8px; display: flex; align-items: center; gap: 10px; }
+        .sidebar-brand span { color: var(--brand-doc); }
+        .sidebar-version { font-size: 12px; font-weight: 700; color: var(--text-doc-muted); margin-bottom: 32px; padding-left: 42px; text-transform: uppercase; letter-spacing: 1px; }
+        
+        .nav-section { font-size: 11px; font-weight: 800; color: var(--text-doc-muted); text-transform: uppercase; letter-spacing: 1px; margin: 24px 0 8px 12px; }
+        .nav-link { display: flex; align-items: center; gap: 12px; padding: 10px 16px; color: var(--text-doc-muted); text-decoration: none; font-weight: 600; font-size: 14px; border-radius: 12px; transition: 0.2s; margin-bottom: 4px; }
+        .nav-link:hover { background: #e2e8f0; color: var(--text-doc); transform: translateX(4px); }
+        .nav-link.active { background: var(--brand-alpha); color: var(--brand-doc); font-weight: 700; }
+
+        /* Asosiy qism */
+        .content { margin-left: var(--sidebar-w); flex: 1; padding: 60px 5%; max-width: 1400px; }
+        h1 { font-size: 48px; font-weight: 900; letter-spacing: -1.5px; margin-bottom: 24px; line-height: 1.1; }
+        h2 { font-size: 32px; font-weight: 800; color: var(--brand-doc); margin: 80px 0 24px; display: flex; align-items: center; gap: 12px; border-bottom: 2px solid var(--border-doc); padding-bottom: 16px; }
+        h3 { font-size: 24px; font-weight: 700; margin: 40px 0 16px; display: flex; align-items: center; gap: 10px; color: #1e293b; }
+        h4 { font-size: 20px; font-weight: 700; margin: 32px 0 12px; color: #0f172a; }
+        p { margin-bottom: 16px; font-size: 16px; color: var(--text-doc-muted); }
+        
+        .highlight-text { font-size: 20px; font-weight: 500; color: #334155; border-left: 4px solid var(--brand-doc); padding-left: 20px; margin: 24px 0; background: var(--bg-doc-alt); padding: 20px; border-radius: 0 16px 16px 0; }
+        
+        ul, ol { margin-left: 24px; margin-bottom: 24px; color: var(--text-doc-muted); }
+        li { margin-bottom: 12px; }
+        li strong { color: var(--text-doc); }
+
+        .kbd { background: #f1f5f9; border: 1px solid #cbd5e1; border-bottom-width: 3px; padding: 3px 8px; border-radius: 6px; font-family: monospace; font-size: 13px; font-weight: bold; color: #0f172a; }
+
+        /* Qadam-ba-qadam Grid */
+        .step-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 24px; margin: 32px 0; }
+        .step-card { background: var(--bg-doc-alt); border: 1px solid var(--border-doc); padding: 24px; border-radius: 24px; position: relative; transition: transform 0.2s, box-shadow 0.2s; }
+        .step-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-float); }
+        .step-number { position: absolute; top: -16px; left: -16px; width: 40px; height: 40px; background: var(--brand-doc); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 900; border: 4px solid var(--bg-doc); }
+        .step-card h4 { font-size: 18px; font-weight: 800; margin-bottom: 12px; margin-top: 8px; }
+
+        /* Vizual Maketlar (kengaytirilgan) */
+        .demo-box { background: var(--bg-canvas); background-image: radial-gradient(var(--border-strong) 1px, transparent 1px); background-size: 32px 32px; border-radius: 24px; border: 1px solid var(--border-strong); padding: 40px; margin: 32px 0; position: relative; overflow: hidden; display: flex; justify-content: center; align-items: center; min-height: 200px; flex-wrap: wrap; gap: 24px; }
+        .demo-caption { text-align: center; font-size: 13px; font-weight: 700; color: var(--text-doc-muted); margin-top: -24px; margin-bottom: 40px; text-transform: uppercase; letter-spacing: 1px; }
+        
+        /* UI Elements (Kengaytirilgan) */
+        .mock-panel { background: var(--bg-panel); backdrop-filter: blur(40px); border-radius: 32px; padding: 32px; box-shadow: var(--shadow-float); border: 1px solid var(--border-subtle); width: 100%; max-width: 500px; }
+        .mock-input { width: 100%; padding: 16px 20px; background: var(--bg-base); border: 1.5px solid var(--border-strong); border-radius: 20px; font-size: 15px; font-weight: 600; box-shadow: var(--shadow-inner); outline: none; margin-bottom: 16px; }
+        .mock-btn { width: 100%; padding: 16px; border-radius: 20px; font-size: 16px; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 10px; border: none; cursor: default; }
+        .mock-btn.primary { background: var(--brand-primary); color: #fff; box-shadow: 0 8px 20px var(--brand-alpha); }
+        .mock-btn.ghost { background: var(--bg-base); border: 1.5px solid var(--border-strong); color: var(--text-main); }
+        
+        /* Dock */
+        .mock-dock { background: var(--bg-glass); backdrop-filter: blur(50px); border: 1px solid var(--border-subtle); border-radius: 32px; padding: 12px; display: flex; align-items: center; gap: 8px; box-shadow: var(--shadow-float); flex-wrap: wrap; justify-content: center; max-width: 100%; }
+        .mock-action { width: 56px; height: 56px; border-radius: 20px; display: flex; align-items: center; justify-content: center; color: var(--text-muted); background: transparent; }
+        .mock-action.active { background: var(--brand-primary); color: #fff; box-shadow: 0 8px 20px var(--brand-alpha); transform: scale(1.05); }
+        .mock-sep { width: 2px; height: 32px; background: var(--border-strong); margin: 0 8px; border-radius: 2px; }
+
+        /* Chat */
+        .mock-bubble { max-width: 80%; padding: 12px 16px; border-radius: 20px; font-size: 14px; margin-bottom: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+        .mock-bubble.mine { background: var(--brand-primary); color: #fff; align-self: flex-end; border-bottom-right-radius: 4px; margin-left: auto; }
+        .mock-bubble.other { background: var(--bg-base); border: 1px solid var(--border-strong); border-bottom-left-radius: 4px; color: var(--text-main); }
+        .mock-chat-info { font-size: 11px; font-weight: 800; margin-bottom: 4px; opacity: 0.8; display: flex; align-items: center; gap: 4px; }
+
+        /* Users */
+        .mock-user-card { background: var(--bg-base); border: 1px solid var(--border-strong); border-radius: 20px; padding: 16px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; width: 100%; }
+        .mock-avatar { width: 44px; height: 44px; border-radius: 50%; background: var(--brand-primary); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 800; }
+        .mock-perm { width: 40px; height: 40px; border-radius: 12px; background: var(--bg-panel); border: 1px solid var(--border-strong); display: flex; align-items: center; justify-content: center; color: var(--text-muted); }
+        .mock-perm.granted { background: var(--brand-alpha); color: var(--brand-primary); border-color: var(--brand-primary); }
+
+        /* Tables */
+        .doc-table { width: 100%; border-collapse: collapse; margin: 24px 0; background: var(--bg-doc-alt); border-radius: 16px; overflow: hidden; border: 1px solid var(--border-doc); }
+        .doc-table th, .doc-table td { padding: 14px 20px; text-align: left; border-bottom: 1px solid var(--border-doc); }
+        .doc-table th { background: var(--border-doc); font-weight: 800; }
+        .doc-table tr:last-child td { border-bottom: none; }
+
+        /* Badges */
+        .badge { display: inline-block; padding: 4px 12px; border-radius: 99px; font-size: 12px; font-weight: 700; background: var(--bg-doc-alt); border: 1px solid var(--border-doc); color: var(--text-doc-muted); margin-right: 8px; }
+        .badge-primary { background: var(--brand-alpha); color: var(--brand-doc); border-color: var(--brand-doc); }
+        .badge-success { background: rgba(52,199,89,0.1); color: var(--state-success); border-color: var(--state-success); }
+        .badge-danger { background: rgba(255,59,48,0.1); color: var(--state-danger); border-color: var(--state-danger); }
+
+        /* Mobile */
+        .menu-btn { display: none; position: fixed; top: 16px; right: 16px; z-index: 1000; background: var(--brand-doc); color: white; border: none; padding: 12px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,122,255,0.3); }
+        @media (max-width: 900px) {
+            .sidebar { transform: translateX(-100%); transition: 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); }
+            .sidebar.open { transform: translateX(0); box-shadow: 0 0 50px rgba(0,0,0,0.2); }
+            .content { margin-left: 0; padding: 24px; padding-top: 80px; }
+            .menu-btn { display: block; }
+            h1 { font-size: 36px; }
+        }
+    </style>
+</head>
+<body>
+
+    <button class="menu-btn" onclick="document.getElementById('sidebar').classList.toggle('open')">
+        <i data-lucide="menu"></i>
+    </button>
+
+    <nav class="sidebar" id="sidebar">
+        <div class="sidebar-brand"><i data-lucide="layers" size="32"></i> MR <span>BOARD</span></div>
+        <div class="sidebar-version">Enterprise Edition v3.0</div>
+        
+        <div class="nav-section">Tanishuv</div>
+        <a href="#intro" class="nav-link active"><i data-lucide="info" size="18"></i> Kirish</a>
+        <a href="#auth" class="nav-link"><i data-lucide="shield-check" size="18"></i> Avtorizatsiya & Rollar</a>
+        
+        <div class="nav-section">Asosiy Ish Qurollari</div>
+        <a href="#workspace" class="nav-link"><i data-lucide="monitor" size="18"></i> Ish maydoni (Canvas)</a>
+        <a href="#dock-tools" class="nav-link"><i data-lucide="pen-tool" size="18"></i> Asboblar (Dock) 1ma1</a>
+        <a href="#colors" class="nav-link"><i data-lucide="palette" size="18"></i> Ranglar palitrasi</a>
+        <a href="#settings" class="nav-link"><i data-lucide="settings" size="18"></i> Sozlamalar menyusi</a>
+        
+        <div class="nav-section">Jamoaviy Ish (Hamkorlik)</div>
+        <a href="#audio" class="nav-link"><i data-lucide="mic" size="18"></i> Ovozli muloqot (WebRTC)</a>
+        <a href="#chat" class="nav-link"><i data-lucide="message-square" size="18"></i> Umumiy Chat</a>
+        <a href="#users" class="nav-link"><i data-lucide="users" size="18"></i> Qatnashchilarni boshqarish</a>
+        <a href="#realtime" class="nav-link"><i data-lucide="database" size="18"></i> Real‑vaqt sinxronizatsiya</a>
+        
+        <div class="nav-section">Qo'shimcha Imkoniyatlar</div>
+        <a href="#minimap" class="nav-link"><i data-lucide="map" size="18"></i> Minimap & Navigatsiya</a>
+        <a href="#zen" class="nav-link"><i data-lucide="maximize-2" size="18"></i> Zen Mode (To'liq ekran)</a>
+        <a href="#advanced" class="nav-link"><i data-lucide="wand-2" size="18"></i> Ilg‘or funksiyalar</a>
+        <a href="#shortcuts" class="nav-link"><i data-lucide="keyboard" size="18"></i> Tezkor tugmalar (Hotkeys)</a>
+        
+        <div class="nav-section">Fayllar va Saqlash</div>
+        <a href="#export-import" class="nav-link"><i data-lucide="save" size="18"></i> Eksport / Import (JSON, PNG)</a>
+        <a href="#security" class="nav-link"><i data-lucide="shield" size="18"></i> Xavfsizlik & Maxfiylik</a>
+        
+        <div class="nav-section">Yordam</div>
+        <a href="#faq" class="nav-link"><i data-lucide="help-circle" size="18"></i> Ko'p beriladigan savollar (FAQ)</a>
+        <a href="#troubleshooting" class="nav-link"><i data-lucide="bug" size="18"></i> Xatolarni bartaraf etish</a>
+        <a href="#performance" class="nav-link"><i data-lucide="gauge" size="18"></i> Optimallashtirish masalalari</a>
+    </nav>
+
+    <main class="content">
+        <!-- ========== KIRISH ========== -->
+        <section id="intro">
+            <h1>MR BOARD Enterprise Edition</h1>
+            <p class="highlight-text">
+                MR BOARD — bu real vaqt rejimida hamkorlikda chizish, loyihalash, taqdimotlar o'tkazish va bevosita brauzer orqali ovozli muloqot qilish imkonini beruvchi <strong>Korporativ darajadagi</strong> platformadir.
+            </p>
+            <p>Ushbu hujjat tizimning barcha funksiyalarini 1:1 nisbatda, vizual misollar va qadam-ba-qadam tushuntirishlar bilan ochib beradi. Platforma Apple UI (Glassmorphism, bounciness) dizayn falsafasi asosida qurilgan bo'lib, tez, ishonchli va foydalanuvchi uchun intuitivdir.</p>
+        </section>
+
+        <!-- ========== AVTORIZATSIYA VA ROLLAR ========== -->
+        <section id="auth">
+            <h2><i data-lucide="shield-check"></i> 1. Tizimga kirish va Rollar</h2>
+            <p>Platformaga kirishda hech qanday murakkab ro'yxatdan o'tish (Login/Parol) yo'q. Dasturni ochganingizda sizni asosiy darvoza (Auth Gateway) kutib oladi.</p>
+
+            <div class="demo-box" style="padding: 60px 20px;">
+                <div class="mock-panel" style="max-width: 420px; padding: 48px;">
+                    <div style="text-align: center; margin-bottom: 32px;">
+                        <h1 style="font-size: 36px; margin:0;">MR <span style="color: var(--brand-primary)">BOARD</span></h1>
+                    </div>
+                    
+                    <div style="font-size: 12px; font-weight: 700; color: var(--text-muted); margin-bottom: 8px; text-transform: uppercase;">Ismingiz</div>
+                    <div class="mock-input" style="color: var(--text-main);">Alisher</div>
+                    
+                    <div class="mock-btn primary" style="margin-bottom: 24px;"><i data-lucide="shield-check"></i> Yangi Xona (Host)</div>
+                    
+                    <div style="display: flex; align-items: center; margin: 24px 0; opacity: 0.5;">
+                        <div style="flex:1; border-bottom: 1px solid var(--text-main);"></div>
+                        <span style="padding: 0 16px; font-size: 12px; font-weight: 800;">YOKI</span>
+                        <div style="flex:1; border-bottom: 1px solid var(--text-main);"></div>
+                    </div>
+
+                    <div style="font-size: 12px; font-weight: 700; color: var(--text-muted); margin-bottom: 8px; text-transform: uppercase;">Xona Kodi</div>
+                    <div class="mock-input" style="color: var(--text-muted);">MR-XXXX</div>
+                    
+                    <div class="mock-btn ghost"><i data-lucide="log-in"></i> Xonaga Ulanish</div>
+                </div>
+            </div>
+            <div class="demo-caption">1-rasm. Avtorizatsiya oynasi – soddalik va xavfsizlik</div>
+
+            <div class="step-grid">
+                <div class="step-card">
+                    <div class="step-number">1</div>
+                    <h4>Host (Xona Egasi) bo'lish</h4>
+                    <p>O'z ismingizni yozib <strong>"Yangi Xona"</strong> tugmasini bossangiz, tizim sizga avtomatik <code>MR-5892</code> ko'rinishida kod beradi. Siz xonaning mutlaq egasiga aylanasiz (Chizish, gapirish, tozalash huquqlari beriladi).</p>
+                </div>
+                <div class="step-card">
+                    <div class="step-number">2</div>
+                    <h4>Kuzatuvchi bo'lib kirish</h4>
+                    <p>Do'stingiz yaratgan xonaga kirish uchun, pastki maydonga u bergan kodni yozasiz. Siz xonaga <strong>Kuzatuvchi</strong> bo'lib kirasiz (Faqat ko'rish va chatda yozish imkoni bo'ladi).</p>
+                </div>
+            </div>
+            <p><span class="badge badge-primary">Muhim</span> Xona kodlari har bir yaratilganda unikal generatsiya qilinadi. Faqat siz va siz taklif qilgan odamlar foydalanishi mumkin. Xona yopilganda kod bekor bo'ladi.</p>
+        </section>
+
+        <!-- ========== ISH MAYDONI ========== -->
+        <section id="workspace">
+            <h2><i data-lucide="monitor"></i> 2. Ish maydoni va Statuslar</h2>
+            <p>Xonaga muvaffaqiyatli kirganingizdan so'ng, oldingizda <strong>Cheksiz (Infinite)</strong> katakli doska ochiladi. Ekranning eng yuqori qismida sizning holatingizni bildiruvchi "Status Pills" (Holat tabletkalari) joylashgan.</p>
+
+            <div class="demo-box" style="justify-content: flex-start; align-items: flex-start; padding: 24px;">
+                <div style="display: flex; gap: 12px; flex-wrap: wrap; width: 100%; justify-content: space-between;">
+                    <div style="display: flex; gap: 12px;">
+                        <div style="background: var(--bg-glass); border: 1px solid var(--border-subtle); border-radius: 99px; padding: 10px 24px; font-weight: 700; display: flex; align-items: center; gap: 8px; color: var(--text-main);">
+                            <i data-lucide="hash" style="color: var(--text-muted)"></i> MR-1024
+                        </div>
+                        <div style="background: var(--bg-glass); border: 1px solid var(--border-subtle); border-radius: 99px; padding: 10px 24px; font-weight: 700; display: flex; align-items: center; gap: 8px; color: var(--text-main);">
+                            <i data-lucide="search" style="color: var(--text-muted)"></i> 100%
+                        </div>
+                    </div>
+                    <div style="background: var(--bg-glass); border: 1px solid var(--border-subtle); border-radius: 99px; padding: 10px 24px; font-weight: 700; display: flex; align-items: center; gap: 8px; color: var(--text-main);">
+                        <i data-lucide="crown" style="color: var(--state-warning)"></i> Host
+                    </div>
+                </div>
+            </div>
+            <div class="demo-caption">2-rasm. Yuqori navigatsiya va status qismi – xona kodi, zoom darajasi, rol.</div>
+
+            <ul>
+                <li><strong>Xona Kodi:</strong> Chapdagi kodni (Masalan, MR-1024) do'stlaringizga berasiz, ular shu orqali kirishadi.</li>
+                <li><strong>Masshtab (Zoom):</strong> Sichqoncha roligini (Ctrl bosgan holda) yoki noutbuk touchpadini ikki barmoqda yaqinlashtirish orqali doskani kattalashtirish yoki uzoqlashtirish mumkin. Maximal zoom: 500%, minimal: 10%.</li>
+                <li><strong>Rolingiz:</strong> O'ng tomonda siz ayni damda kim ekanligingiz (Host, Yozuvchi yoki Kuzatuvchi) ko'rinib turadi.</li>
+            </ul>
+        </section>
+
+        <!-- ========== ASBOBLAR PANELI (DOCK) ========== -->
+        <section id="dock-tools">
+            <h2><i data-lucide="pen-tool"></i> 3. Asboblar Paneli (Dock) 1‑ma‑1</h2>
+            <p>Ekranning pastki qismida macOS tizimidagi kabi suzib yuruvchi, "Glassmorphism" uslubidagi Dock paneli joylashgan. U barcha chizish va ishlash vositalarini o'zida jamlagan.</p>
+
+            <div class="demo-box">
+                <div class="mock-dock">
+                    <div class="mock-action"><i data-lucide="settings-2"></i></div>
+                    <div class="mock-action"><div style="width:28px; height:28px; border-radius:50%; background:#007aff; border:3px solid #fff;"></div></div>
+                    <div class="mock-sep"></div>
+                    <div class="mock-action active"><i data-lucide="pencil"></i></div>
+                    <div class="mock-action" style="color: var(--state-danger);"><i data-lucide="wand-2"></i></div>
+                    <div class="mock-action"><i data-lucide="shapes"></i></div>
+                    <div class="mock-action"><i data-lucide="eraser"></i></div>
+                    <div class="mock-action"><i data-lucide="hand"></i></div>
+                    <div class="mock-action"><i data-lucide="type"></i></div>
+                    <div class="mock-action"><i data-lucide="undo-2"></i></div>
+                </div>
+            </div>
+            <div class="demo-caption">3-rasm. Asosiy Dock Paneli (Chizish asboblari)</div>
+
+            <h3>Asboblarning vazifalari va sozlamalari:</h3>
+            
+            <div class="step-grid">
+                <div class="step-card">
+                    <h4><i data-lucide="pencil" style="color: var(--brand-doc);"></i> Qalam (Brush) <kbd>B</kbd></h4>
+                    <p>Erkin chizish vositasi. Dastur chiziqlarni avtomatik ravishda silliqlaydi (Spline smoothing). Qalinlikni sozlamalardan 1px dan 50px gacha o'zgartirish mumkin. Rangni palitradan tanlang.</p>
+                </div>
+                
+                <div class="step-card">
+                    <h4><i data-lucide="wand-2" style="color: var(--state-danger);"></i> Lazer Ko'rsatkich <kbd>L</kbd></h4>
+                    <p>Taqdimot (Prezentatsiya) qilayotganingizda birovlarga qayerdadir urg'u berish uchun. Chizgan qizil neon izingiz 1-2 soniyadan so'ng <strong>avtomatik uchib ketadi</strong>.</p>
+                </div>
+                
+                <div class="step-card">
+                    <h4><i data-lucide="shapes" style="color: var(--brand-doc);"></i> Shakllar <kbd>S</kbd></h4>
+                    <p>Buni bossangiz tepasida qo'shimcha menyu ochiladi. Siz aniq <strong>To'rtburchak, Aylana, To'g'ri chiziq</strong> yoki <strong>O'q (Arrow)</strong> chizishingiz mumkin bo'ladi.</p>
+                </div>
+                
+                <div class="step-card">
+                    <h4><i data-lucide="eraser" style="color: var(--text-doc-muted);"></i> O'chirg'ich <kbd>E</kbd></h4>
+                    <p>Chizilgan chiziqlarni qisman o'chirish uchun. U xuddi oq qalamdek ishlaydi va xatolarni tozalashga yordam beradi.</p>
+                </div>
+
+                <div class="step-card">
+                    <h4><i data-lucide="hand" style="color: var(--brand-doc);"></i> Surish (Pan) <kbd>H</kbd></h4>
+                    <p>Doska cheksiz bo'lgani uchun, boshqa joyga borish kerak bo'ladi. Shu asbobni tanlab, ekranni ushlab xohlagan tarafingizga surishingiz mumkin.</p>
+                </div>
+
+                <div class="step-card">
+                    <h4><i data-lucide="type" style="color: var(--text-doc);"></i> Matn (Text) <kbd>T</kbd></h4>
+                    <p>Ekranning xohlagan joyiga bossangiz, chiroyli "Modal" oyna ochiladi. U yerga uzoq matn (masalan, kod yoki izoh) yozib, doskaga joylashtirishingiz mumkin.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========== RANGLAR PALITRASI ========== -->
+        <section id="colors">
+            <h2><i data-lucide="palette"></i> 4. Ranglar palitrasi</h2>
+            <p>Dock dagi rangli doirachani bossangiz, ekranning chap tomonidan silliq animatsiya bilan <strong>Ranglar Menyusi (Drawer)</strong> ochilib chiqadi.</p>
+
+            <div class="demo-box" style="justify-content: flex-start;">
+                <div class="mock-panel" style="width: 380px; height: auto; padding: 24px; border-radius: 0 32px 32px 0;">
+                    <div style="font-size: 24px; font-weight: 800; display:flex; align-items:center; gap:12px; margin-bottom: 32px;">
+                        <i data-lucide="palette"></i> Rang palitrasi
+                    </div>
+                    
+                    <div style="width: 200px; height: 200px; border-radius: 50%; background: conic-gradient(red, yellow, lime, aqua, blue, magenta, red); margin: 0 auto 32px; box-shadow: 0 8px 32px rgba(0,0,0,0.1); border: 8px solid var(--bg-base);"></div>
+                    
+                    <div style="font-size: 13px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; margin-bottom: 16px;">Yorug'lik sozlamasi</div>
+                    <div style="display:flex; align-items:center; gap:16px; background:var(--bg-base); padding: 16px; border-radius: 16px; margin-bottom: 24px;">
+                        <i data-lucide="sun"></i>
+                        <div style="flex:1; height: 8px; background: var(--border-strong); border-radius: 4px; position:relative;">
+                            <div style="width: 24px; height: 24px; background: #fff; border: 2px solid #ccc; border-radius: 50%; position: absolute; right: 0; top: -8px; box-shadow: 0 2px 5px rgba(0,0,0,0.2);"></div>
+                        </div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px;">
+                        <div style="width: 100%; aspect-ratio:1; background: #ff3b30; border-radius: 8px;"></div>
+                        <div style="width: 100%; aspect-ratio:1; background: #ff9500; border-radius: 8px;"></div>
+                        <div style="width: 100%; aspect-ratio:1; background: #34c759; border-radius: 8px;"></div>
+                        <div style="width: 100%; aspect-ratio:1; background: #007aff; border-radius: 8px;"></div>
+                        <div style="width: 100%; aspect-ratio:1; background: #5856d6; border-radius: 8px;"></div>
+                        <div style="width: 100%; aspect-ratio:1; background: #000000; border-radius: 8px;"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="demo-caption">4-rasm. Ranglarni tanlash oynasi – to'liq gamut va tezkor ranglar.</div>
+
+            <ul>
+                <li><strong>Color Wheel (Aylana):</strong> Har qanday spektrdagi rangni aniq tanlash imkonini beradi.</li>
+                <li><strong>Yorug'lik:</strong> Tanlangan rangni to'qroq yoki ochroq qilish uchun slayderni suring.</li>
+                <li><strong>Tezkor ranglar (Swatches):</strong> Dasturlashda ko'p ishlatiladigan standard 12 ta rang tayyor qilib qo'yilgan. Ularni bossangiz, chiroyli sakrovchi animatsiya beradi.</li>
+            </ul>
+        </section>
+
+        <!-- ========== SOZLAMALAR ========== -->
+        <section id="settings">
+            <h2><i data-lucide="settings"></i> 5. Sozlamalar va Fayllar bilan ishlash</h2>
+            <p>Dock dagi birinchi tugma (Tishli g'ildirak) <strong>Sozlamalar</strong> oynasini ochadi. Bu yerda siz asboblar qalinligini va loyihani saqlash kabi muhim amallarni bajarasiz.</p>
+
+            <div class="step-grid">
+                <div class="step-card">
+                    <h4><i data-lucide="pen-tool" size="18" style="color:var(--brand-doc)"></i> Asbob qalinligi</h4>
+                    <p>Slayder orqali qalam, o'chirg'ich yoki shakllarning qalinligini <strong>1px dan 50px gacha</strong> o'zgartirishingiz mumkin. Bu raqam real vaqtda ekranda ko'rinib turadi.</p>
+                </div>
+                <div class="step-card">
+                    <h4><i data-lucide="target" size="18" style="color:var(--brand-doc)"></i> Markazlashtirish</h4>
+                    <p>Agar cheksiz doskada adashib qolsangiz, shu tugma orqali kamerani (Zoom va Position) 100% holatda eng boshlang'ich markaziy nuqtaga qaytarasiz.</p>
+                </div>
+                <div class="step-card">
+                    <h4><i data-lucide="image" size="18" style="color:var(--brand-doc)"></i> Rasm Yuklash</h4>
+                    <p>Kompyuteringizdan (5MB gacha bo'lgan PNG, JPG) rasmlarni bevosita doskaga yuklashingiz mumkin. Rasm xuddi obyekt kabi markazga tushadi.</p>
+                </div>
+                <div class="step-card">
+                    <h4><i data-lucide="save" size="18" style="color:var(--state-success)"></i> Loyihani Saqlash (JSON)</h4>
+                    <p>Chizgan barcha chiziqlar, rasmlar va yozuvlaringizni <code>.json</code> fayl ko'rinishida kompyuterga saqlab olish. Keyinchalik "Loyihani yuklash" orqali uni qayta tiklasa bo'ladi.</p>
+                </div>
+            </div>
+            
+            <div class="highlight-text" style="border-color: var(--state-danger); background: rgba(255,59,48,0.05);">
+                <strong>Host xavfsizlik paneli:</strong> Agar siz xona egasi bo'lsangiz, sozlamalar eng pastida qizil rangli <strong>"Barcha chiziqlarni o'chirish"</strong> tugmasi chiqadi. Bu butunlay doskani hammada tozalab tashlaydi. (Kuzatuvchilarda bu tugma ko'rinmaydi).
+            </div>
+        </section>
+
+        <!-- ========== OVOZLI MULOQOT ========== -->
+        <section id="audio">
+            <h2><i data-lucide="mic"></i> 6. Ovozli Muloqot (WebRTC)</h2>
+            <p>Dasturning eng kuchli xususiyatlaridan biri, hech qanday qo'shimcha dasturlarsiz (Zoom, Telegram), to'g'ridan-to'g'ri brauzerni o'zida ovozli gaplashishdir.</p>
+
+            <div class="demo-box">
+                <div style="display:flex; gap:16px; align-items:center;">
+                    <div style="display:flex; gap:4px; align-items:center; background: var(--bg-base); padding: 0 20px; height: 56px; border-radius: 20px; box-shadow: var(--shadow-inner); border: 1px solid var(--border-strong);">
+                        <i data-lucide="activity" style="margin-right:12px; color:var(--text-muted)"></i>
+                        <div style="width:4px; height:12px; background:var(--brand-primary); border-radius:4px;"></div>
+                        <div style="width:4px; height:24px; background:var(--brand-primary); border-radius:4px;"></div>
+                        <div style="width:4px; height:16px; background:var(--brand-primary); border-radius:4px;"></div>
+                        <div style="width:4px; height:8px; background:var(--brand-primary); border-radius:4px;"></div>
+                        <div style="width:4px; height:20px; background:var(--brand-primary); border-radius:4px;"></div>
+                    </div>
+                    <div style="width: 56px; height: 56px; border-radius: 20px; background: var(--state-success); color: white; display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 20px rgba(52, 199, 89, 0.3); transform: scale(1.05);">
+                        <i data-lucide="mic"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="demo-caption">5-rasm. Aktiv mikrofon va Ovoz vizualizatori (EQ)</div>
+
+            <ul>
+                <li><strong>Peer-to-Peer:</strong> Ovoz to'g'ridan-to'g'ri foydalanuvchidan foydalanuvchiga boradi, serverda saqlanmaydi. Bu kechikish (latency) ni juda kamaytiradi.</li>
+                <li><strong>Vizualizator (EQ):</strong> Siz gapirganingizda, ovoz balandligiga qarab ekvaylazer chiziqlari harakatlanadi. Ovoz balandlashsa mikrofon yashil yonadi.</li>
+                <li><strong>Ruxsat so'rash:</strong> Dasturga kirganingizda brauzer mikrofonga ruxsat so'raydi. Albatta <strong>"Allow / Razreshit"</strong> ni bosish shart, aks holda bu funksiya ishlamaydi.</li>
+            </ul>
+            <p><span class="badge badge-primary">Eslatma</span> Mikrofon ruxsatini faqat Xona egasi (Host) boshqa ishtirokchilarga berishi mumkin. Ruxsat berilgandan so'ng, foydalanuvchi o'zi mikrofonni yoqishi/o'chirishi mumkin.</p>
+        </section>
+
+        <!-- ========== CHAT ========== -->
+        <section id="chat">
+            <h2><i data-lucide="message-square"></i> 7. Umumiy Chat</h2>
+            <p>Agar kimgadir mikrofon ruxsati berilmagan bo'lsa yoki link jo'natish kerak bo'lsa, ichki <strong>Umumiy Chat</strong> dan foydalanasiz.</p>
+
+            <div class="demo-box" style="justify-content: flex-end; padding: 0;">
+                <div class="mock-panel" style="width: 400px; height: 500px; border-radius: 32px 0 0 32px; display: flex; flex-direction: column; padding: 0;">
+                    <div style="padding: 24px; border-bottom: 1px solid var(--border-strong); font-size: 20px; font-weight: 800; display:flex; align-items:center; gap:12px;">
+                        <i data-lucide="message-square"></i> Umumiy Chat
+                    </div>
+                    
+                    <div style="flex: 1; padding: 24px; background: var(--bg-canvas); display: flex; flex-direction: column;">
+                        <div class="mock-bubble other">
+                            <div class="mock-chat-info">Alisher <i data-lucide="crown" size="12" style="color:var(--state-warning)"></i></div>
+                            Assalomu alaykum, darsni boshlaymizmi?
+                        </div>
+                        <div class="mock-bubble mine">
+                            Va alaykum assalom, ha hozir doskaga yozaman.
+                        </div>
+                    </div>
+                    
+                    <div style="padding: 16px; background: var(--bg-panel); border-top: 1px solid var(--border-strong); display: flex; gap: 12px;">
+                        <input type="text" class="mock-input" style="margin:0; border-radius: 99px;" placeholder="Xabar yozing..." readonly>
+                        <div style="width: 52px; height: 52px; border-radius: 50%; background: var(--brand-primary); color: white; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+                            <i data-lucide="send" size="20"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="demo-caption">6-rasm. Umumiy chat oynasi ko'rinishi</div>
+
+            <p>Agar sizda chat yopiq holatda bo'lsa va kimdir xabar yozsa, Dock dagi chat ikonkasida qizil dumaloq bildirishnoma (badge) va xabarlar soni paydo bo'ladi. Xabarlar juda chiroyli <strong>Bouncing</strong> (sakrovchi) animatsiya bilan chiqadi.</p>
+        </section>
+
+        <!-- ========== QATNASCHILARNI BOSHQARISH ========== -->
+        <section id="users">
+            <h2><i data-lucide="users"></i> 8. Qatnashchilarni Boshqarish (Faqat Host uchun)</h2>
+            <p>Agar siz Xona Egasi (Host) bo'lsangiz, Dock da <strong>Foydalanuvchilar (Users)</strong> ikonkasini ko'rasiz. Bu oyna orqali siz kimga nima qilish huquqini berishni hal qilasiz.</p>
+
+            <div class="demo-box" style="justify-content: flex-end; padding: 0;">
+                <div class="mock-panel" style="width: 420px; padding: 32px; border-radius: 32px 0 0 32px;">
+                    <div style="font-size: 20px; font-weight: 800; margin-bottom: 24px; display:flex; align-items:center; gap:12px;">
+                        <i data-lucide="users"></i> Qatnashchilar
+                    </div>
+                    
+                    <div class="mock-user-card">
+                        <div style="display:flex; align-items:center; gap:12px; font-weight:700;">
+                            <div class="mock-avatar">J</div> Javohir
+                        </div>
+                        <div style="display:flex; gap:10px;">
+                            <div class="mock-perm granted" title="Chizish ruxsati berilgan"><i data-lucide="pencil" size="18"></i></div>
+                            <div class="mock-perm" title="Gapirish bloklangan"><i data-lucide="mic-off" size="18"></i></div>
+                        </div>
+                    </div>
+
+                    <div class="mock-user-card">
+                        <div style="display:flex; align-items:center; gap:12px; font-weight:700;">
+                            <div class="mock-avatar" style="background: #34c759;">S</div> Sardor
+                        </div>
+                        <div style="display:flex; gap:10px;">
+                            <div class="mock-perm" title="Chizish bloklangan"><i data-lucide="pencil" size="18"></i></div>
+                            <div class="mock-perm granted" title="Gapirish ruxsati berilgan"><i data-lucide="mic" size="18"></i></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="demo-caption">7-rasm. Huquqlarni boshqarish (Admin Panel)</div>
+
+            <p>Har bir qatnashchining ishlash kartochkasi qarshisida 2 ta tugma mavjud: <strong>Qalam</strong> (Doskaga chiza olishi) va <strong>Mikrofon</strong> (Ovozli gapira olishi).</p>
+            <ul>
+                <li>Tugma <strong style="color:var(--brand-doc)">Ko'k</strong> rangda tursa — ruxsat berilgan.</li>
+                <li>Tugma <strong style="color:var(--text-doc-muted)">Kulrang</strong> turgan bo'lsa — ruxsat olinib qo'yilgan (Bloklangan).</li>
+            </ul>
+        </section>
+
+        <!-- ========== REAL-VAQT SINXRONIZATSIYA ========== -->
+        <section id="realtime">
+            <h2><i data-lucide="database"></i> 9. Real‑vaqt sinxronizatsiya (Firebase)</h2>
+            <p>MR BOARD butunlay <strong>Firebase Realtime Database</strong> ustiga qurilgan. Bu har bir foydalanuvchi bir-birining harakatlarini real vaqtda ko'rishini ta'minlaydi.</p>
+            <div class="highlight-text">
+                <strong>Qanday ishlaydi?</strong><br>
+                Har bir chizilgan chiziq, qo'shilgan matn, o'chirilgan element yoki kursor holati millisekundlar ichida barcha ishtirokchilarga tarqaladi. Kursorlarni boshqalarning ekranida kichik doira va ism bilan ko'rasiz.
+            </div>
+            <p>Internet uzilgan taqdirda dastur avtomatik qayta ulanishga urinadi va yo'qotilgan ma'lumotlarni tiklaydi. Barcha amallar "Undo" (Ctrl+Z) bilan bekor qilinishi mumkin.</p>
+        </section>
+
+        <!-- ========== MINIMAP ========== -->
+        <section id="minimap">
+            <h2><i data-lucide="map"></i> 10. Minimap va Navigatsiya</h2>
+            <div class="step-grid">
+                <div class="step-card">
+                    <h4>Minimap (Kuzatuv doskasi)</h4>
+                    <p>Ekranning o'ng pastki qismidagi kichik oyna. Doska bo'ylab qayerga surilsangiz, minimapdagi kichik to'rtburchak (View Box) ham siz bilan birga harakatlanadi.</p>
+                    <p>Siz uni tepadagi kulrang qismidan ushlab <strong>ekranning xohlagan joyiga ko'chirishingiz</strong> yoki burchagidan tortib <strong>kattalashtirishingiz</strong> mumkin.</p>
+                </div>
+                
+                <div class="step-card">
+                    <h4>Kursorlarni kuzatish</h4>
+                    <p>Boshqa foydalanuvchilar doskada qayerda ishlayotganini ularning kursorlari orqali ko'rasiz. Agar kimdir lazer ko'rsatkichdan foydalansa, qizil neon chiziq barchada paydo bo'ladi.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========== ZEN MODE ========== -->
+        <section id="zen">
+            <h2><i data-lucide="maximize-2"></i> 11. Zen Mode (To'liq ekran)</h2>
+            <p>Chalg'imasdan ishlamoqchi bo'lsangiz Dock dagi kengaytirish tugmasini yoki klaviaturada <strong>F</strong> ni bosing. Butun brauzer to'liq ekranga o'tadi va barcha UI elementlar (Dock, Navigatsiya, Minimap) yashirinadi. Ortga qaytish uchun <strong>ESC</strong> bosasiz.</p>
+            <div class="demo-box">
+                <div style="width: 100%; text-align: center; background: var(--bg-canvas); border-radius: 24px; padding: 40px;">
+                    <i data-lucide="monitor" size="48" style="color: var(--brand-primary); opacity: 0.6;"></i>
+                    <p style="margin-top: 16px;">Zen Mode – faqat doska va siz</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========== ILG'OR FUNKSIYALAR ========== -->
+        <section id="advanced">
+            <h2><i data-lucide="wand-2"></i> 12. Ilg‘or funksiyalar</h2>
+            <div class="step-grid">
+                <div class="step-card">
+                    <h4>Geometrik shakllar</h4>
+                    <p>To'rtburchak, aylana, chiziq va o'q chizish. Shaklni chizish uchun boshlang'ich nuqtani belgilang va ikkinchi nuqtaga torting – shakl avtomatik tugaydi.</p>
+                </div>
+                <div class="step-card">
+                    <h4>Lazer pointer</h4>
+                    <p>Haqiqiy prezentatsiya tajribasi – neon chiziq 1.2 soniya ichida o'chadi. Hech qanday iz qoldirmaydi.</p>
+                </div>
+                <div class="step-card">
+                    <h4>Rasm importi</h4>
+                    <p>PNG, JPEG, WebP formatlarini qo'llab-quvvatlaydi. Rasmni doskaga joylashtirgandan so'ng uni sichqoncha bilan sudrab boshqa joyga ko'chirish mumkin (faqat rasmni tanlaganda).</p>
+                </div>
+                <div class="step-card">
+                    <h4>JSON arxivlash</h4>
+                    <p>Butun loyihani <code>.mrboard</code> fayl ko'rinishida saqlash. Bu faylni istalgan vaqtda qayta yuklab, loyihani davom ettirish mumkin.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========== TEZKOR TUGMALAR ========== -->
+        <section id="shortcuts">
+            <h2><i data-lucide="keyboard"></i> 13. Tezkor tugmalar (Hotkeys)</h2>
+            <table class="doc-table">
+                <thead>
+                    <tr><th>Klaviatura</th><th>Bajaradigan vazifasi</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td><kbd class="kbd">B</kbd></td><td><strong>Brush:</strong> Qalamni faollashtirish</td></tr>
+                    <tr><td><kbd class="kbd">E</kbd></td><td><strong>Eraser:</strong> O'chirg'ichni faollashtirish</td></tr>
+                    <tr><td><kbd class="kbd">L</kbd></td><td><strong>Laser:</strong> Lazer ko'rsatkichni faollashtirish</td></tr>
+                    <tr><td><kbd class="kbd">S</kbd></td><td><strong>Shapes:</strong> Geometrik shakllar menyusini ochish/yopish</td></tr>
+                    <tr><td><kbd class="kbd">H</kbd></td><td><strong>Hand:</strong> Doskani surish rejimiga o'tish</td></tr>
+                    <tr><td><kbd class="kbd">T</kbd></td><td><strong>Text:</strong> Matn yozish rejimiga o'tish</td></tr>
+                    <tr><td><kbd class="kbd">M</kbd></td><td><strong>Mic:</strong> Mikrofonni yoqish / o'chirish (Mute)</td></tr>
+                    <tr><td><kbd class="kbd">C</kbd></td><td><strong>Chat:</strong> Umumiy chat oynasini ochish</td></tr>
+                    <tr><td><kbd class="kbd">F</kbd></td><td><strong>Fullscreen:</strong> Zen rejimini (To'liq ekran) yoqish</td></tr>
+                    <tr><td><kbd class="kbd">Ctrl</kbd> + <kbd class="kbd">Z</kbd></td><td><strong>Undo:</strong> Siz chizgan oxirgi chiziqni bekor qilish</td></tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- ========== EKSPORT / IMPORT ========== -->
+        <section id="export-import">
+            <h2><i data-lucide="save"></i> 14. Eksport / Import (JSON, PNG)</h2>
+            <p>Loyihani saqlash va tashqi foydalanish uchun quyidagi imkoniyatlar mavjud:</p>
+            <ul>
+                <li><strong>PNG eksport:</strong> Hozirgi doskaning ko'rinishini rasm sifatida saqlash. <kbd>Export</kbd> tugmasi orqali.</li>
+                <li><strong>JSON saqlash:</strong> Barcha chizmalar, matnlar, rasmlarni o'z ichiga olgan faylni yuklab olish.</li>
+                <li><strong>JSON yuklash:</strong> Saqlangan loyihani qayta tiklash (faqat Host uchun).</li>
+            </ul>
+            <div class="highlight-text">
+                <strong>Maslahat:</strong> JSON fayllari barcha foydalanuvchilar uchun bir xil ishlaydi. Agar siz loyihani boshqa kompyuterda davom ettirmoqchi bo'lsangiz, faylni USB orqali ko'chiring yoki bulutga yuklang.
+            </div>
+        </section>
+
+        <!-- ========== XAVFSIZLIK ========== -->
+        <section id="security">
+            <h2><i data-lucide="shield"></i> 15. Xavfsizlik & Maxfiylik</h2>
+            <ul>
+                <li><strong>Xona kodi tasodifiy generatsiya:</strong> Hech kim sizning xonangiz kodini bilmasa, kira olmaydi.</li>
+                <li><strong>Host kaliti (hostKey):</strong> Faqat host tozalash va JSON yuklash kabi maxfiy amallarni bajarishi mumkin.</li>
+                <li><strong>WebRTC peer-to-peer:</strong> Ovoz server orqali o'tmaydi, faqat foydalanuvchilar o'rtasida to'g'ridan-to'g'ri uzatiladi.</li>
+                <li><strong>Firebase ma'lumotlar bazasi shifrlangan kanal orqali ishlaydi.</strong></li>
+            </ul>
+        </section>
+
+        <!-- ========== FAQ ========== -->
+        <section id="faq">
+            <h2><i data-lucide="help-circle"></i> 16. Ko'p beriladigan savollar (FAQ)</h2>
+            <div class="step-card" style="margin-bottom: 20px;">
+                <h4>❓ Mikrofon ruxsati bermagan bo'lsam, qayta so'ra olmayman?</h4>
+                <p>Brauzer sozlamalarida mikrofonga ruxsatni o'chirib qo'ygan bo'lishingiz mumkin. Brauzer manzil satridagi qulfcha belgisidan ruxsatlarni boshqaring yoki sahifani qayta yuklang. Platforma har safar mikrofonsiz kirganda avtomatik ruxsat so'raydi.</p>
+            </div>
+            <div class="step-card" style="margin-bottom: 20px;">
+                <h4>❓ Nega boshqa odamning kursori ko'rinmaydi?</h4>
+                <p>Kursorlar faqat xonada kamida 2 kishi bo'lganda ko'rinadi. Agar ko'rinmasa, internet aloqasini tekshiring. Real vaqt sinxronizatsiya faqat ulanish mavjud bo'lganda ishlaydi.</p>
+            </div>
+            <div class="step-card" style="margin-bottom: 20px;">
+                <h4>❓ Chizgan narsalarim yo'qolib qoldi, qayta tiklash mumkinmi?</h4>
+                <p>Agar boshqa foydalanuvchi tozalagan bo'lsa, faqat host qayta tiklay oladi. Agar siz chizgan bo'lsangiz, <kbd>Ctrl+Z</kbd> yordamida oxirgi chiziqni qaytarishingiz mumkin.</p>
+            </div>
+            <div class="step-card">
+                <h4>❓ Telefonda to'liq ekran ishlamayapti?</h4>
+                <p>Mobil qurilmalarda Zen Mode (F) tugmasi ishlamasligi mumkin, chunki brauzerlar to'liq ekran API'sini cheklaydi. Biroq, siz brauzerning o'zining "To'liq ekran" rejimidan foydalanishingiz mumkin.</p>
+            </div>
+        </section>
+
+        <!-- ========== XATOLARNI BARTARAF ETISH ========== -->
+        <section id="troubleshooting">
+            <h2><i data-lucide="bug"></i> 17. Xatolarni bartaraf etish</h2>
+            <ul>
+                <li><strong>Xonaga kira olmayman:</strong> Kodni to'g'ri kiritganingizga va katta harflar bilan yozilganiga ishonch hosil qiling. Agar xonada parol bo'lsa, to'g'ri parolni kiriting.</li>
+                <li><strong>Chizish ishlamaydi:</strong> Agar siz Kuzatuvchi bo'lsangiz, Host sizga chizish ruxsatini bermaguncha hech narsa chiza olmaysiz.</li>
+                <li><strong>Ovoz eshitilmaydi:</strong> Mikrofonni yoqganingizga va ruxsat berilganiga ishonch hosil qiling. Boshqa foydalanuvchilarning ovozini eshitish uchun ularning mikrofonlari yoqilgan bo'lishi kerak.</li>
+                <li><strong>Kechikish sezilyapti:</strong> Internet tezligini tekshiring. WebRTC va Firebase eng yaxshi ishlash uchun 1 Mbit/s dan yuqori tezlikni talab qiladi.</li>
+            </ul>
+        </section>
+
+        <!-- ========== OPTIMALLASHTIRISH ========== -->
+        <section id="performance">
+            <h2><i data-lucide="gauge"></i> 18. Optimallashtirish masalalari</h2>
+            <p>MR BOARD yuzlab chiziqlarni real vaqtda qayta ishlashga mo'ljallangan. Ammo quyidagi amallar ish faoliyatini yaxshilaydi:</p>
+            <ul>
+                <li><strong>Ortiqcha chiziqlarni tozalang:</strong> Doskada juda ko'p chiziqlar bo'lsa, ularni o'chirib tashlang.</li>
+                <li><strong>Katta rasmlar yuklamang:</strong> 5 MB chegarasi mavjud, lekin 2-3 MB dan kichik rasmlar tezroq yuklanadi.</li>
+                <li><strong>Brauzer keshi va kukilarni tozalang:</strong> Bu Firebase ulanishidagi muammolarni bartaraf etishi mumkin.</li>
+                <li><strong>So'nggi versiyadagi brauzerdan foydalaning:</strong> Chrome, Safari, Edge, Firefox – barcha zamonaviy brauzerlar qo'llab-quvvatlanadi.</li>
+            </ul>
+        </section>
+
+        <footer style="margin-top: 100px; text-align: center; color: var(--text-doc-muted); font-size: 15px; border-top: 1px solid var(--border-doc); padding: 40px 0;">
+            <div style="font-size: 24px; font-weight: 900; margin-bottom: 16px; display: flex; align-items: center; justify-content: center; gap: 10px;">
+                <i data-lucide="layers" style="color:var(--brand-doc)"></i> MR BOARD
+            </div>
+            &copy; 2026 Barcha huquqlar himoyalangan. Enterprise Edition v3.0 – To'liq qo'llanma.
+        </footer>
+    </main>
+
+    <script>
+        lucide.createIcons();
+
+        // ScrollSpy - Yon panel uchun faol qismni ajratish
+        const sections = document.querySelectorAll('section');
+        const navLinks = document.querySelectorAll('.sidebar .nav-link');
+
+        window.addEventListener('scroll', () => {
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                if (pageYOffset >= (sectionTop - 200)) {
+                    current = section.getAttribute('id');
+                }
+            });
+
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href').includes(current)) {
+                    link.classList.add('active');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
