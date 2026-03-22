@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="uz" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>MR BOARD · PART 11 · ENTERPRISE</title>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        /* ========== SIZNING ENTERPRISE ULTIMATE CSS O'ZGARUVCHILARINGIZ ========== */
+        :root {
+            --bg-base: #f8fafc;
+            --bg-canvas: #e2e8f0;
+            --bg-glass: rgba(255,255,255,0.65);
+            --bg-panel: rgba(255,255,255,0.85);
+            --bg-hover: rgba(0,0,0,0.05);
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --border-subtle: rgba(255,255,255,0.4);
+            --border-strong: rgba(0,0,0,0.1);
+            --brand-primary: #007aff;
+            --brand-alpha: rgba(0,122,255,0.15);
+            --state-danger: #ff3b30;
+            --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+            --ease-smooth: cubic-bezier(0.25, 1, 0.5, 1);
+            --shadow-float: 0 24px 48px -12px rgba(0,0,0,0.15), 0 12px 24px -8px rgba(0,0,0,0.1);
+            --shadow-glass: inset 0 1px 1px rgba(255,255,255,0.8), inset 0 0 0 1px rgba(255,255,255,0.4);
+            --shadow-inner: inset 0 2px 4px rgba(0,0,0,0.05);
+            --dur: 3.5s;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", sans-serif;
+            background: var(--bg-canvas);
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            color: var(--text-main);
+        }
+
+        /* VIDEO FRAME */
+        .video-container {
+            width: 96vw; height: 92vh;
+            background: var(--bg-canvas);
+            border-radius: 32px;
+            box-shadow: 0 50px 100px rgba(0,0,0,0.2);
+            border: 6px solid #fff;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* GRID PATTERN (Sizning kodingizdan 1:1) */
+        .grid-pattern { 
+            background-color: var(--bg-canvas);
+            background-image: radial-gradient(circle, #cbd5e1 1px, transparent 1px); 
+            background-size: 30px 30px; 
+        }
+
+        /* STATUS PILL (Sizning kodingizdan 1:1) */
+        .nav-top { position: absolute; top: 24px; left: 24px; display: flex; gap: 12px; z-index: 100; }
+        .status-pill {
+            background: var(--bg-glass);
+            backdrop-filter: blur(40px);
+            border: 1px solid var(--border-subtle);
+            border-radius: 99px;
+            padding: 10px 24px;
+            font-size: 14px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: var(--shadow-float), var(--shadow-glass);
+        }
+
+        /* MODAL BOX (Sizning kodingizdan 1:1) */
+        .backdrop {
+            position: absolute; inset: 0;
+            background: rgba(0,0,0,0.4);
+            backdrop-filter: blur(8px);
+            z-index: 200;
+            opacity: 0;
+            transition: opacity 0.4s var(--ease-smooth);
+        }
+        .backdrop.is-visible { opacity: 1; }
+
+        .modal-box {
+            position: absolute; top: 50%; left: 50%;
+            transform: translate(-50%, -50%) scale(0.85);
+            background: var(--bg-panel);
+            backdrop-filter: blur(40px);
+            padding: 32px;
+            border-radius: 32px;
+            width: 420px;
+            box-shadow: var(--shadow-float), var(--shadow-glass);
+            border: 1px solid var(--border-subtle);
+            opacity: 0;
+            transition: all 0.5s var(--ease-spring);
+            z-index: 201;
+        }
+        .modal-box.is-visible { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+
+        .modal-box h2 { font-size: 22px; font-weight: 800; }
+        .modal-box textarea {
+            width: 100%; min-height: 140px; padding: 20px; border-radius: 20px;
+            border: 1.5px solid var(--border-strong);
+            background: var(--bg-base);
+            font-size: 16px; font-family: inherit; resize: none;
+            margin: 24px 0; outline: none; box-shadow: var(--shadow-inner);
+        }
+
+        .modal-actions { display: flex; justify-content: flex-end; gap: 12px; }
+        .btn { padding: 16px 24px; border-radius: 20px; font-size: 15px; font-weight: 700; border: none; cursor: pointer; transition: 0.2s; }
+        .btn-primary { background: var(--brand-primary); color: #fff; box-shadow: 0 8px 20px var(--brand-alpha); }
+        .btn-ghost { background: var(--bg-base); color: var(--text-main); border: 1.5px solid var(--border-strong); }
+
+        /* DOCK (Sizning kodingizdan 1:1) */
+        .dock-bottom {
+            position: absolute; bottom: 32px; left: 0; right: 0;
+            display: flex; justify-content: center; z-index: 100;
+        }
+        .dock-glass {
+            background: var(--bg-glass);
+            backdrop-filter: blur(50px);
+            border: 1px solid var(--border-subtle);
+            border-radius: 32px;
+            padding: 12px;
+            display: flex; align-items: center; gap: 8px;
+            box-shadow: var(--shadow-float), var(--shadow-glass);
+        }
+        .dock-sep { width: 2px; height: 32px; background: var(--border-strong); margin: 0 8px; border-radius: 2px; }
+
+        .action-btn {
+            width: 56px; height: 56px; border-radius: 20px;
+            display: flex; align-items: center; justify-content: center;
+            color: var(--text-muted); position: relative; transition: 0.3s var(--ease-spring);
+        }
+        .action-btn.is-active { background: var(--brand-primary); color: #fff; box-shadow: 0 8px 20px var(--brand-alpha); }
+
+        .color-indicator {
+            width: 32px; height: 32px; border-radius: 50%;
+            border: 3px solid var(--bg-panel);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+
+        /* MAGIC CURSOR */
+        .magic-cursor {
+            position: absolute; top: 0; left: 0; width: 40px; height: 40px;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="black" stroke="white" stroke-width="2"><path d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z"/></svg>') no-repeat;
+            z-index: 1000; pointer-events: none;
+            filter: drop-shadow(0 10px 15px rgba(0,0,0,0.4));
+            animation: moveCursor11 var(--dur) var(--ease-smooth) forwards;
+        }
+
+        @keyframes moveCursor11 {
+            0% { transform: translate(1100px, 350px); }
+            15% { transform: translate(740px, 785px); } /* Dock'dagi Type (T) asbobi */
+            20% { transform: translate(740px, 785px) scale(0.8); } /* CLICK */
+            25% { transform: translate(740px, 785px) scale(1); }
+            40% { transform: translate(620px, 450px); } /* Doska o'rtasi */
+            45% { transform: translate(620px, 450px) scale(0.8); } /* CLICK -> Modal ochiladi */
+            60% { transform: translate(600px, 520px); } /* TextArea ichida yozishni boshlaydi */
+            80% { transform: translate(800px, 645px); } /* "Qo'shish" tugmasiga boradi */
+            85% { transform: translate(800px, 645px) scale(0.9); } /* CLICK */
+            100% { transform: translate(1000px, 500px); }
+        }
+
+        /* PROGRESS BAR */
+        .progress { position: absolute; bottom: 0; left: 0; height: 6px; background: var(--brand-primary); width: 50%; animation: fill var(--dur) linear forwards; }
+        @keyframes fill { from { width: 50%; } to { width: 55%; } }
+    </style>
+</head>
+<body data-theme="light">
+
+    <div class="video-container grid-pattern">
+        <div class="progress"></div>
+
+        <div class="nav-top">
+            <div class="status-pill"><i data-lucide="hash"></i> <span>MR-ULTIMATE</span></div>
+            <div class="status-pill"><i data-lucide="eye"></i> <span>Enterprise</span></div>
+        </div>
+
+        <div class="backdrop" id="backdrop"></div>
+        
+        <div class="modal-box" id="modal-box">
+            <h2 style="font-size: 22px; font-weight: 800;">Doskaga matn kiritish</h2>
+            <textarea id="typing-area" readonly placeholder="Matnni bu yerga yozing (Maks 300 belgi)"></textarea>
+            <div class="modal-actions">
+                <button class="btn btn-ghost">Bekor qilish</button>
+                <button class="btn btn-primary" id="btn-add">Doskaga qo'shish</button>
+            </div>
+        </div>
+
+        <div class="magic-cursor"></div>
+
+        <svg width="100%" height="100%" style="position:absolute; pointer-events:none;">
+            <path d="M 150 500 C 400 100, 700 700, 1100 200" fill="none" stroke="#007aff" stroke-width="6" stroke-linecap="round" opacity="0.4" />
+        </svg>
+
+        <div class="dock-bottom">
+            <div class="dock-glass">
+                <div class="action-btn"><i data-lucide="settings-2"></i></div>
+                <div class="action-btn"><div class="color-indicator" style="background: #007aff;"></div></div>
+                <div class="dock-sep"></div>
+                <div class="action-btn"><i data-lucide="pencil"></i></div>
+                <div class="action-btn"><i data-lucide="wand-2" style="color: var(--state-danger)"></i></div>
+                <div class="action-btn"><i data-lucide="shapes"></i></div>
+                <div class="action-btn" id="dock-erase"><i data-lucide="eraser"></i></div>
+                <div class="action-btn" id="dock-pan"><i data-lucide="hand"></i></div>
+                <div class="action-btn" id="dock-text"><i data-lucide="type"></i></div>
+                <div class="action-btn"><i data-lucide="undo-2"></i></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        lucide.createIcons();
+
+        const backdrop = document.getElementById('backdrop');
+        const modal = document.getElementById('modal-box');
+        const typingArea = document.getElementById('typing-area');
+        const dockText = document.getElementById('dock-text');
+        const dockErase = document.getElementById('dock-erase');
+        const btnAdd = document.getElementById('btn-add');
+
+        // 1. O'chirg'ichdan Text (T) asbobiga o'tish
+        setTimeout(() => {
+            dockErase.classList.remove('is-active');
+            dockText.classList.add('is-active');
+        }, 800);
+
+        // 2. Modalni ochish (Kursor markazga kelganda)
+        setTimeout(() => {
+            backdrop.classList.add('is-visible');
+            modal.classList.add('is-visible');
+        }, 1600);
+
+        // 3. Matnni "yozish" simulyatsiyasi
+        const message = "MR BOARD Enterprise - Ishni boshlaymiz!";
+        setTimeout(() => {
+            let i = 0;
+            const typing = setInterval(() => {
+                typingArea.value += message[i];
+                i++;
+                if(i >= message.length) clearInterval(typing);
+            }, 40);
+        }, 2100);
+
+        // 4. "Add" tugmasini bosish effekti
+        setTimeout(() => {
+            btnAdd.style.transform = "scale(0.94)";
+            btnAdd.style.filter = "brightness(0.9)";
+        }, 3000);
+
+        // 5. Part 12 ga o'tish
+        setTimeout(() => {
+            window.location.href = 'part12.html';
+        }, 3600);
+    </script>
+</body>
+</html>
