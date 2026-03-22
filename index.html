@@ -2,11 +2,11 @@
 <html lang="uz">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <title>MR BOARD Studio · Jamoaviy ishlashning yangi davri</title>
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
-        /* [1] DESIGN TOKENS */
+        /* ---------- DESIGN TOKENS ---------- */
         :root {
             --bg-base: #ffffff;
             --bg-alt: #f8fafc;
@@ -23,7 +23,6 @@
             --shadow-glow: 0 0 80px -15px rgba(0, 122, 255, 0.4);
             --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
         }
-
         @media (prefers-color-scheme: dark) {
             :root {
                 --bg-base: #020617; --bg-alt: #0f172a;
@@ -34,15 +33,14 @@
                 --shadow-glow: 0 0 100px -20px rgba(0, 122, 255, 0.3);
             }
         }
-
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: "SF Pro Display", -apple-system, BlinkMacSystemFont, sans-serif; }
         html { scroll-behavior: smooth; }
         body { background: var(--bg-base); color: var(--text-main); line-height: 1.6; overflow-x: hidden; }
 
-        /* [2] HEADER */
+        /* HEADER */
         header {
             position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
-            background: var(--glass-bg); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+            background: var(--glass-bg); backdrop-filter: blur(24px);
             border-bottom: 1px solid var(--border-subtle);
             padding: 16px 5%; display: flex; justify-content: space-between; align-items: center;
             transition: all 0.3s ease;
@@ -60,48 +58,44 @@
         }
         .header-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 20px var(--brand-alpha); }
 
-        /* [3] HERO SECTION */
+        /* HERO */
         .hero {
             padding: 180px 5% 100px; text-align: center;
             background: radial-gradient(circle at 50% -20%, var(--brand-alpha) 0%, transparent 60%);
             display: flex; flex-direction: column; align-items: center;
-            position: relative;
         }
         .hero-badge {
             background: var(--bg-base); border: 1px solid var(--border-subtle); padding: 8px 20px;
             border-radius: 99px; font-size: 13px; font-weight: 800; color: var(--brand-primary);
-            margin-bottom: 24px; display: inline-flex; align-items: center; gap: 8px; box-shadow: var(--shadow-sm);
-            animation: slideDown 0.6s ease-out;
+            margin-bottom: 24px; display: inline-flex; align-items: center; gap: 8px; animation: slideDown 0.6s ease-out;
         }
-        .hero h1 { font-size: clamp(48px, 8vw, 84px); font-weight: 900; letter-spacing: -2.5px; line-height: 1.05; margin-bottom: 24px; max-width: 1000px; animation: slideUp 0.8s ease-out 0.1s both; }
-        .hero p { font-size: clamp(18px, 2vw, 22px); color: var(--text-muted); max-width: 700px; margin-bottom: 40px; animation: slideUp 0.8s ease-out 0.2s both; }
-        .hero-actions { display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; animation: slideUp 0.8s ease-out 0.3s both; }
-
+        .hero h1 { font-size: clamp(48px, 8vw, 84px); font-weight: 900; letter-spacing: -2.5px; line-height: 1.05; margin-bottom: 24px; max-width: 1000px; }
+        .hero p { font-size: clamp(18px, 2vw, 22px); color: var(--text-muted); max-width: 700px; margin-bottom: 40px; }
+        .hero-actions { display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; }
         .btn-main {
             padding: 18px 36px; border-radius: 20px; font-size: 18px; font-weight: 700; text-decoration: none;
-            display: flex; align-items: center; gap: 12px; transition: 0.3s var(--ease-spring); cursor: pointer;
+            display: inline-flex; align-items: center; gap: 12px; transition: 0.3s var(--ease-spring); cursor: pointer;
         }
         .btn-start { background: var(--brand-primary); color: #fff; box-shadow: 0 10px 30px var(--brand-alpha); }
         .btn-start:hover { transform: translateY(-4px) scale(1.02); box-shadow: 0 20px 40px rgba(0, 122, 255, 0.4); }
         .btn-doc { background: var(--glass-bg); backdrop-filter: blur(10px); color: var(--text-main); border: 1px solid var(--border-subtle); }
-        .btn-doc:hover { background: var(--bg-base); border-color: var(--brand-primary); transform: translateY(-4px); box-shadow: var(--shadow-sm); }
+        .btn-doc:hover { background: var(--bg-base); border-color: var(--brand-primary); transform: translateY(-4px); }
 
-        /* [4] IFRAME MOCKUP – responsive */
+        /* IFRAME MOCKUP */
         .app-mockup-wrapper {
             margin-top: 80px; width: 100%; max-width: 1200px; position: relative;
             perspective: 1200px; animation: slideUp 1s ease-out 0.5s both;
         }
         .app-mockup {
-            background: var(--bg-alt); 
+            background: var(--bg-alt);
             background-image: radial-gradient(var(--border-subtle) 1px, transparent 1px);
             background-size: 24px 24px;
             border-radius: 24px; border: 1px solid var(--border-subtle); box-shadow: var(--shadow-lg), var(--shadow-glow);
-            height: 65vh; min-height: 500px; max-height: 700px; position: relative; overflow: hidden;
+            height: 65vh; min-height: 500px; max-height: 700px; overflow: hidden;
             display: flex; flex-direction: column;
             transform: rotateX(5deg); transition: transform 0.5s ease;
         }
         .app-mockup-wrapper:hover .app-mockup { transform: rotateX(0deg) translateY(-10px); }
-
         .mock-header {
             height: 52px; background: var(--glass-bg); backdrop-filter: blur(20px); border-bottom: 1px solid var(--border-subtle);
             display: flex; align-items: center; padding: 0 20px; gap: 8px; flex-shrink: 0;
@@ -109,7 +103,6 @@
         .mock-dot { width: 12px; height: 12px; border-radius: 50%; }
         .mock-dot.r { background: #ff3b30; } .mock-dot.y { background: #ffcc00; } .mock-dot.g { background: #34c759; }
         .mock-header span { flex:1; text-align:center; font-size:13px; font-weight:700; color:var(--text-muted); }
-
         .iframe-container {
             flex: 1;
             position: relative;
@@ -121,139 +114,115 @@
             height: 100%;
             border: none;
             background: transparent;
-            pointer-events: none; /* demo uchun interaktivlik o‘chirilgan */
+            pointer-events: auto;
+        }
+        /* manual navigation bar */
+        .mock-controls {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--glass-bg);
+            backdrop-filter: blur(24px);
+            border: 1px solid var(--glass-border);
+            border-radius: 60px;
+            padding: 8px 20px;
+            display: flex;
+            gap: 24px;
+            align-items: center;
+            box-shadow: var(--shadow-lg);
+            z-index: 20;
+            font-weight: 600;
+        }
+        .ctrl-btn {
+            background: var(--bg-base);
+            border: none;
+            border-radius: 40px;
+            padding: 8px 20px;
+            font-size: 14px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            color: var(--text-main);
+            transition: 0.2s;
+            box-shadow: var(--shadow-sm);
+        }
+        .ctrl-btn:hover { background: var(--brand-primary); color: white; transform: scale(0.96);}
+        .part-indicator {
+            background: var(--brand-alpha);
+            padding: 6px 18px;
+            border-radius: 40px;
+            font-size: 14px;
+            letter-spacing: 0.5px;
+            color: var(--brand-primary);
+            font-weight: 800;
         }
 
-        .mock-dock {
-            position: absolute; bottom: 32px; left: 50%; transform: translateX(-50%);
-            background: var(--glass-bg); backdrop-filter: blur(24px); border: 1px solid var(--glass-border);
-            padding: 12px 24px; border-radius: 32px; display: flex; gap: 16px; box-shadow: var(--shadow-lg);
-            z-index: 10;
-        }
-        .mock-dock-icon { width: 44px; height: 44px; border-radius: 14px; background: var(--bg-base); display: flex; align-items: center; justify-content: center; color: var(--text-muted); cursor: default; transition: 0.2s; }
-        .mock-dock-icon.active { background: var(--brand-primary); color: #fff; box-shadow: 0 5px 15px var(--brand-alpha); }
-
-        /* [5] SECTIONS & REVEAL ANIMATION */
+        /* SECTIONS */
         .reveal { opacity: 0; transform: translateY(40px); transition: 0.8s all ease; }
         .reveal.active { opacity: 1; transform: translateY(0); }
-
         .section { padding: 120px 5%; max-width: 1200px; margin: 0 auto; }
         .section-header { text-align: center; margin-bottom: 70px; }
         .section-header h2 { font-size: 48px; font-weight: 900; letter-spacing: -1.5px; margin-bottom: 20px; }
         .section-header p { font-size: 20px; color: var(--text-muted); max-width: 650px; margin: 0 auto; }
-
         .feature-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 32px; }
         .feature-card {
             background: var(--bg-base); border: 1px solid var(--border-subtle); padding: 40px;
-            border-radius: 32px; transition: 0.4s var(--ease-spring); position: relative; overflow: hidden;
+            border-radius: 32px; transition: 0.4s var(--ease-spring); position: relative;
         }
         .feature-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: linear-gradient(90deg, var(--brand-primary), #34c759); opacity: 0; transition: 0.3s; }
         .feature-card:hover { transform: translateY(-10px); box-shadow: var(--shadow-lg); border-color: transparent; }
         .feature-card:hover::before { opacity: 1; }
-        .icon-box { width: 64px; height: 64px; border-radius: 20px; background: var(--brand-alpha); color: var(--brand-primary); display: flex; align-items: center; justify-content: center; margin-bottom: 24px; transition: 0.3s; }
-        .feature-card:hover .icon-box { transform: scale(1.1) rotate(5deg); }
+        .icon-box { width: 64px; height: 64px; border-radius: 20px; background: var(--brand-alpha); color: var(--brand-primary); display: flex; align-items: center; justify-content: center; margin-bottom: 24px; }
         .feature-card h3 { font-size: 24px; font-weight: 800; margin-bottom: 16px; }
         .feature-card p { color: var(--text-muted); font-size: 16px; line-height: 1.7; }
-
         .text-content { max-width: 800px; margin: 0 auto; }
         .text-content h3 { font-size: 28px; font-weight: 800; margin: 50px 0 20px; display: flex; align-items: center; gap: 12px; }
-        .text-content p { font-size: 18px; color: var(--text-muted); margin-bottom: 24px; line-height: 1.8; }
-        .text-content ul { margin-left: 24px; color: var(--text-muted); font-size: 18px; margin-bottom: 32px; }
-        .text-content li { margin-bottom: 16px; padding-left: 8px; }
-        .text-content li::marker { color: var(--brand-primary); font-weight: bold; }
-
-        /* [6] CTA & FOOTER */
         .cta-section {
             margin: 100px 5%; padding: 100px 40px; background: var(--text-main); color: var(--bg-base);
             border-radius: 40px; text-align: center; display: flex; flex-direction: column; align-items: center;
             position: relative; overflow: hidden;
         }
-        .cta-section::before { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 60%); pointer-events: none; }
         .cta-section h2 { font-size: 56px; font-weight: 900; letter-spacing: -2px; margin-bottom: 24px; z-index: 1; }
         .cta-section p { font-size: 22px; opacity: 0.8; max-width: 600px; margin-bottom: 40px; z-index: 1; }
         footer { border-top: 1px solid var(--border-subtle); padding: 50px 5%; display: flex; justify-content: space-between; align-items: center; color: var(--text-muted); font-size: 15px; margin-top: 40px;}
 
-        /* Keyframes */
         @keyframes slideUp { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes slideDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
-
-        /* ========== MOBILE RESPONSIVE (max-width: 768px) ========== */
         @media (max-width: 768px) {
             .nav-links { display: none; }
             .hero { padding-top: 140px; }
             .hero h1 { font-size: 40px; }
             .hero-actions { flex-direction: column; width: 100%; }
-            .btn-main { width: 100%; justify-content: center; }
-
-            /* IFRAME RESPONSIVE – telefonda to‘g‘ri sig‘ish */
-            .app-mockup-wrapper {
-                margin-top: 40px;
-                width: 100%;
-                max-width: 100%;
-                padding: 0 10px;
-            }
-            .app-mockup {
-                height: auto;
-                min-height: 320px;
-                max-height: 70vh;
-                transform: none;
-                border-radius: 20px;
-            }
-            .iframe-container {
-                flex: 1;
-                width: 100%;
-                overflow: auto;
-                -webkit-overflow-scrolling: touch;
-            }
-            #board-iframe {
-                width: 100%;
-                height: 100%;
-                border: none;
-                display: block;
-                background: var(--bg-alt);
-                pointer-events: none; /* agar interaktivlik kerak bo‘lsa, olib tashlang */
-            }
-            .mock-header {
-                height: 44px;
-                padding: 0 12px;
-            }
-            .mock-header span {
-                font-size: 11px;
-            }
-            .mock-dock {
-                display: none; /* mobil qurilmada dock yashirilgan (ixtiyoriy) */
-            }
-            footer {
-                flex-direction: column;
-                gap: 24px;
-                text-align: center;
-                padding: 40px 5%;
-            }
+            .app-mockup { height: 400px; transform: none; }
+            footer { flex-direction: column; gap: 24px; text-align: center; }
+            .mock-controls { padding: 5px 12px; gap: 10px; }
+            .ctrl-btn { padding: 4px 12px; font-size: 12px; }
         }
     </style>
 </head>
 <body>
-
     <header>
-        <a href="index.html" class="brand"><i data-lucide="layers" size="28" color="var(--brand-primary)"></i> MR <span>BOARD</span></a>
+        <a href="#" class="brand"><i data-lucide="layers" size="28" color="var(--brand-primary)"></i> MR <span>BOARD</span></a>
         <nav class="nav-links">
             <a href="#features">Imkoniyatlar</a>
             <a href="#about">Texnologiya</a>
-            <a href="doc.html">Dokumentatsiya</a>
+            <a href="#docs">Dokumentatsiya</a>
         </nav>
-        <a href="board.html" class="header-btn">Doskani ochish</a>
+        <a href="#" class="header-btn" id="openBoardBtn">Doskani ochish</a>
     </header>
 
     <section class="hero">
         <div class="hero-badge"><i data-lucide="sparkles" size="16"></i> Enterprise Edition 2.0</div>
         <h1>Jamoaviy ishlashning <br> yangi davri</h1>
         <p>MR BOARD — g'oyalaringizni real vaqtda, cheksiz doskada, ovozli muloqot va chat orqali jamoangiz bilan hayotga tatbiq etish uchun mukammal muhit.</p>
-
         <div class="hero-actions">
-            <a href="board.html" class="btn-main btn-start">
+            <a href="#" class="btn-main btn-start" id="heroStartBtn">
                 MR BOARD ni boshlash <i data-lucide="arrow-right"></i>
             </a>
-            <a href="doc.html" class="btn-main btn-doc">
+            <a href="#" class="btn-main btn-doc" id="heroDocBtn">
                 <i data-lucide="book-open"></i> Dokumentatsiya
             </a>
         </div>
@@ -262,13 +231,12 @@
             <div class="app-mockup">
                 <div class="mock-header">
                     <div class="mock-dot r"></div><div class="mock-dot y"></div><div class="mock-dot g"></div>
-                    <span>mr-board.uz</span>
+                    <span>mr-board.uz · interaktiv demo</span>
                 </div>
                 <div class="iframe-container">
-                    <iframe id="board-iframe" src="part1.html" title="MR BOARD interaktiv namoyish" loading="lazy"></iframe>
+                    <iframe id="board-iframe" src="part1.html" title="MR BOARD interaktiv namoyish" loading="eager"></iframe>
                 </div>
-            </div>
-        </div>
+                <!-- manual navigation: 1ta 1ta partlar, algoritmsiz 
     </section>
 
     <section class="section reveal" id="features">
@@ -277,98 +245,78 @@
             <p>Sizga va jamoangizga kerak bo'ladigan barcha kuchli vositalar silliq interfeys ortiga yashiringan.</p>
         </div>
         <div class="feature-grid">
-            <div class="feature-card">
-                <div class="icon-box"><i data-lucide="infinity" size="32"></i></div>
-                <h3>Cheksiz Doska</h3>
-                <p>G'oyalaringiz chegaralanmasligi uchun cheksiz (Infinite) Canvas tizimi. Xohlagancha uzoqlashtiring, yaqinlashtiring va erkin harakatlaning.</p>
-            </div>
-            <div class="feature-card">
-                <div class="icon-box"><i data-lucide="mic" size="32"></i></div>
-                <h3>Ovozli Muloqot (WebRTC)</h3>
-                <p>Uchinchi tomon dasturlarisiz (Zoom/Meet keraksiz) bevosita brauzerdan yuqori sifatli ovozli gaplashish tizimi o'rnatilgan.</p>
-            </div>
-            <div class="feature-card">
-                <div class="icon-box"><i data-lucide="zap" size="32"></i></div>
-                <h3>Nol-Kechikish (Zero Latency)</h3>
-                <p>Firebase Realtime Database orqali siz chizgan chiziq dunyoning narigi chekkasidagi hamkoringizga millisoniyalarda yetib boradi.</p>
-            </div>
-            <div class="feature-card">
-                <div class="icon-box"><i data-lucide="shield-check" size="32"></i></div>
-                <h3>Xavfsizlik va Rollar</h3>
-                <p>Xona egasi (Host) barcha jarayonni nazorat qiladi. Kimga chizishga, kimga gapirishga ruxsat berishni o'zi hal qiladi.</p>
-            </div>
+            <div class="feature-card"><div class="icon-box"><i data-lucide="infinity" size="32"></i></div><h3>Cheksiz Doska</h3><p>Infinite Canvas — g'oyalaringiz chegaralanmasligi uchun.</p></div>
+            <div class="feature-card"><div class="icon-box"><i data-lucide="mic" size="32"></i></div><h3>Ovozli Muloqot (WebRTC)</h3><p>Zoom yoki Telegramsiz, brauzerdan to'g'ridan-to'g'ri suhbat.</p></div>
+            <div class="feature-card"><div class="icon-box"><i data-lucide="zap" size="32"></i></div><h3>Nol-Kechikish</h3><p>Firebase RTDB orqali millisoniyalarda sinxronlash.</p></div>
+            <div class="feature-card"><div class="icon-box"><i data-lucide="shield-check" size="32"></i></div><h3>Xavfsizlik va Rollar</h3><p>Xona egasi (Host) to'liq nazoratda.</p></div>
         </div>
     </section>
 
     <section class="section reveal" id="about">
         <div class="text-content">
-            <h2 style="font-size: 48px; font-weight: 900; letter-spacing: -1.5px; text-align: center; margin-bottom: 70px;">Nega aynan MR BOARD?</h2>
+            <h2 style="font-size: 48px; font-weight: 900; text-align: center; margin-bottom: 70px;">Nega aynan MR BOARD?</h2>
             <h3><i data-lucide="layers" color="var(--brand-primary)"></i> Kreativlik va Texnologiya uyg'unligi</h3>
-            <p>Biz MR BOARD ni yaratishda faqatgina funksionallikka emas, balki foydalanuvchi tajribasiga (UX) ham alohida e'tibor qaratdik. Tizim eng so'nggi <strong>Glassmorphism</strong> dizayn kodidan ilhomlanib ishlangan. Bu degani – ekrandagi barcha elementlar yarim shaffof oynadan iborat va ko'zni charchatmaydi.</p>
+            <p>Glassmorphism dizayn, real vaqtda hamkorlik va eng muhimi — 20 dan ortiq maxsus tayyorlangan demo sahifalar orqali har bir funksiya namoyish etiladi.</p>
             <h3><i data-lucide="cpu" color="var(--brand-primary)"></i> Dvigatel ostida nimalar bor?</h3>
-            <p>MR BOARD oddiy veb-sayt emas, u to'laqonli <strong>Monolith Web-Application</strong> hisoblanadi. Uning barqaror ishlashini quyidagi texnologiyalar ta'minlaydi:</p>
-            <ul>
-                <li><strong>HTML5 Canvas API:</strong> Murakkab grafikalar, Spline chiziqlar va minglab obyektlarni qotishlarsiz 60FPS da chizib berish uchun maxsus dvigatel.</li>
-                <li><strong>Firebase RTDB:</strong> Ma'lumotlarni sinxronlash tizimi. Obyektlar massivi va kursorlar harakati shular orqali boshqariladi.</li>
-                <li><strong>WebRTC Architecture:</strong> Foydalanuvchilar o'rtasida to'g'ridan-to'g'ri (P2P) tarmoq yaratib, serversiz audioni ulash imkonini beradi.</li>
-            </ul>
+            <ul><li><strong>HTML5 Canvas API</strong> — 60FPS grafik dvigatel</li><li><strong>Firebase RTDB</strong> — real vaqt ma'lumotlar sinxronizatsiyasi</li><li><strong>WebRTC</strong> — P2P ovozli kanal</li></ul>
         </div>
     </section>
 
     <section class="cta-section reveal">
-        <h2 style="z-index: 2; position: relative;">O'z xonangizni yarating</h2>
-        <p style="z-index: 2; position: relative;">Hech qanday murakkab ro'yxatdan o'tishlar yo'q. Shunchaki ismingizni yozing va hamkorlikni hoziroq boshlang.</p>
-        <a href="board.html" class="btn-main" style="background: var(--bg-base); color: var(--text-main); z-index: 2; position: relative; box-shadow: 0 10px 40px rgba(0,0,0,0.4);">
-            Doskani ochish <i data-lucide="arrow-right"></i>
-        </a>
+        <h2>O'z xonangizni yarating</h2>
+        <p>Hech qanday ro'yxatdan o'tish yo'q. 20 xil interaktiv doska namoyishini ko'ring va hamkorlikni boshlang.</p>
+        <a href="#" class="btn-main" id="ctaBoardBtn" style="background: var(--bg-base); color: var(--text-main); box-shadow: 0 10px 40px rgba(0,0,0,0.4);">Doskani ochish <i data-lucide="arrow-right"></i></a>
     </section>
 
     <footer>
-        <div>
-            <div style="font-size: 20px; font-weight: 900; color: var(--text-main); margin-bottom: 4px; letter-spacing: -0.5px;">MR BOARD Studio</div>
-            <div>Barcha huquqlar himoyalangan &copy; 2026</div>
-        </div>
+        <div><div style="font-size: 20px; font-weight: 900;">MR BOARD Studio</div><div>Barcha huquqlar himoyalangan &copy; 2026</div></div>
         <div style="display: flex; gap: 32px; font-weight: 600;">
-            <a href="board.html" style="color: var(--text-muted); text-decoration: none; transition: 0.2s;">Doska</a>
-            <a href="doc.html" style="color: var(--text-muted); text-decoration: none; transition: 0.2s;">Dokumentatsiya</a>
-            <a href="https://github.com/" target="_blank" style="color: var(--text-muted); text-decoration: none; transition: 0.2s;">GitHub</a>
+            <a href="#" id="footerBoardLink" style="color: var(--text-muted); text-decoration: none;">Doska</a>
+            <a href="#" id="footerDocLink" style="color: var(--text-muted); text-decoration: none;">Dokumentatsiya</a>
+            <a href="#" target="_blank" style="color: var(--text-muted); text-decoration: none;">GitHub</a>
         </div>
     </footer>
 
     <script>
-        // Ikonkalarni yuklash
         lucide.createIcons();
+        // Scroll reveal
+        function reveal() { document.querySelectorAll(".reveal").forEach(el => { if(el.getBoundingClientRect().top < window.innerHeight-100) el.classList.add("active"); }); }
+        window.addEventListener("scroll", reveal); reveal();
 
-        // Scroll Reveal Animatsiyasi
-        function reveal() {
-            var reveals = document.querySelectorAll(".reveal");
-            for (var i = 0; i < reveals.length; i++) {
-                var windowHeight = window.innerHeight;
-                var elementTop = reveals[i].getBoundingClientRect().top;
-                var elementVisible = 100;
-                if (elementTop < windowHeight - elementVisible) {
-                    reveals[i].classList.add("active");
-                }
-            }
-        }
-        window.addEventListener("scroll", reveal);
-        reveal();
-
-        // ========== IFRAME CYCLING THROUGH PART1..PART20 ==========
-        const partCount = 20;
-        let currentPart = 1;
+        // ----- MANUAL PART NAVIGATION (1ta 1ta, algoritmsiz, 20ta part qo‘lda) -----
         const iframe = document.getElementById('board-iframe');
+        const partCounterSpan = document.getElementById('partCounter');
+        let currentPart = 1;
+        const TOTAL_PARTS = 20;
 
-        function loadNextPart() {
-            const nextPart = (currentPart % partCount) + 1; // 1..20 then back to 1
-            currentPart = nextPart;
-            iframe.src = `part${currentPart}.html`;
+        function updatePartUI() {
+            partCounterSpan.innerText = `${currentPart} / ${TOTAL_PARTS}`;
         }
 
-        // Start cycling after 3 seconds, then every 5 seconds
-        setTimeout(() => {
-            setInterval(loadNextPart, 5000);
-        }, 3000);
+        function loadPart(partNumber) {
+            if(partNumber < 1) partNumber = 1;
+            if(partNumber > TOTAL_PARTS) partNumber = TOTAL_PARTS;
+            currentPart = partNumber;
+            iframe.src = `part${currentPart}.html`;
+            updatePartUI();
+        }
+
+        document.getElementById('prevPartBtn').addEventListener('click', () => {
+            if(currentPart > 1) loadPart(currentPart - 1);
+            else loadPart(1);
+        });
+        document.getElementById('nextPartBtn').addEventListener('click', () => {
+            if(currentPart < TOTAL_PARTS) loadPart(currentPart + 1);
+            else loadPart(TOTAL_PARTS);
+        });
+
+        // dummy board.html va doc.html simulyatsiyasi (asosiy havolalar)
+        const openBoard = () => alert("MR BOARD to‘liq versiyasi ishlab chiqilmoqda. Hozircha 20 ta interaktiv partlardan namoyish o‘tkazing.");
+        document.querySelectorAll('#openBoardBtn, #heroStartBtn, #ctaBoardBtn, #footerBoardLink').forEach(btn => btn.addEventListener('click', (e) => { e.preventDefault(); openBoard(); }));
+        document.querySelectorAll('#heroDocBtn, #footerDocLink').forEach(btn => btn.addEventListener('click', (e) => { e.preventDefault(); alert("MR BOARD dokumentatsiyasi: REST API, WebRTC qo‘llanma, Firebase schema — tez kunda."); }));
+
+        // Ensure first load part1
+        loadPart(1);
     </script>
 </body>
 </html>
