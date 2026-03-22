@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="uz" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>MR BOARD · PART 19 · ENTERPRISE</title>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        /* ========== ENTERPRISE ULTIMATE CSS O'ZGARUVCHILARI (1:1) ========== */
+        :root {
+            --bg-base: #020617; /* Dark theme ishlatamiz yakun uchun */
+            --bg-canvas: #0f172a;
+            --text-main: #f8fafc;
+            --brand-primary: #0a84ff;
+            --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+            --ease-smooth: cubic-bezier(0.25, 1, 0.5, 1);
+            --dur: 4s;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif;
+            background: var(--bg-base);
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            color: var(--text-main);
+        }
+
+        .video-container {
+            width: 100vw; height: 100vh;
+            background: var(--bg-canvas);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* FINAL LOGO ANIMATION (Sizning brand-title uslubingizda) */
+        .final-brand {
+            text-align: center;
+            opacity: 0;
+            transform: scale(0.8);
+            animation: finalFadeIn 1.5s var(--ease-spring) 1s forwards;
+            z-index: 100;
+        }
+
+        .brand-title { 
+            font-size: 64px; 
+            font-weight: 800; 
+            letter-spacing: -2px; 
+        }
+        .brand-title span { color: var(--brand-primary); }
+        .brand-subtitle { 
+            font-size: 16px; 
+            font-weight: 700; 
+            color: #94a3b8; 
+            text-transform: uppercase; 
+            letter-spacing: 4px; 
+            margin-top: 10px; 
+        }
+
+        @keyframes finalFadeIn {
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        /* UI ELEMENTS FADING OUT */
+        .ui-fade-out {
+            position: absolute; inset: 0;
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            animation: systemShutdown 1.2s var(--ease-smooth) forwards;
+        }
+
+        @keyframes systemShutdown {
+            0% { opacity: 1; filter: blur(0px); transform: scale(1); }
+            100% { opacity: 0; filter: blur(20px); transform: scale(1.1); }
+        }
+
+        /* MAGIC CURSOR */
+        .magic-cursor {
+            position: absolute; top: 50%; left: 50%; width: 40px; height: 40px;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="black" stroke="white" stroke-width="2"><path d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z"/></svg>') no-repeat;
+            z-index: 1000; pointer-events: none; filter: drop-shadow(0 10px 15px rgba(0,0,0,0.4));
+            animation: moveCursor19 var(--dur) var(--ease-smooth) forwards;
+        }
+
+        @keyframes moveCursor19 {
+            0% { transform: translate(250px, 30px); } /* 18-qism oxiri (Confirm tugmasida) */
+            30% { transform: translate(250px, 30px) scale(0.7); } /* Oxirgi CLICK */
+            60% { transform: translate(400px, 200px); opacity: 0; } /* Kursor yo'qoladi */
+            100% { transform: translate(400px, 200px); opacity: 0; }
+        }
+
+        /* PROGRESS BAR FINAL */
+        .progress { position: absolute; bottom: 0; left: 0; height: 6px; background: var(--brand-primary); width: 90%; animation: fill var(--dur) linear forwards; }
+        @keyframes fill { from { width: 90%; } to { width: 98%; } }
+    </style>
+</head>
+<body>
+
+    <div class="video-container">
+        <div class="progress"></div>
+
+        <div class="ui-fade-out">
+            <div style="background: rgba(255,255,255,0.05); padding: 40px; border-radius: 32px; border: 1px solid rgba(255,255,255,0.1); text-align: center;">
+                <i data-lucide="shield-check" size="48" style="color: #34c759; margin-bottom: 16px;"></i>
+                <h2 style="font-size: 24px;">Tizimdan chiqilmoqda...</h2>
+            </div>
+        </div>
+
+        <div class="final-brand">
+            <h1 class="brand-title">MR <span>BOARD</span></h1>
+            <p class="brand-subtitle">Enterprise Ultimate Edition</p>
+        </div>
+
+        <div class="magic-cursor"></div>
+    </div>
+
+    <script>
+        lucide.createIcons();
+        
+        // 1. Tizim butunlay o'chishi va finalga o'tish
+        setTimeout(() => {
+            window.location.href = 'part20.html';
+        }, 4000);
+    </script>
+</body>
+</html>
