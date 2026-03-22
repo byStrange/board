@@ -54,7 +54,6 @@
         .nav-links a:hover { color: var(--text-main); }
         .nav-links a::after { content: ''; position: absolute; width: 0; height: 2px; bottom: -4px; left: 0; background: var(--brand-primary); transition: width 0.3s ease; }
         .nav-links a:hover::after { width: 100%; }
-        
         .header-btn {
             background: var(--brand-primary); color: white; padding: 10px 24px; border-radius: 99px;
             text-decoration: none; font-weight: 700; font-size: 14px; transition: 0.3s var(--ease-spring);
@@ -76,50 +75,62 @@
         }
         .hero h1 { font-size: clamp(48px, 8vw, 84px); font-weight: 900; letter-spacing: -2.5px; line-height: 1.05; margin-bottom: 24px; max-width: 1000px; animation: slideUp 0.8s ease-out 0.1s both; }
         .hero p { font-size: clamp(18px, 2vw, 22px); color: var(--text-muted); max-width: 700px; margin-bottom: 40px; animation: slideUp 0.8s ease-out 0.2s both; }
-        
         .hero-actions { display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; animation: slideUp 0.8s ease-out 0.3s both; }
-        
+
         .btn-main {
             padding: 18px 36px; border-radius: 20px; font-size: 18px; font-weight: 700; text-decoration: none;
             display: flex; align-items: center; gap: 12px; transition: 0.3s var(--ease-spring); cursor: pointer;
         }
         .btn-start { background: var(--brand-primary); color: #fff; box-shadow: 0 10px 30px var(--brand-alpha); }
         .btn-start:hover { transform: translateY(-4px) scale(1.02); box-shadow: 0 20px 40px rgba(0, 122, 255, 0.4); }
-        
         .btn-doc { background: var(--glass-bg); backdrop-filter: blur(10px); color: var(--text-main); border: 1px solid var(--border-subtle); }
         .btn-doc:hover { background: var(--bg-base); border-color: var(--brand-primary); transform: translateY(-4px); box-shadow: var(--shadow-sm); }
 
-        /* [4] ANIMATED APP MOCKUP */
+        /* [4] IFRAME MOCKUP (CYCLING THROUGH PART1..PART20) */
         .app-mockup-wrapper {
             margin-top: 80px; width: 100%; max-width: 1200px; position: relative;
             perspective: 1200px; animation: slideUp 1s ease-out 0.5s both;
         }
         .app-mockup {
             background: var(--bg-alt); 
-            background-image: radial-gradient(var(--border-subtle) 1px, transparent 1px); background-size: 24px 24px;
+            background-image: radial-gradient(var(--border-subtle) 1px, transparent 1px);
+            background-size: 24px 24px;
             border-radius: 24px; border: 1px solid var(--border-subtle); box-shadow: var(--shadow-lg), var(--shadow-glow);
             height: 65vh; min-height: 500px; max-height: 700px; position: relative; overflow: hidden;
             display: flex; flex-direction: column;
             transform: rotateX(5deg); transition: transform 0.5s ease;
         }
         .app-mockup-wrapper:hover .app-mockup { transform: rotateX(0deg) translateY(-10px); }
-        
-        .mock-header { height: 52px; background: var(--glass-bg); backdrop-filter: blur(20px); border-bottom: 1px solid var(--border-subtle); display: flex; align-items: center; padding: 0 20px; gap: 8px; }
+
+        .mock-header {
+            height: 52px; background: var(--glass-bg); backdrop-filter: blur(20px); border-bottom: 1px solid var(--border-subtle);
+            display: flex; align-items: center; padding: 0 20px; gap: 8px; flex-shrink: 0;
+        }
         .mock-dot { width: 12px; height: 12px; border-radius: 50%; }
         .mock-dot.r { background: #ff3b30; } .mock-dot.y { background: #ffcc00; } .mock-dot.g { background: #34c759; }
-        
-        .mock-canvas { flex: 1; position: relative; overflow: hidden; }
-        .mock-shape { position: absolute; border: 4px solid var(--brand-primary); border-radius: 16px; top: 30%; left: 35%; width: 180px; height: 120px; transform: rotate(-10deg); animation: float 6s ease-in-out infinite; background: var(--brand-alpha); }
-        .mock-line { position: absolute; top: 50%; left: 45%; width: 250px; height: 4px; background: #34c759; transform: rotate(15deg); border-radius: 4px; animation: drawLine 3s infinite alternate; }
-        .mock-cursor { position: absolute; top: 55%; left: 65%; background: #000; color: #fff; padding: 6px 14px; border-radius: 99px; font-size: 12px; font-weight: 800; border: 2px solid #fff; box-shadow: 0 4px 15px rgba(0,0,0,0.3); animation: cursorMove 4s ease-in-out infinite; }
-        
+        .mock-header span { flex:1; text-align:center; font-size:13px; font-weight:700; color:var(--text-muted); }
+
+        .iframe-container {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+            background: var(--bg-alt);
+        }
+        #board-iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            background: transparent;
+            pointer-events: none; /* Prevent interaction with the demo animation */
+        }
+
         .mock-dock {
             position: absolute; bottom: 32px; left: 50%; transform: translateX(-50%);
             background: var(--glass-bg); backdrop-filter: blur(24px); border: 1px solid var(--glass-border);
             padding: 12px 24px; border-radius: 32px; display: flex; gap: 16px; box-shadow: var(--shadow-lg);
+            z-index: 10;
         }
-        .mock-dock-icon { width: 44px; height: 44px; border-radius: 14px; background: var(--bg-base); display: flex; align-items: center; justify-content: center; color: var(--text-muted); cursor: pointer; transition: 0.2s; }
-        .mock-dock-icon:hover { transform: translateY(-5px); color: var(--brand-primary); }
+        .mock-dock-icon { width: 44px; height: 44px; border-radius: 14px; background: var(--bg-base); display: flex; align-items: center; justify-content: center; color: var(--text-muted); cursor: default; transition: 0.2s; }
         .mock-dock-icon.active { background: var(--brand-primary); color: #fff; box-shadow: 0 5px 15px var(--brand-alpha); }
 
         /* [5] SECTIONS & REVEAL ANIMATION */
@@ -139,7 +150,6 @@
         .feature-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: linear-gradient(90deg, var(--brand-primary), #34c759); opacity: 0; transition: 0.3s; }
         .feature-card:hover { transform: translateY(-10px); box-shadow: var(--shadow-lg); border-color: transparent; }
         .feature-card:hover::before { opacity: 1; }
-        
         .icon-box { width: 64px; height: 64px; border-radius: 20px; background: var(--brand-alpha); color: var(--brand-primary); display: flex; align-items: center; justify-content: center; margin-bottom: 24px; transition: 0.3s; }
         .feature-card:hover .icon-box { transform: scale(1.1) rotate(5deg); }
         .feature-card h3 { font-size: 24px; font-weight: 800; margin-bottom: 16px; }
@@ -161,9 +171,8 @@
         .cta-section::before { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 60%); pointer-events: none; }
         .cta-section h2 { font-size: 56px; font-weight: 900; letter-spacing: -2px; margin-bottom: 24px; z-index: 1; }
         .cta-section p { font-size: 22px; opacity: 0.8; max-width: 600px; margin-bottom: 40px; z-index: 1; }
-        
         footer { border-top: 1px solid var(--border-subtle); padding: 50px 5%; display: flex; justify-content: space-between; align-items: center; color: var(--text-muted); font-size: 15px; margin-top: 40px;}
-        
+
         /* Keyframes */
         @keyframes slideUp { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes slideDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
@@ -198,7 +207,7 @@
         <div class="hero-badge"><i data-lucide="sparkles" size="16"></i> Enterprise Edition 2.0</div>
         <h1>Jamoaviy ishlashning <br> yangi davri</h1>
         <p>MR BOARD — g'oyalaringizni real vaqtda, cheksiz doskada, ovozli muloqot va chat orqali jamoangiz bilan hayotga tatbiq etish uchun mukammal muhit.</p>
-        
+
         <div class="hero-actions">
             <a href="board.html" class="btn-main btn-start">
                 MR BOARD ni boshlash <i data-lucide="arrow-right"></i>
@@ -212,12 +221,10 @@
             <div class="app-mockup">
                 <div class="mock-header">
                     <div class="mock-dot r"></div><div class="mock-dot y"></div><div class="mock-dot g"></div>
-                    <div style="flex:1; text-align:center; font-size:13px; font-weight:700; color:var(--text-muted);">mr-board.uz / alisher-room</div>
+                    <span>mr-board.uz / alisher-room</span>
                 </div>
-                <div class="mock-canvas">
-                    <div class="mock-shape"></div>
-                    <div class="mock-line"></div>
-                    <div class="mock-cursor"><i data-lucide="mouse-pointer-2" size="14" style="display:inline; vertical-align:middle; margin-right:4px;"></i> Alisher</div>
+                <div class="iframe-container">
+                    <iframe id="board-iframe" src="part1.html" title="MR BOARD interaktiv namoyish" loading="lazy"></iframe>
                 </div>
                 <div class="mock-dock">
                     <div class="mock-dock-icon"><i data-lucide="settings-2" size="22"></i></div>
@@ -236,7 +243,6 @@
             <h2>Hamma narsa bir joyda</h2>
             <p>Sizga va jamoangizga kerak bo'ladigan barcha kuchli vositalar silliq interfeys ortiga yashiringan.</p>
         </div>
-        
         <div class="feature-grid">
             <div class="feature-card">
                 <div class="icon-box"><i data-lucide="infinity" size="32"></i></div>
@@ -264,10 +270,8 @@
     <section class="section reveal" id="about">
         <div class="text-content">
             <h2 style="font-size: 48px; font-weight: 900; letter-spacing: -1.5px; text-align: center; margin-bottom: 70px;">Nega aynan MR BOARD?</h2>
-            
             <h3><i data-lucide="layers" color="var(--brand-primary)"></i> Kreativlik va Texnologiya uyg'unligi</h3>
             <p>Biz MR BOARD ni yaratishda faqatgina funksionallikka emas, balki foydalanuvchi tajribasiga (UX) ham alohida e'tibor qaratdik. Tizim eng so'nggi <strong>Glassmorphism</strong> dizayn kodidan ilhomlanib ishlangan. Bu degani – ekrandagi barcha elementlar yarim shaffof oynadan iborat va ko'zni charchatmaydi.</p>
-
             <h3><i data-lucide="cpu" color="var(--brand-primary)"></i> Dvigatel ostida nimalar bor?</h3>
             <p>MR BOARD oddiy veb-sayt emas, u to'laqonli <strong>Monolith Web-Application</strong> hisoblanadi. Uning barqaror ishlashini quyidagi texnologiyalar ta'minlaydi:</p>
             <ul>
@@ -302,7 +306,7 @@
         // Ikonkalarni yuklash
         lucide.createIcons();
 
-        // Scroll Reveal Animatsiyasi (Sahifani pastga tushirganda elementlar paydo bo'lishi)
+        // Scroll Reveal Animatsiyasi
         function reveal() {
             var reveals = document.querySelectorAll(".reveal");
             for (var i = 0; i < reveals.length; i++) {
@@ -315,7 +319,24 @@
             }
         }
         window.addEventListener("scroll", reveal);
-        reveal(); // Dastlabki yuklanishda tekshirish
+        reveal();
+
+        // ========== IFRAME CYCLING THROUGH PART1..PART20 ==========
+        const partCount = 20;
+        let currentPart = 1;
+        const iframe = document.getElementById('board-iframe');
+        const baseUrl = ''; // assuming partX.html files are in same directory
+
+        function loadNextPart() {
+            const nextPart = (currentPart % partCount) + 1; // 1..20 then back to 1
+            currentPart = nextPart;
+            iframe.src = `part${currentPart}.html`;
+        }
+
+        // Start cycling after 3 seconds, then every 5 seconds
+        setTimeout(() => {
+            setInterval(loadNextPart, 5000);
+        }, 3000);
     </script>
 </body>
 </html>
