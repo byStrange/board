@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="uz" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>MR BOARD · PART 14 · ENTERPRISE</title>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        /* ========== ENTERPRISE ULTIMATE CSS O'ZGARUVCHILARI (1:1) ========== */
+        :root {
+            --bg-base: #f8fafc;
+            --bg-canvas: #e2e8f0;
+            --bg-glass: rgba(255,255,255,0.65);
+            --bg-panel: rgba(255,255,255,0.85);
+            --text-main: #0f172a;
+            --brand-primary: #007aff;
+            --brand-alpha: rgba(0,122,255,0.15);
+            --border-subtle: rgba(255,255,255,0.4);
+            --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+            --ease-smooth: cubic-bezier(0.25, 1, 0.5, 1);
+            --shadow-float: 0 24px 48px -12px rgba(0,0,0,0.15);
+            --dur: 3.5s;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body { 
+            font-family: -apple-system, sans-serif;
+            background: var(--bg-canvas);
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .video-container {
+            width: 96vw; height: 92vh;
+            background: var(--bg-canvas);
+            border-radius: 32px;
+            box-shadow: 0 50px 100px rgba(0,0,0,0.2);
+            border: 6px solid #fff;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .grid-pattern { 
+            background-color: var(--bg-canvas);
+            background-image: radial-gradient(circle, #cbd5e1 1px, transparent 1px); 
+            background-size: 30px 30px; 
+        }
+
+        /* RECTANGLE SHAPE ANIMATION */
+        .shape-rect {
+            position: absolute;
+            top: 55%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border: 4px solid var(--brand-primary);
+            background: var(--brand-alpha);
+            border-radius: 12px;
+            transform: translate(-50%, -50%);
+            opacity: 0;
+            animation: drawRect 1.5s var(--ease-smooth) 1.2s forwards;
+        }
+
+        @keyframes drawRect {
+            0% { width: 0; height: 0; opacity: 1; }
+            100% { width: 400px; height: 200px; opacity: 1; }
+        }
+
+        /* MAGIC CURSOR ANIMATION */
+        .magic-cursor {
+            position: absolute;
+            top: 0; left: 0; width: 40px; height: 40px;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="black" stroke="white" stroke-width="2"><path d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z"/></svg>') no-repeat;
+            z-index: 1000; pointer-events: none;
+            filter: drop-shadow(0 10px 15px rgba(0,0,0,0.4));
+            animation: moveCursor14 var(--dur) var(--ease-smooth) forwards;
+        }
+
+        @keyframes moveCursor14 {
+            0% { transform: translate(650px, 450px); } /* 13-qism markazi */
+            20% { transform: translate(450px, 480px); } /* Chizish boshlanadigan nuqta (Start) */
+            30% { transform: translate(450px, 480px) scale(0.8); } /* CLICK (Hold) */
+            65% { transform: translate(850px, 680px); } /* Tortish (Drag) */
+            75% { transform: translate(850px, 680px) scale(1); } /* Qo'yib yuborish */
+            100% { transform: translate(1200px, 300px); }
+        }
+
+        /* DOCK (Sizning kodingizdan 1:1) */
+        .dock-bottom {
+            position: absolute; bottom: 32px; left: 0; right: 0;
+            display: flex; justify-content: center; z-index: 100;
+        }
+        .dock-glass {
+            background: var(--bg-glass);
+            backdrop-filter: blur(50px);
+            border: 1px solid var(--border-subtle);
+            border-radius: 32px;
+            padding: 12px;
+            display: flex; align-items: center; gap: 8px;
+            box-shadow: var(--shadow-float);
+        }
+
+        /* PROGRESS BAR */
+        .progress { position: absolute; bottom: 0; left: 0; height: 6px; background: var(--brand-primary); width: 65%; animation: fill var(--dur) linear forwards; }
+        @keyframes fill { from { width: 65%; } to { width: 70%; } }
+    </style>
+</head>
+<body data-theme="light">
+
+    <div class="video-container grid-pattern">
+        <div class="progress"></div>
+
+        <div class="shape-rect"></div>
+
+        <div style="position: absolute; top: 35%; left: 50%; transform: translate(-50%, -50%); font-size: 42px; font-weight: 800; color: var(--brand-primary); opacity: 0.4;">
+            MR BOARD Enterprise
+        </div>
+
+        <div class="magic-cursor"></div>
+
+        <div class="dock-bottom">
+            <div class="dock-glass">
+                <div style="width:56px;height:56px;display:flex;align-items:center;justify-content:center;color:#64748b;"><i data-lucide="settings-2"></i></div>
+                <div style="width:32px;height:32px;border-radius:50%;background:#007aff;border:3px solid #fff;margin: 0 10px;"></div>
+                <div style="width:1px;height:32px;background:rgba(0,0,0,0.1);margin:0 8px;"></div>
+                <div style="width:56px;height:56px;display:flex;align-items:center;justify-content:center;color:#64748b;"><i data-lucide="pencil"></i></div>
+                <div style="width:56px;height:56px;display:flex;align-items:center;justify-content:center;color:#64748b;"><i data-lucide="wand-2"></i></div>
+                <div style="width:56px;height:56px;display:flex;align-items:center;justify-content:center;color:#fff;background:var(--brand-primary);border-radius:20px;"><i data-lucide="shapes"></i></div>
+                <div style="width:56px;height:56px;display:flex;align-items:center;justify-content:center;color:#64748b;"><i data-lucide="eraser"></i></div>
+                <div style="width:56px;height:56px;display:flex;align-items:center;justify-content:center;color:#64748b;"><i data-lucide="hand"></i></div>
+                <div style="width:56px;height:56px;display:flex;align-items:center;justify-content:center;color:#64748b;"><i data-lucide="type"></i></div>
+                <div style="width:56px;height:56px;display:flex;align-items:center;justify-content:center;color:#64748b;"><i data-lucide="undo-2"></i></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        lucide.createIcons();
+        setTimeout(() => {
+            window.location.href = 'part15.html';
+        }, 3600);
+    </script>
+</body>
+</html>
