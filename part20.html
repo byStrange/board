@@ -156,10 +156,17 @@
         <p class="progress-text">System Ready · 100%</p>
     </div>
 
-    <script>
-        lucide.createIcons();
-        // Video yakunlandi! 
-        console.log("MR BOARD Enterprise Edition: Sequence Finished.");
-    </script>
+  <script>
+    lucide.createIcons();
+    
+    // Progress bar animatsiyasi 2 soniyada 100% ga to'ladi
+    // 2.5 soniyadan keyin next xabarini yuboramiz (animatsiya tugagach)
+    setTimeout(() => {
+        window.parent.postMessage('next', '*');
+    }, 2500);
+    
+    // Konsolga yozamiz (debug uchun)
+    console.log("MR BOARD Part 20: Final scene - sending next signal");
+</script>
 </body>
 </html>
