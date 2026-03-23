@@ -7,10 +7,12 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#f8fafc" id="theme-color">
     <title>MR BOARD · Qo'llanma va Hujjatlar (Docs)</title>
-        <!-- Favicon -->
+    
+    <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
     <link rel="shortcut icon" href="favicon.svg">
-   <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <script src="https://unpkg.com/lucide@latest"></script>
     
     <style>
         /* ==================================================================
@@ -82,7 +84,7 @@
             position: fixed; top: 0; left: 0; bottom: 0;
             width: var(--sidebar-width);
             background: var(--bg-panel);
-            backdrop-filter: blur(40px) saturate(200%); -webkit-backdrop-filter: blur(40px) saturate(200%);
+            backdrop-filter: blur(40px) saturate(200%);
             border-right: 1px solid var(--border-subtle);
             padding: 32px 24px;
             overflow-y: auto;
@@ -125,11 +127,10 @@
            ================================================================== */
         .main-wrapper { margin-left: var(--sidebar-width); flex: 1; display: flex; flex-direction: column; min-height: 100vh; position: relative; }
         
-        /* iOS Glass Topbar */
         .topbar {
             position: sticky; top: 0; z-index: 90;
             background: var(--bg-glass);
-            backdrop-filter: blur(50px) saturate(200%); -webkit-backdrop-filter: blur(50px) saturate(200%);
+            backdrop-filter: blur(50px) saturate(200%);
             border-bottom: 1px solid var(--border-subtle);
             padding: 16px 5%; display: flex; justify-content: space-between; align-items: center;
             box-shadow: var(--shadow-glass);
@@ -146,9 +147,8 @@
         .topbar-title { font-weight: 800; opacity: 0; transition: opacity var(--duration-base); }
         .topbar.scrolled .topbar-title { opacity: 1; }
 
-        .menu-btn { display: none; background: var(--bg-base); border: 1px solid var(--border-strong); border-radius: 12px; padding: 8px; color: var(--text-main); }
+        .menu-btn { display: none; background: var(--bg-base); border: 1px solid var(--border-strong); border-radius: 12px; padding: 8px; color: var(--text-main); cursor: pointer; }
 
-        /* Content Typography & Cards */
         .content { padding: 60px 5% 100px; max-width: 1000px; margin: 0 auto; width: 100%; }
         
         h1 { font-size: clamp(40px, 6vw, 56px); font-weight: 900; letter-spacing: -2px; margin-bottom: 24px; line-height: 1.1; }
@@ -162,7 +162,6 @@
         li::marker { color: var(--brand-primary); font-weight: 800; }
         strong { color: var(--text-main); font-weight: 700; }
 
-        /* Cards & Alerts */
         .elastic-card {
             background: var(--bg-panel);
             border: 1px solid var(--border-subtle);
@@ -179,10 +178,8 @@
         .alert.info { background: var(--brand-alpha); border: 1px solid rgba(0, 122, 255, 0.2); color: var(--brand-primary); }
         @media (prefers-color-scheme: dark) { .alert.warning { color: var(--state-warning); } }
 
-        /* Code & Hotkeys */
         .kbd { background: var(--bg-base); border: 1.5px solid var(--border-strong); border-bottom-width: 4px; padding: 4px 12px; border-radius: 10px; font-family: ui-monospace, monospace; font-size: 14px; font-weight: 800; color: var(--text-main); display: inline-block; box-shadow: inset 0 -2px 0 rgba(0,0,0,0.05); }
 
-        /* Status Pills (From your code) */
         .status-pill {
             display: inline-flex; align-items: center; gap: 8px;
             background: var(--bg-panel); backdrop-filter: blur(20px);
@@ -191,16 +188,14 @@
             box-shadow: var(--shadow-sm); margin-right: 8px; margin-bottom: 8px;
         }
 
-        /* Mockup Visuals */
         .mockup-container { background: var(--bg-canvas); background-image: radial-gradient(var(--border-strong) 1px, transparent 1px); background-size: 32px 32px; border-radius: 32px; padding: 60px 20px; border: 1px solid var(--border-strong); display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 24px; margin-bottom: 40px; }
         
-        /* Your original Dock style replicated */
         .mock-dock {
-            background: var(--bg-glass); backdrop-filter: blur(50px) saturate(200%); -webkit-backdrop-filter: blur(50px) saturate(200%);
+            background: var(--bg-glass); backdrop-filter: blur(50px) saturate(200%);
             border: 1px solid var(--border-subtle); border-radius: 32px; padding: 12px;
             display: flex; align-items: center; gap: 8px; box-shadow: var(--shadow-float), var(--shadow-glass);
         }
-        .action-btn { width: 56px; height: 56px; border-radius: 20px; display: flex; align-items: center; justify-content: center; color: var(--text-muted); background: transparent; transition: all var(--duration-fast) var(--ease-spring); border: none; }
+        .action-btn { width: 56px; height: 56px; border-radius: 20px; display: flex; align-items: center; justify-content: center; color: var(--text-muted); background: transparent; transition: all var(--duration-fast) var(--ease-spring); border: none; cursor: default; }
         .action-btn.is-active { background: var(--brand-primary); color: #fff; box-shadow: 0 8px 20px var(--brand-alpha); transform: scale(1.1); }
         .dock-sep { width: 2px; height: 32px; background: var(--border-strong); margin: 0 8px; border-radius: 2px; }
 
@@ -220,7 +215,7 @@
 <body>
 
     <nav class="sidebar" id="sidebar">
-        <a href="index.html" class="brand"><i data-lucide="layers" size="32"></i> MR <span>BOARD</span></a>
+        <a href="index.html" class="brand"><i data-lucide="blocks" size="32"></i> MR <span>BOARD</span></a>
         <span class="brand-sub">Enterprise Edition</span>
 
         <div class="global-actions">
@@ -232,17 +227,13 @@
         <a href="#auth" class="nav-link"><i data-lucide="shield-check"></i> Avtorizatsiya & Rollar</a>
 
         <div class="nav-label">Ish interfeysi</div>
-        <a href="#ui-top" class="nav-link"><i data-lucide="layout-template"></i> Statuslar & Zen Mode</a>
         <a href="#minimap" class="nav-link"><i data-lucide="map"></i> Kuzatuv doskasi (Minimap)</a>
         
         <div class="nav-label">Asboblar (Dock)</div>
         <a href="#tools" class="nav-link"><i data-lucide="pen-tool"></i> Chizish vositalari</a>
-        <a href="#colors" class="nav-link"><i data-lucide="palette"></i> Ranglar va Sozlamalar</a>
 
         <div class="nav-label">Jamoaviy ish</div>
         <a href="#audio" class="nav-link"><i data-lucide="mic"></i> Ovozli muloqot (WebRTC)</a>
-        <a href="#chat" class="nav-link"><i data-lucide="message-square"></i> Chat va Bildirishnomalar</a>
-        <a href="#host" class="nav-link"><i data-lucide="crown"></i> Host boshqaruvi</a>
 
         <div class="nav-label">Ma'lumotlar</div>
         <a href="#data" class="nav-link"><i data-lucide="database"></i> JSON Import/Export</a>
@@ -289,15 +280,15 @@
 
             <section id="minimap">
                 <h2><i data-lucide="map"></i> Interfeys va Minimap</h2>
-                <p>Ekraningiz butunlay sizniki. Biz vizual shovqinni kamaytirish uchun vositalarni shaffof oyna (glass) effekti orqasida yashirdik.</p>
+                <p>Ekraningiz butunlay sizniki. Vizual shovqinni kamaytirish uchun vositalar shaffof oyna (glass) effekti orqasida yashirilgan.</p>
                 
                 <div class="status-pill"><i data-lucide="hash"></i> MR-5892</div>
                 <div class="status-pill"><i data-lucide="search"></i> 100%</div>
                 <div class="status-pill"><i data-lucide="pencil" style="color:var(--brand-primary)"></i> Yozuvchi</div>
-                <p style="margin-top: 16px;">Tepadagi status panellarida siz xona kodini, masshtabni va ayni paytdagi rolingizni ko'rib turasiz.</p>
+                <p style="margin-top: 16px;">Tepadagi status panellarida xona kodi, masshtab va rolingiz ko'rsatiladi.</p>
 
                 <h3>Kuzatuv doskasi (Minimap)</h3>
-                <p>O'ng burchakdagi <strong>Minimap</strong> cheksiz doska bo'ylab qayerda turganingizni ko'rsatadi. Uning xususiyatlari:</p>
+                <p>O'ng burchakdagi <strong>Minimap</strong> cheksiz doska bo'ylab qayerda turganingizni ko'rsatadi. Xususiyatlari:</p>
                 <ul>
                     <li>Tepasidan ushlab ekranning istalgan joyiga surish (Drag & Drop) mumkin.</li>
                     <li>Pastki o'ng burchagidan tortib o'lchamini o'zgartirish (Resize) mumkin.</li>
@@ -323,95 +314,91 @@
 
                 <div class="elastic-card">
                     <ul style="margin-bottom:0; margin-left:16px;">
-                        <li><strong>Qalam <kbd class="kbd">B</kbd>:</strong> Maxsus Spline algoritmi chiziqlaringizni avtomatik silliqlaydi.</li>
-                        <li><strong>Lazer <kbd class="kbd">L</kbd>:</strong> Taqdimotlar uchun qizil rangli neon iz. U 1.2 soniyadan so'ng qoldiqsiz o'chadi.</li>
-                        <li><strong>Shakllar <kbd class="kbd">S</kbd>:</strong> To'rtburchak, aylana, to'g'ri chiziq va o'q chizish vositalari jamlanmasi.</li>
-                        <li><strong>Surish <kbd class="kbd">H</kbd>:</strong> Doskani xohlagan tomonga surish. Sichqoncha roligi (scroll) bilan xuddi shu amalni bajarish mumkin.</li>
-                        <li><strong>Matn <kbd class="kbd">T</kbd>:</strong> Maxsus yopishib chiqadigan modal oyna orqali doskaga yozuv qo'shish.</li>
+                        <li><strong>Qalam <kbd class="kbd">B</kbd>:</strong> Maxsus Spline algoritmi chiziqlarni avtomatik silliqlaydi.</li>
+                        <li><strong>Lazer <kbd class="kbd">L</kbd>:</strong> Taqdimotlar uchun qizil neon iz. 1.2 soniyada o'chadi.</li>
+                        <li><strong>Shakllar <kbd class="kbd">S</kbd>:</strong> To'rtburchak, aylana, chiziq va o'q chizish.</li>
+                        <li><strong>Surish <kbd class="kbd">H</kbd>:</strong> Doskani xohlagan tomonga surish.</li>
+                        <li><strong>Matn <kbd class="kbd">T</kbd>:</strong> Modal oyna orqali yozuv qo'shish.</li>
                     </ul>
                 </div>
             </section>
 
             <section id="audio">
                 <h2><i data-lucide="mic"></i> WebRTC Audio va Muloqot</h2>
-                <p>Platformaga to'g'ridan-to'g'ri gaplashish funksiyasi o'rnatilgan. Buning uchun Zoom yoki Telegram kerak emas.</p>
+                <p>Platformaga to'g'ridan-to'g'ri gaplashish funksiyasi o'rnatilgan. Zoom yoki Telegram kerak emas.</p>
                 <div class="alert warning">
                     <i data-lucide="alert-triangle" size="24"></i>
-                    <div>
-                        <strong>Diqqat:</strong> Ovoz P2P (Peer-to-Peer) texnologiyasi orqali ishlaydi. Bu degani ovoz serverda saqlanmaydi, to'g'ridan-to'g'ri ishtirokchilar kompyuteriga ulanadi. Natijada kechikish (latency) 0 ga teng bo'ladi.
-                    </div>
+                    <div><strong>Diqqat:</strong> Ovoz P2P (Peer-to-Peer) texnologiyasi orqali ishlaydi. Kechikish (latency) deyarli 0 ga teng.</div>
                 </div>
                 <ul>
-                    <li>Mikrofonni yoqish/o'chirish uchun Dock panelidagi mikrofon tugmasini yoki <kbd class="kbd">M</kbd> tugmasini bosing.</li>
-                    <li>Siz gapirayotganingizda, panelda o'rnatilgan <strong>Audio Ekvaylayzer (Visualizer)</strong> to'lqinlanib turadi.</li>
-                    <li>Host ruxsat bermasa, sizning mikrofoningiz ishga tushmaydi.</li>
+                    <li>Mikrofonni yoqish/o'chirish: Dock panelidagi mikrofon tugmasi yoki <kbd class="kbd">M</kbd>.</li>
+                    <li>Gapirayotganda Audio Ekvaylayzer (Visualizer) to'lqinlanadi.</li>
+                    <li>Host ruxsat bermasa, mikrofoningiz ishga tushmaydi.</li>
                 </ul>
 
                 <h3>Umumiy Chat paneli</h3>
-                <p>O'ng tomondan chiquvchi (Drawer) chat paneli. Sizga yangi xabar kelsa, chat ikonkasida qizil rangli bildirishnoma (badge) paydo bo'ladi. Xabarlar chiroyli "bubble" (pufakcha) dizayniga ega bo'lib, egasi (Host) yozgan xabarlar oldida kichik toj <i data-lucide="crown" size="14" style="color:var(--state-warning)"></i> belgisi turadi.</p>
+                <p>O'ng tomondan chiquvchi (Drawer) chat paneli. Yangi xabarda qizil badge paydo bo'ladi. Host xabarlari oldida toj <i data-lucide="crown" size="14" style="color:var(--state-warning)"></i> belgisi turadi.</p>
             </section>
 
             <section id="data">
                 <h2><i data-lucide="database"></i> Ma'lumotlarni boshqarish</h2>
-                <p>Doskadagi ma'lumotlarni saqlash va yuklashning ikki xil usuli bor, ular <strong>Sozlamalar</strong> oynasida joylashgan:</p>
+                <p>Doskadagi ma'lumotlarni saqlash va yuklashning ikki usuli bor:</p>
                 
                 <div class="elastic-card" style="display:flex; flex-direction:column; gap:24px;">
                     <div>
-                        <h4><i data-lucide="download" style="color:var(--brand-primary); margin-right:8px;"></i> PNG Rasm qilib saqlash</h4>
-                        <p style="margin:0;">Joriy doska ko'rinishini qurilmangizga yuqori sifatli rasm (PNG) formatida saqlab oladi.</p>
+                        <h4><i data-lucide="download" style="color:var(--brand-primary); margin-right:8px;"></i> PNG rasm qilib saqlash</h4>
+                        <p style="margin:0;">Joriy doska ko'rinishini PNG formatida yuklab olish.</p>
                     </div>
                     <div style="border-top:1px solid var(--border-subtle); padding-top:24px;">
-                        <h4><i data-lucide="save" style="color:var(--state-success); margin-right:8px;"></i> JSON Loyiha arxivini saqlash</h4>
-                        <p style="margin:0;">Eng muhim funksiya! Barcha chizilgan elementlar matematik vektor sifatida saqlanadi (.json). Siz ertasi kuni kompyuterda <strong>"Loyihani yuklash"</strong> tugmasi orqali shu faylni tanlasangiz, doska xuddi kechagi holatiga to'liq qaytadi.</p>
+                        <h4><i data-lucide="save" style="color:var(--state-success); margin-right:8px;"></i> JSON loyiha arxivi</h4>
+                        <p style="margin:0;">Barcha chizilgan elementlar vektor sifatida saqlanadi. Keyin <strong>"Loyihani yuklash"</strong> bilan to'liq tiklash mumkin.</p>
                     </div>
                 </div>
             </section>
 
             <section id="hotkeys">
-                <h2><i data-lucide="keyboard"></i> Klaviatura Qisqartmalari (Hotkeys)</h2>
+                <h2><i data-lucide="keyboard"></i> Klaviatura qisqartmalari</h2>
                 <div style="display:flex; flex-wrap:wrap; gap:16px;">
-                    <div class="elastic-card" style="flex: 1 1 300px; margin: 10px 0; padding: 24px;">
+                    <div class="elastic-card" style="flex: 1 1 280px; margin: 10px 0; padding: 24px;">
                         <kbd class="kbd" style="margin-bottom:12px;">Ctrl + Z</kbd>
-                        <p style="margin:0; font-weight:700;">Oxirgi chiziqni bekor qilish.</p>
+                        <p style="margin:0;">Oxirgi chiziqni bekor qilish</p>
                     </div>
-                    <div class="elastic-card" style="flex: 1 1 300px; margin: 10px 0; padding: 24px;">
+                    <div class="elastic-card" style="flex: 1 1 280px; margin: 10px 0; padding: 24px;">
                         <kbd class="kbd" style="margin-bottom:12px;">F</kbd>
-                        <p style="margin:0; font-weight:700;">Zen Mode (To'liq ekran). Barcha menyular yashirinadi.</p>
+                        <p style="margin:0;">Zen Mode (to'liq ekran)</p>
                     </div>
-                    <div class="elastic-card" style="flex: 1 1 300px; margin: 10px 0; padding: 24px;">
+                    <div class="elastic-card" style="flex: 1 1 280px; margin: 10px 0; padding: 24px;">
                         <kbd class="kbd" style="margin-bottom:12px;">M</kbd>
-                        <p style="margin:0; font-weight:700;">Mikrofonni tezkor yoqish/o'chirish.</p>
+                        <p style="margin:0;">Mikrofonni tezkor yoqish/o'chirish</p>
                     </div>
-                    <div class="elastic-card" style="flex: 1 1 300px; margin: 10px 0; padding: 24px;">
+                    <div class="elastic-card" style="flex: 1 1 280px; margin: 10px 0; padding: 24px;">
                         <kbd class="kbd" style="margin-bottom:12px;">C</kbd>
-                        <p style="margin:0; font-weight:700;">Chat panelini tezkor ochish.</p>
+                        <p style="margin:0;">Chat panelini ochish</p>
                     </div>
                 </div>
             </section>
-
         </div>
 
         <footer>
-            <div style="font-size: 20px; font-weight: 800; color: var(--text-main); margin-bottom: 8px;">MR BOARD Studio</div>
+            <div style="font-size: 20px; font-weight: 800; display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 8px;">
+                <i data-lucide="blocks" size="20" color="var(--brand-primary)"></i>
+                MR BOARD Studio
+            </div>
             <div>Enterprise Edition &copy; 2026. Barcha huquqlar himoyalangan.</div>
         </footer>
     </main>
 
     <script>
-        // Ikonkalarni inicializatsiya qilish
         lucide.createIcons();
 
-        // Scrollspy & Topbar blur
         const topbar = document.getElementById('topbar');
         const sections = document.querySelectorAll('section');
         const navLinks = document.querySelectorAll('.sidebar .nav-link');
 
         window.addEventListener('scroll', () => {
-            // Topbar style update
             if (window.scrollY > 50) topbar.classList.add('scrolled');
             else topbar.classList.remove('scrolled');
 
-            // Scrollspy logic
             let current = '';
             sections.forEach(section => {
                 const sectionTop = section.offsetTop;
@@ -428,11 +415,10 @@
             });
         });
 
-        // Mobile menu close on click outside
         document.addEventListener('click', function(event) {
-            var sidebar = document.getElementById('sidebar');
-            var menuBtn = document.querySelector('.menu-btn');
-            if (!sidebar.contains(event.target) && !menuBtn.contains(event.target)) {
+            const sidebar = document.getElementById('sidebar');
+            const menuBtn = document.querySelector('.menu-btn');
+            if (sidebar && menuBtn && !sidebar.contains(event.target) && !menuBtn.contains(event.target)) {
                 sidebar.classList.remove('is-open');
             }
         });
