@@ -20,7 +20,6 @@
             overflow: hidden;
         }
 
-        /* 1:1 FORMATDAGI RAMKA */
         .video-frame {
             width: 95vw; max-width: 1400px; height: 90vh; max-height: 850px;
             background: var(--bg-board); border-radius: 28px;
@@ -30,7 +29,6 @@
             display: flex; align-items: center; justify-content: center; flex-direction: column;
         }
 
-        /* UMUUMIY PROGRESS BAR (10% to'ladi) */
         .progress-bar {
             position: absolute; bottom: 0; left: 0; height: 8px;
             background: var(--brand); width: 0%;
@@ -38,10 +36,9 @@
         }
         @keyframes progressFill {
             0% { width: 0%; }
-            100% { width: 10%; } /* 1-qism uchun 10% */
+            100% { width: 10%; }
         }
 
-        /* TARTIB RAQAMI VA BADGE */
         .badge {
             background: rgba(0, 122, 255, 0.15); color: var(--brand);
             padding: 8px 20px; border-radius: 99px; font-weight: 800; font-size: 14px;
@@ -50,7 +47,6 @@
             animation: fastPopIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) 0.2s forwards;
         }
 
-        /* LOGO VA MATNLAR (Tezkor portlash) */
         .logo-icon {
             color: var(--brand); opacity: 0; transform: scale(0.5);
             animation: fastPopIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) 0.4s forwards;
@@ -62,7 +58,6 @@
             animation: fastPopIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) 0.5s forwards;
         }
 
-        /* DINAMIK KURSOR (Tezkor o'tish efekti uchun) */
         .magic-cursor {
             position: absolute; width: 40px; height: 40px; z-index: 999;
             background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="black" stroke="white" stroke-width="2"><path d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z"/></svg>') no-repeat;
@@ -70,13 +65,11 @@
             animation: cursorSwoosh 2.5s ease-out forwards;
         }
 
-        /* SAHNA TUGASHIDAGI KETISH EFFEKTI */
         .scene-container {
             display: flex; flex-direction: column; align-items: center;
-            animation: exitScene 0.4s ease-in 2.1s forwards; /* 2.1 sekunddan keyin chiqib ketadi */
+            animation: exitScene 0.4s ease-in 2.1s forwards;
         }
 
-        /* --- ANIMATSIYA KALITLARI --- */
         @keyframes fastPopIn {
             to { opacity: 1; transform: scale(1) translateY(0); }
         }
@@ -109,10 +102,11 @@
     <script>
         lucide.createIcons();
 
-        // 2.5 Soniyadan keyin avtomatik 2-qismga (part2.html) o'tish
+        // Animatsiya tugagach (2.5 soniya) parentga 'next' xabarini yuboramiz
+        // BU index.html dagi window.addEventListener('message') orqali keyingi partga o'tadi
         setTimeout(() => {
-            window.location.href = 'part2.html';
-        }, 2500); // 2500 millisekund = 2.5 soniya
+            window.parent.postMessage('next', '*');
+        }, 2500);
     </script>
 
 </body>
