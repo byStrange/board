@@ -45,7 +45,12 @@
             padding: 16px 5%; display: flex; justify-content: space-between; align-items: center;
             transition: all 0.3s ease;
         }
-        .brand { font-size: 24px; font-weight: 900; display: flex; align-items: center; gap: 10px; letter-spacing: -0.5px; text-decoration: none; color: var(--text-main); }
+        .brand { 
+            font-size: 24px; font-weight: 900; display: flex; align-items: center; gap: 10px; 
+            letter-spacing: -0.5px; text-decoration: none; color: var(--text-main);
+            transition: transform 0.3s var(--ease-spring);
+        }
+        .brand:hover { transform: scale(1.02); }
         .brand span { color: var(--brand-primary); }
         .nav-links { display: flex; gap: 32px; }
         .nav-links a { color: var(--text-muted); text-decoration: none; font-weight: 600; font-size: 15px; position: relative; }
@@ -178,7 +183,10 @@
 <body>
 
     <header>
-        <a href="index.html" class="brand"><i data-lucide="layers" size="28" color="var(--brand-primary)"></i> MR <span>BOARD</span></a>
+        <a href="index.html" class="brand">
+            <i data-lucide="blocks" size="28" color="#0a84ff" stroke-width="1.5"></i> 
+            MR <span>BOARD</span>
+        </a>
         <nav class="nav-links">
             <a href="#features">Imkoniyatlar</a>
             <a href="#about">Texnologiya</a>
@@ -188,7 +196,10 @@
     </header>
 
     <section class="hero">
-        <div class="hero-badge"><i data-lucide="sparkles" size="16"></i> Enterprise Edition 2.0</div>
+        <div class="hero-badge">
+            <i data-lucide="blocks" size="16" color="#007aff"></i>
+            Enterprise Edition 2.0
+        </div>
         <h1>Jamoaviy ishlashning <br> yangi davri</h1>
         <p>MR BOARD — g'oyalaringizni real vaqtda, cheksiz doskada, ovozli muloqot va chat orqali jamoangiz bilan hayotga tatbiq etish uchun mukammal muhit.</p>
 
@@ -246,7 +257,7 @@
     <section class="section reveal" id="about">
         <div class="text-content">
             <h2 style="font-size: 48px; font-weight: 900; letter-spacing: -1.5px; text-align: center; margin-bottom: 70px;">Nega aynan MR BOARD?</h2>
-            <h3><i data-lucide="layers" color="var(--brand-primary)"></i> Kreativlik va Texnologiya uyg'unligi</h3>
+            <h3><i data-lucide="blocks" color="var(--brand-primary)"></i> Kreativlik va Texnologiya uyg'unligi</h3>
             <p>Biz MR BOARD ni yaratishda faqatgina funksionallikka emas, balki foydalanuvchi tajribasiga (UX) ham alohida e'tibor qaratdik. Tizim eng so'nggi <strong>Glassmorphism</strong> dizayn kodidan ilhomlanib ishlangan. Bu degani – ekrandagi barcha elementlar yarim shaffof oynadan iborat va ko'zni charchatmaydi.</p>
             <h3><i data-lucide="cpu" color="var(--brand-primary)"></i> Dvigatel ostida nimalar bor?</h3>
             <p>MR BOARD oddiy veb-sayt emas, u to'laqonli <strong>Monolith Web-Application</strong> hisoblanadi. Uning barqaror ishlashini quyidagi texnologiyalar ta'minlaydi:</p>
@@ -268,7 +279,10 @@
 
     <footer>
         <div>
-            <div style="font-size: 20px; font-weight: 900; color: var(--text-main); margin-bottom: 4px; letter-spacing: -0.5px;">MR BOARD Studio</div>
+            <div style="font-size: 20px; font-weight: 900; color: var(--text-main); margin-bottom: 4px; letter-spacing: -0.5px; display: flex; align-items: center; gap: 8px;">
+                <i data-lucide="blocks" size="20" color="#0a84ff"></i> 
+                MR BOARD Studio
+            </div>
             <div>Barcha huquqlar himoyalangan &copy; 2026</div>
         </div>
         <div style="display: flex; gap: 32px; font-weight: 600;">
@@ -297,25 +311,27 @@
         window.addEventListener("scroll", reveal);
         reveal();
 
-        // ========== IFRAME CYCLING AUTOMATIC (1 → 20 → 1 → 20 ...) ==========
+        // ========== IFRAME CYCLING - PART ANIMATION TUGAGANDA O'TISH ==========
         const partCount = 20;
         let currentPart = 1;
+        let isWaiting = false;
         const iframe = document.getElementById('board-iframe');
 
-        function loadNextPart() {
-            // 1,2,3...20, then back to 1
-            let nextPart = currentPart + 1;
-            if (nextPart > partCount) {
-                nextPart = 1;
+        // Har bir partdan "next" xabarini qabul qilish
+        window.addEventListener('message', function(event) {
+            if (event.data === 'next' && !isWaiting) {
+                isWaiting = true;
+                setTimeout(() => {
+                    let nextPart = currentPart + 1;
+                    if (nextPart > partCount) {
+                        nextPart = 1;
+                    }
+                    currentPart = nextPart;
+                    iframe.src = `part${currentPart}.html`;
+                    isWaiting = false;
+                }, 500); // 500ms kechikish animatsiya tugashini kutish uchun
             }
-            currentPart = nextPart;
-            iframe.src = `part${currentPart}.html`;
-        }
-
-        // Start cycling after 3 seconds, then every 5 seconds
-        setTimeout(() => {
-            setInterval(loadNextPart, 5000);
-        }, 3000);
+        });
     </script>
 </body>
 </html>
