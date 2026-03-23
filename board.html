@@ -14,9 +14,6 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     
     <style>
-        /* ==================================================================
-           [1] GLOBAL DESIGN TOKENS (iOS 26 Elastic & Glassmorphism)
-           ================================================================== */
         :root {
             --bg-base: #f8fafc;
             --bg-canvas: #e2e8f0;
@@ -28,40 +25,31 @@
             --border-subtle: rgba(255, 255, 255, 0.4);
             --border-strong: rgba(0, 0, 0, 0.1);
             --brand-primary: #007aff;
-            --brand-hover: #0056b3;
             --brand-alpha: rgba(0, 122, 255, 0.15);
             --state-danger: #ff3b30;
             --state-success: #34c759;
             --state-warning: #ffcc00;
-            
             --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
             --ease-smooth: cubic-bezier(0.25, 1, 0.5, 1);
-            --ease-squish: cubic-bezier(0.4, 0, 0.2, 1);
-            
             --duration-fast: 200ms;
             --duration-base: 400ms;
-            --duration-slow: 600ms;
-            
-            --shadow-float: 0 24px 48px -12px rgba(0,0,0,0.15), 0 12px 24px -8px rgba(0,0,0,0.1);
-            --shadow-glass: inset 0 1px 1px rgba(255,255,255,0.8), inset 0 0 0 1px rgba(255,255,255,0.4);
-            --shadow-inner: inset 0 2px 4px rgba(0,0,0,0.05);
-            
-            --z-bg: 0; --z-canvas: 10; --z-ui: 100; --z-minimap: 150; --z-overlay: 200; --z-modal: 300; --z-toast: 1000;
+            --shadow-float: 0 24px 48px -12px rgba(0,0,0,0.15);
+            --shadow-glass: inset 0 1px 1px rgba(255,255,255,0.8);
+            --z-canvas: 10;
+            --z-ui: 100;
+            --z-minimap: 150;
+            --z-overlay: 200;
+            --z-modal: 300;
         }
 
         @media (prefers-color-scheme: dark) {
             :root {
-                --bg-base: #020617; 
-                --bg-canvas: #0f172a; 
-                --bg-glass: rgba(15, 23, 42, 0.55); 
-                --bg-panel: rgba(30, 41, 59, 0.85); 
-                --bg-hover: rgba(255, 255, 255, 0.1);
-                --text-main: #f8fafc; 
+                --bg-base: #020617;
+                --bg-canvas: #0f172a;
+                --bg-glass: rgba(15, 23, 42, 0.55);
+                --bg-panel: rgba(30, 41, 59, 0.85);
+                --text-main: #f8fafc;
                 --text-muted: #94a3b8;
-                --border-subtle: rgba(255, 255, 255, 0.1); 
-                --border-strong: rgba(255, 255, 255, 0.2);
-                --shadow-float: 0 24px 48px -12px rgba(0,0,0,0.5); 
-                --shadow-glass: inset 0 1px 1px rgba(255,255,255,0.1), inset 0 0 0 1px rgba(255,255,255,0.05);
                 --brand-primary: #0a84ff;
             }
         }
@@ -71,11 +59,7 @@
             --bg-canvas: #e2e8f0;
             --bg-glass: rgba(255, 255, 255, 0.65);
             --bg-panel: rgba(255, 255, 255, 0.85);
-            --bg-hover: rgba(0, 0, 0, 0.05);
             --text-main: #0f172a;
-            --text-muted: #64748b;
-            --border-subtle: rgba(255, 255, 255, 0.4);
-            --border-strong: rgba(0, 0, 0, 0.1);
             --brand-primary: #007aff;
         }
         
@@ -84,577 +68,761 @@
             --bg-canvas: #0f172a;
             --bg-glass: rgba(15, 23, 42, 0.55);
             --bg-panel: rgba(30, 41, 59, 0.85);
-            --bg-hover: rgba(255, 255, 255, 0.1);
             --text-main: #f8fafc;
-            --text-muted: #94a3b8;
-            --border-subtle: rgba(255, 255, 255, 0.1);
-            --border-strong: rgba(255, 255, 255, 0.2);
             --brand-primary: #0a84ff;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif;
             background: var(--bg-canvas);
             color: var(--text-main);
             overflow: hidden;
             width: 100vw;
             height: 100vh;
             user-select: none;
-            -webkit-user-select: none;
             touch-action: none;
-            transition: background var(--duration-base) var(--ease-smooth), color var(--duration-base) var(--ease-smooth);
         }
-
-        button, input, textarea { font-family: inherit; border: none; outline: none; background: none; color: inherit; }
-        button { cursor: pointer; }
 
         #app-container {
             position: absolute;
             inset: 0;
-            z-index: var(--z-canvas);
             background: var(--bg-canvas);
-            transition: background var(--duration-base) var(--ease-smooth);
         }
         
         .grid-pattern {
             background-image: radial-gradient(var(--border-strong) 1px, transparent 1px);
             background-size: 32px 32px;
-            background-position: center;
         }
         
-        canvas.engine-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; }
+        canvas.engine-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
         #layer-base { z-index: 1; pointer-events: auto; }
         #layer-live { z-index: 2; }
         #layer-laser { z-index: 3; }
-        #layer-ui { z-index: 4; }
 
-        /* Minimap Widget */
-        .minimap-widget {
-            position: absolute;
-            bottom: 120px;
-            right: 24px;
-            z-index: var(--z-minimap);
-            width: 240px;
-            height: 160px;
-            background: var(--bg-panel);
-            backdrop-filter: blur(40px) saturate(200%);
-            -webkit-backdrop-filter: blur(40px) saturate(200%);
-            border: 1px solid var(--border-subtle);
-            border-radius: 20px;
-            box-shadow: var(--shadow-float), var(--shadow-glass);
+        /* Auth Gateway */
+        #auth-gateway {
+            position: fixed;
+            inset: 0;
+            z-index: var(--z-modal);
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(40px);
             display: flex;
-            flex-direction: column;
-            overflow: hidden;
-            transition: opacity var(--duration-base) var(--ease-smooth), transform var(--duration-base) var(--ease-spring);
-            transform-origin: bottom right;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .auth-panel {
+            background: var(--bg-panel);
+            backdrop-filter: blur(40px);
+            border-radius: 32px;
+            padding: 40px 32px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: var(--shadow-float);
+            border: 1px solid var(--border-subtle);
+            animation: slideUp 0.5s var(--ease-spring);
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(40px) scale(0.95); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .brand-header { text-align: center; margin-bottom: 32px; }
+        .brand-title { font-size: 36px; font-weight: 800; letter-spacing: -1px; }
+        .brand-title span { color: var(--brand-primary); }
+        
+        .form-group { margin-bottom: 20px; }
+        .form-label {
+            display: block;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+        }
+        .form-input {
+            width: 100%;
+            padding: 16px 20px;
+            background: var(--bg-base);
+            border: 1.5px solid var(--border-strong);
+            border-radius: 20px;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all var(--duration-fast);
+        }
+        .form-input:focus {
+            border-color: var(--brand-primary);
+            outline: none;
+            box-shadow: 0 0 0 4px var(--brand-alpha);
         }
         
-        .minimap-widget.is-hidden { opacity: 0 !important; transform: scale(0.8) translateY(40px) !important; pointer-events: none; }
+        .btn {
+            width: 100%;
+            padding: 16px;
+            border-radius: 20px;
+            font-size: 16px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all var(--duration-fast);
+            cursor: pointer;
+        }
+        .btn-primary {
+            background: var(--brand-primary);
+            color: white;
+            border: none;
+        }
+        .btn-primary:active { transform: scale(0.96); }
+        .btn-ghost {
+            background: var(--bg-base);
+            border: 1.5px solid var(--border-strong);
+            color: var(--text-main);
+        }
         
-        .minimap-header {
+        .auth-divider {
+            display: flex;
+            align-items: center;
+            margin: 24px 0;
+            color: var(--text-muted);
+            font-size: 12px;
+        }
+        .auth-divider::before,
+        .auth-divider::after {
+            content: '';
+            flex: 1;
+            border-bottom: 1px solid var(--text-muted);
+        }
+        .auth-divider span { padding: 0 16px; }
+
+        /* UI Overlay */
+        #ui-overlay {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            z-index: var(--z-ui);
+            display: none;
+        }
+
+        /* Top Bar */
+        .top-bar {
+            position: absolute;
+            top: 16px;
+            left: 16px;
+            right: 16px;
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            pointer-events: none;
+            z-index: 101;
+            flex-wrap: wrap;
+        }
+
+        .status-pill {
+            background: var(--bg-glass);
+            backdrop-filter: blur(40px);
+            border: 1px solid var(--border-subtle);
+            border-radius: 99px;
+            padding: 8px 16px;
+            font-size: 13px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            pointer-events: auto;
+            box-shadow: var(--shadow-float);
+        }
+
+        /* Bottom Dock */
+        .bottom-dock {
+            position: absolute;
+            bottom: 20px;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: center;
+            pointer-events: none;
+            z-index: 101;
+        }
+
+        .dock-content {
+            background: var(--bg-glass);
+            backdrop-filter: blur(50px);
+            border: 1px solid var(--border-subtle);
+            border-radius: 28px;
+            padding: 8px;
+            display: flex;
+            gap: 4px;
+            pointer-events: auto;
+            box-shadow: var(--shadow-float);
+            overflow-x: auto;
+            max-width: 95%;
+            scrollbar-width: none;
+        }
+        .dock-content::-webkit-scrollbar { display: none; }
+
+        .action-btn {
+            min-width: 48px;
+            height: 48px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-muted);
+            transition: all var(--duration-fast);
+            cursor: pointer;
+            background: transparent;
+            flex-shrink: 0;
+        }
+        .action-btn:active { transform: scale(0.92); }
+        .action-btn.is-active {
+            background: var(--brand-primary);
+            color: white;
+        }
+        
+        .color-indicator {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            border: 2px solid var(--bg-panel);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+        
+        .dock-sep {
+            width: 1px;
             height: 36px;
+            background: var(--border-strong);
+            margin: 0 4px;
+        }
+
+        /* Minimap */
+        .minimap-widget {
+            position: absolute;
+            bottom: 90px;
+            right: 16px;
+            width: 160px;
+            height: 110px;
+            background: var(--bg-panel);
+            backdrop-filter: blur(40px);
+            border-radius: 16px;
+            border: 1px solid var(--border-subtle);
+            overflow: hidden;
+            z-index: var(--z-minimap);
+            transition: all var(--duration-base);
+        }
+        .minimap-widget.is-hidden {
+            transform: scale(0.8);
+            opacity: 0;
+            pointer-events: none;
+        }
+        .minimap-body {
+            position: relative;
+            width: 100%;
+            height: calc(100% - 32px);
+        }
+        .minimap-header {
+            height: 32px;
             background: rgba(0,0,0,0.03);
             border-bottom: 1px solid var(--border-subtle);
             display: flex;
             align-items: center;
-            padding: 0 12px;
-            cursor: grab;
-            font-size: 11px;
+            justify-content: space-between;
+            padding: 0 10px;
+            font-size: 10px;
             font-weight: 700;
             color: var(--text-muted);
-            gap: 8px;
+            cursor: grab;
         }
-        
         .minimap-header:active { cursor: grabbing; }
-        .minimap-header span { flex: 1; letter-spacing: 0.5px; text-transform: uppercase; }
-        
         .minimap-close-btn {
-            width: 24px;
-            height: 24px;
+            width: 22px;
+            height: 22px;
             border-radius: 50%;
-            background: var(--bg-hover);
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: transform var(--duration-fast) var(--ease-spring), background var(--duration-fast);
+            cursor: pointer;
         }
-        
-        .minimap-close-btn:hover { background: var(--state-danger); color: white; transform: scale(1.1); }
-        .minimap-close-btn:active { transform: scale(0.9); }
-        
-        .minimap-body { flex: 1; position: relative; overflow: hidden; cursor: crosshair; }
-        #minimap-cvs { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0.8; }
+        #minimap-cvs {
+            width: 100%;
+            height: 100%;
+        }
         #minimap-view {
             position: absolute;
             border: 2px solid var(--brand-primary);
             background: var(--brand-alpha);
-            border-radius: 6px;
+            border-radius: 4px;
             pointer-events: none;
-            box-shadow: 0 0 0 9999px rgba(0,0,0,0.3);
-            transition: all 0.1s var(--ease-squish);
-            box-sizing: border-box;
-        }
-        
-        .minimap-resize-handle {
-            position: absolute; bottom: 0; right: 0; width: 20px; height: 20px; cursor: nwse-resize; z-index: 10;
-        }
-        
-        .minimap-resize-handle::after {
-            content: ''; position: absolute; bottom: 6px; right: 6px; width: 8px; height: 8px;
-            border-right: 2px solid var(--text-muted); border-bottom: 2px solid var(--text-muted); border-radius: 2px;
         }
 
-        /* Auth Gateway */
-        #auth-gateway {
-            position: fixed; inset: 0; z-index: var(--z-modal);
-            background: rgba(0,0,0,0.2);
-            backdrop-filter: blur(40px) saturate(150%);
-            -webkit-backdrop-filter: blur(40px) saturate(150%);
-            display: flex; align-items: center; justify-content: center; padding: 24px;
-            transition: opacity var(--duration-slow) var(--ease-smooth);
-        }
-        
-        .auth-panel {
-            background: var(--bg-panel);
-            border-radius: 32px;
-            padding: 48px;
-            width: 100%;
-            max-width: 420px;
-            box-shadow: var(--shadow-float), var(--shadow-glass);
-            border: 1px solid var(--border-subtle);
+        /* Drawers */
+        .backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(4px);
+            z-index: var(--z-overlay);
             opacity: 0;
-            transform: scale(0.85) translateY(30px);
-            animation: elasticPopIn 0.8s var(--ease-spring) forwards;
+            pointer-events: none;
+            transition: opacity 0.3s;
         }
-        
-        @keyframes elasticPopIn {
-            0% { transform: scale(0.85) translateY(30px); opacity: 0; }
-            100% { transform: scale(1) translateY(0); opacity: 1; }
+        .backdrop.is-visible {
+            opacity: 1;
+            pointer-events: auto;
         }
-        
-        .brand-header { text-align: center; margin-bottom: 40px; }
-        .brand-title { font-size: 38px; font-weight: 800; letter-spacing: -1px; }
-        .brand-title span { color: var(--brand-primary); }
-        .brand-subtitle { font-size: 13px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 2px; margin-top: 4px; }
-        
-        .form-group { margin-bottom: 24px; }
-        .form-label { display: block; font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 10px; padding-left: 4px; }
-        .form-input {
-            width: 100%; padding: 18px 24px;
+
+        .drawer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--bg-panel);
+            backdrop-filter: blur(40px);
+            border-radius: 28px 28px 0 0;
+            transform: translateY(100%);
+            transition: transform 0.4s var(--ease-spring);
+            z-index: calc(var(--z-overlay) + 1);
+            max-height: 80vh;
+            display: flex;
+            flex-direction: column;
+            pointer-events: auto;
+        }
+        .drawer.is-open {
+            transform: translateY(0);
+        }
+        .drawer.right {
+            border-radius: 28px 28px 0 0;
+        }
+        .drawer-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--border-strong);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 20px;
+            font-weight: 800;
+        }
+        .drawer-content {
+            padding: 20px;
+            overflow-y: auto;
+            flex: 1;
+        }
+        .btn-close {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
             background: var(--bg-base);
-            border: 1.5px solid var(--border-strong);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        /* Settings */
+        .settings-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+        .setting-card {
+            background: var(--bg-base);
+            border: 1px solid var(--border-strong);
             border-radius: 20px;
-            font-size: 16px; font-weight: 600;
-            box-shadow: var(--shadow-inner);
-            transition: all var(--duration-fast) var(--ease-spring);
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all var(--duration-fast);
+            text-align: center;
         }
-        .form-input:focus { border-color: var(--brand-primary); box-shadow: 0 0 0 4px var(--brand-alpha), var(--shadow-inner); transform: scale(1.02); }
+        .setting-card:active { transform: scale(0.96); }
+        .setting-card.danger { color: var(--state-danger); }
         
-        .btn {
-            width: 100%; padding: 18px; border-radius: 20px;
-            font-size: 16px; font-weight: 700;
-            display: flex; align-items: center; justify-content: center; gap: 10px;
-            transition: all var(--duration-fast) var(--ease-spring);
-            position: relative; overflow: hidden;
+        .slider-group {
+            background: var(--bg-base);
+            padding: 16px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 24px;
         }
-        .btn:active { transform: scale(0.95); }
-        .btn-primary { background: var(--brand-primary); color: #fff; box-shadow: 0 8px 20px var(--brand-alpha); border: 1px solid rgba(255,255,255,0.2); }
-        .btn-primary:hover { transform: translateY(-3px) scale(1.02); box-shadow: 0 12px 28px var(--brand-alpha); }
-        .btn-ghost { background: var(--bg-base); border: 1.5px solid var(--border-strong); color: var(--text-main); }
-        .btn-ghost:hover { background: var(--bg-hover); transform: translateY(-3px) scale(1.02); }
+        input[type="range"] {
+            flex: 1;
+            height: 6px;
+            -webkit-appearance: none;
+            background: var(--border-strong);
+            border-radius: 3px;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: var(--brand-primary);
+            cursor: pointer;
+            -webkit-appearance: none;
+        }
         
-        .auth-divider { display: flex; align-items: center; margin: 32px 0; color: var(--text-muted); font-size: 12px; font-weight: 700; opacity: 0.6; }
-        .auth-divider::before, .auth-divider::after { content: ''; flex: 1; border-bottom: 1px solid var(--text-muted); }
-        .auth-divider span { padding: 0 16px; }
+        .link-box {
+            background: var(--bg-base);
+            border-radius: 16px;
+            padding: 12px;
+            margin: 12px 0;
+            word-break: break-all;
+            font-size: 11px;
+            font-family: monospace;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+        }
+        .copy-btn {
+            padding: 6px 12px;
+            background: var(--brand-primary);
+            color: white;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 700;
+            flex-shrink: 0;
+            cursor: pointer;
+        }
 
-        /* UI Overlay */
-        #ui-overlay { position: absolute; inset: 0; pointer-events: none; z-index: var(--z-ui); display: none; transition: opacity 0.5s ease; }
-        
-        body.zen-mode #ui-overlay .nav-top,
-        body.zen-mode #ui-overlay .dock-bottom,
-        body.zen-mode #minimap-widget {
-            opacity: 0 !important; pointer-events: none !important;
-            transform: translateY(40px) scale(0.95) !important;
-            transition: all var(--duration-slow) var(--ease-spring) !important;
+        /* Color Wheel */
+        .color-wheel-wrapper {
+            width: 100%;
+            max-width: 260px;
+            margin: 0 auto 20px;
+            aspect-ratio: 1;
         }
-        
-        .zen-exit-btn {
-            position: fixed; top: 24px; right: 24px; z-index: 9999;
-            background: var(--bg-glass);
-            backdrop-filter: blur(30px) saturate(200%);
-            border: 1px solid var(--border-subtle); border-radius: 50%;
-            width: 52px; height: 52px;
-            display: none; align-items: center; justify-content: center;
-            color: var(--text-main); box-shadow: var(--shadow-float);
-            cursor: pointer; pointer-events: auto;
-            transition: all var(--duration-fast) var(--ease-spring);
+        #cvs-color-picker {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            cursor: crosshair;
         }
-        
-        .zen-exit-btn:hover { background: var(--bg-hover); transform: scale(1.1); }
-        body.zen-mode .zen-exit-btn { display: flex; animation: elasticPopIn 0.6s var(--ease-spring); }
+        .palette-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 12px;
+            margin-top: 20px;
+        }
+        .swatch-box {
+            aspect-ratio: 1;
+            border-radius: 12px;
+            cursor: pointer;
+            border: 2px solid var(--border-subtle);
+            transition: transform var(--duration-fast);
+        }
+        .swatch-box:active { transform: scale(0.92); }
 
-        /* Tooltip */
-        .tooltip {
-            position: absolute; bottom: calc(100% + 16px); left: 50%;
-            transform: translateX(-50%) translateY(15px) scale(0.8);
-            background: var(--text-main); color: var(--bg-canvas);
-            padding: 8px 14px; font-size: 13px; font-weight: 700;
-            border-radius: 10px; opacity: 0; pointer-events: none;
-            transition: all var(--duration-base) var(--ease-spring);
-            white-space: nowrap; box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+        /* Chat */
+        .chat-messages {
+            height: 50vh;
+            overflow-y: auto;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
         }
-        
-        .tooltip::after {
-            content: ''; position: absolute; top: 100%; left: 50%; transform: translateX(-50%);
-            border: 6px solid transparent; border-top-color: var(--text-main);
+        .msg-bubble {
+            max-width: 85%;
+            padding: 12px 16px;
+            border-radius: 20px;
+            font-size: 14px;
         }
-        
-        .action-btn:hover .tooltip { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
+        .msg-bubble.mine {
+            background: var(--brand-primary);
+            color: white;
+            align-self: flex-end;
+            border-bottom-right-radius: 6px;
+        }
+        .msg-bubble.other {
+            background: var(--bg-base);
+            border: 1px solid var(--border-strong);
+            align-self: flex-start;
+            border-bottom-left-radius: 6px;
+        }
+        .msg-info {
+            font-size: 11px;
+            font-weight: 700;
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .msg-time {
+            font-size: 10px;
+            margin-top: 4px;
+            opacity: 0.7;
+        }
+        .chat-composer {
+            padding: 16px;
+            border-top: 1px solid var(--border-strong);
+            display: flex;
+            gap: 12px;
+        }
+        .chat-input {
+            flex: 1;
+            padding: 12px 16px;
+            border-radius: 99px;
+            border: 1px solid var(--border-strong);
+            background: var(--bg-base);
+            font-size: 15px;
+        }
+        .chat-submit {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: var(--brand-primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
 
-        /* Top Navigation */
-        .nav-top {
-            position: absolute; top: 24px; left: 24px; right: 24px;
-            display: flex; justify-content: space-between; pointer-events: none;
-            transition: all var(--duration-base) var(--ease-spring);
+        /* Users */
+        .user-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            max-height: 55vh;
+            overflow-y: auto;
         }
-        
-        .nav-group { display: flex; gap: 12px; flex-wrap: wrap; }
-        
-        .status-pill {
-            background: var(--bg-glass);
-            backdrop-filter: blur(40px) saturate(200%);
-            border: 1px solid var(--border-subtle); border-radius: 99px;
-            padding: 10px 24px; font-size: 14px; font-weight: 700;
-            display: flex; align-items: center; gap: 10px; pointer-events: auto;
-            box-shadow: var(--shadow-float), var(--shadow-glass);
-            transition: transform var(--duration-fast) var(--ease-spring);
+        .user-card {
+            background: var(--bg-base);
+            border: 1px solid var(--border-strong);
+            border-radius: 20px;
+            padding: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
-        
-        .status-pill:hover { transform: scale(1.05); }
+        .user-meta {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 700;
+            font-size: 14px;
+        }
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--brand-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 800;
+            font-size: 16px;
+        }
+        .perm-actions {
+            display: flex;
+            gap: 8px;
+        }
+        .perm-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            background: var(--bg-panel);
+            border: 1px solid var(--border-strong);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+        .perm-btn.is-granted {
+            background: var(--brand-alpha);
+            color: var(--brand-primary);
+            border-color: var(--brand-primary);
+        }
 
-        /* Sub-toolbar */
-        .sub-toolbar {
-            position: absolute; bottom: 120px; left: 50%;
-            transform: translateX(-50%) translateY(30px) scale(0.9);
-            background: var(--bg-glass);
-            backdrop-filter: blur(40px) saturate(200%);
-            border: 1px solid var(--border-subtle); border-radius: 24px;
-            padding: 8px; display: flex; gap: 6px; opacity: 0; pointer-events: none;
-            transition: all var(--duration-base) var(--ease-spring);
-            box-shadow: var(--shadow-float), var(--shadow-glass);
-        }
-        
-        .sub-toolbar.is-visible { opacity: 1; pointer-events: auto; transform: translateX(-50%) translateY(0) scale(1); }
-
-        /* Bottom Dock */
-        .dock-bottom {
-            position: absolute; bottom: 32px; left: 0; right: 0;
-            display: flex; justify-content: center; pointer-events: none;
-            padding: 0 16px; transition: all var(--duration-base) var(--ease-spring);
-        }
-        
-        .dock-glass {
-            background: var(--bg-glass);
-            backdrop-filter: blur(50px) saturate(200%);
-            border: 1px solid var(--border-subtle); border-radius: 32px;
-            padding: 12px; display: flex; align-items: center; gap: 8px;
-            pointer-events: auto; box-shadow: var(--shadow-float), var(--shadow-glass);
-            animation: slideUpElastic 1s var(--ease-spring);
-            max-width: 100%; overflow-x: auto;
-            scroll-behavior: smooth;
-            -ms-overflow-style: none; scrollbar-width: none;
-        }
-        
-        .dock-glass::-webkit-scrollbar { display: none; }
-        
-        @keyframes slideUpElastic {
-            0% { transform: translateY(100px) scale(0.8); opacity: 0; }
-            100% { transform: translateY(0) scale(1); opacity: 1; }
-        }
-        
-        .dock-sep { width: 2px; height: 32px; background: var(--border-strong); margin: 0 8px; border-radius: 2px; flex-shrink: 0; }
-        
-        .action-btn {
-            width: 56px; height: 56px; border-radius: 20px;
-            display: flex; align-items: center; justify-content: center;
-            color: var(--text-muted); position: relative;
-            transition: all var(--duration-fast) var(--ease-spring);
-            flex-shrink: 0; background: transparent; cursor: pointer;
-        }
-        
-        .action-btn:hover { background: var(--bg-hover); color: var(--text-main); transform: translateY(-4px) scale(1.1); box-shadow: 0 8px 16px rgba(0,0,0,0.1); }
-        .action-btn:active { transform: translateY(2px) scale(0.9); }
-        .action-btn.is-active { background: var(--brand-primary); color: #fff; box-shadow: 0 8px 20px var(--brand-alpha); }
-        
-        .color-indicator {
-            width: 32px; height: 32px; border-radius: 50%;
-            border: 3px solid var(--bg-panel); box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-            transition: transform var(--duration-fast) var(--ease-spring);
-        }
-        
-        .action-btn:hover .color-indicator { transform: scale(1.2); }
-
-        /* Audio Module */
+        /* Audio Viz */
         .audio-module {
-            display: flex; align-items: center; gap: 12px;
-            background: var(--bg-base); padding: 0 20px;
-            height: 56px; border-radius: 20px;
-            border: 1px inset var(--border-strong); flex-shrink: 0;
-            box-shadow: var(--shadow-inner);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--bg-base);
+            padding: 0 12px;
+            height: 48px;
+            border-radius: 16px;
         }
-        
-        .viz-container { display: flex; align-items: center; gap: 4px; height: 24px; }
-        .viz-bar { width: 4px; min-height: 4px; background: var(--brand-primary); border-radius: 4px; transition: height 0.05s ease; }
-        
+        .viz-container {
+            display: flex;
+            align-items: center;
+            gap: 3px;
+            height: 24px;
+        }
+        .viz-bar {
+            width: 3px;
+            background: var(--brand-primary);
+            border-radius: 2px;
+            transition: height 0.05s;
+        }
         .mic-on { color: var(--state-success) !important; background: rgba(52, 199, 89, 0.15) !important; }
         .mic-off { color: var(--state-danger) !important; background: rgba(255, 59, 48, 0.1) !important; }
         
         .badge-counter {
-            position: absolute; top: -6px; right: -6px;
-            background: var(--state-danger); color: #fff;
-            font-size: 11px; font-weight: 800; min-width: 22px; height: 22px;
-            border-radius: 11px; display: flex; align-items: center; justify-content: center;
+            position: absolute;
+            top: -6px;
+            right: -6px;
+            background: var(--state-danger);
+            color: #fff;
+            font-size: 10px;
+            font-weight: 800;
+            min-width: 20px;
+            height: 20px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             border: 2px solid var(--bg-panel);
-            box-shadow: 0 4px 8px rgba(255,59,48,0.4);
-            animation: bounceIn 0.5s var(--ease-spring);
-        }
-        
-        @keyframes bounceIn { 0% {transform: scale(0)} 100% {transform: scale(1)} }
-
-        /* Drawers & Modals */
-        .backdrop {
-            position: fixed; inset: 0; background: rgba(0,0,0,0.4);
-            backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
-            z-index: var(--z-overlay); opacity: 0; pointer-events: none;
-            transition: opacity var(--duration-base) var(--ease-smooth);
-        }
-        
-        .backdrop.is-visible { opacity: 1; pointer-events: auto; }
-        
-        .drawer {
-            position: fixed; top: 0; bottom: 0; left: 0;
-            width: 100%; max-width: 420px;
-            background: var(--bg-panel);
-            backdrop-filter: blur(40px) saturate(200%);
-            border-right: 1px solid var(--border-subtle);
-            z-index: calc(var(--z-overlay) + 1);
-            transform: translateX(-100%);
-            transition: transform 0.6s var(--ease-spring);
-            display: flex; flex-direction: column;
-            box-shadow: var(--shadow-float);
-        }
-        
-        .drawer.right { left: auto; right: 0; border-right: none; border-left: 1px solid var(--border-subtle); transform: translateX(100%); }
-        .drawer.is-open { transform: translateX(0); }
-        
-        .drawer-header {
-            padding: 32px 32px 24px; border-bottom: 1px solid var(--border-strong);
-            display: flex; justify-content: space-between; align-items: center;
-            background: rgba(255,255,255,0.3);
-        }
-        
-        .drawer-title { font-size: 24px; font-weight: 800; display: flex; align-items: center; gap: 12px; }
-        
-        .btn-close {
-            width: 40px; height: 40px; border-radius: 50%; background: var(--bg-base);
-            display: flex; align-items: center; justify-content: center;
-            transition: all var(--duration-fast) var(--ease-spring);
-        }
-        
-        .btn-close:hover { background: var(--state-danger); color: white; transform: rotate(90deg) scale(1.1); }
-        
-        .drawer-content { flex: 1; overflow-y: auto; padding: 32px; scroll-behavior: smooth; }
-        .drawer-content::-webkit-scrollbar { width: 6px; }
-        .drawer-content::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 10px; }
-        
-        .section-label { font-size: 13px; font-weight: 800; text-transform: uppercase; color: var(--text-muted); margin-bottom: 16px; letter-spacing: 1px; }
-        
-        .slider-group {
-            display: flex; align-items: center; gap: 16px; background: var(--bg-base);
-            padding: 20px; border-radius: 20px; margin-bottom: 32px;
-            box-shadow: var(--shadow-inner); border: 1px solid var(--border-strong);
-        }
-        
-        input[type=range] { flex: 1; height: 8px; -webkit-appearance: none; background: var(--border-strong); border-radius: 4px; }
-        input[type=range]::-webkit-slider-thumb {
-            -webkit-appearance: none; width: 28px; height: 28px; border-radius: 50%;
-            background: #fff; border: 2px solid var(--border-subtle);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.2); cursor: pointer;
-            transition: transform var(--duration-fast) var(--ease-spring);
-        }
-        
-        .slider-val { font-weight: 800; font-family: monospace; font-size: 18px; width: 44px; text-align: right; color: var(--brand-primary); }
-        
-        .grid-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 32px; }
-        
-        .card-btn {
-            background: var(--bg-base); border: 1.5px solid var(--border-strong); border-radius: 20px;
-            padding: 24px 16px; display: flex; flex-direction: column; align-items: center; gap: 12px;
-            font-size: 14px; font-weight: 700; cursor: pointer; text-align: center;
-            transition: all var(--duration-fast) var(--ease-spring);
-        }
-        
-        .card-btn:hover { border-color: var(--brand-primary); color: var(--brand-primary); transform: translateY(-4px) scale(1.03); box-shadow: 0 12px 24px var(--brand-alpha); }
-        .card-btn.danger { color: var(--state-danger); }
-        .card-btn.danger:hover { border-color: var(--state-danger); background: rgba(255, 59, 48, 0.05); }
-
-        /* Color Wheel */
-        .color-wheel-wrapper { width: 100%; aspect-ratio: 1; max-width: 280px; margin: 0 auto 32px; position: relative; }
-        #cvs-color-picker { width: 100%; height: 100%; border-radius: 50%; cursor: crosshair; box-shadow: 0 8px 32px rgba(0,0,0,0.1), 0 0 0 8px var(--bg-base); }
-        
-        .palette-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px; }
-        
-        .swatch-box {
-            width: 100%; aspect-ratio: 1; border-radius: 12px; cursor: pointer;
-            border: 2px solid rgba(0,0,0,0.1); box-shadow: inset 0 2px 4px rgba(255,255,255,0.3);
-            transition: transform var(--duration-fast) var(--ease-spring);
-        }
-        
-        .swatch-box:hover { transform: scale(1.25) rotate(10deg); }
-
-        /* User List */
-        .user-list { display: flex; flex-direction: column; gap: 16px; }
-        
-        .user-card {
-            background: var(--bg-base); border: 1px solid var(--border-strong);
-            border-radius: 20px; padding: 16px; display: flex; justify-content: space-between; align-items: center;
-            box-shadow: var(--shadow-inner);
-        }
-        
-        .user-meta { display: flex; align-items: center; gap: 14px; font-weight: 700; font-size: 15px; }
-        
-        .avatar {
-            width: 44px; height: 44px; border-radius: 50%; background: var(--brand-primary); color: #fff;
-            display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 800;
-            box-shadow: 0 4px 10px var(--brand-alpha);
-        }
-        
-        .perm-actions { display: flex; gap: 10px; }
-        
-        .perm-btn {
-            width: 44px; height: 44px; border-radius: 14px; background: var(--bg-panel); border: 1.5px solid var(--border-strong);
-            display: flex; align-items: center; justify-content: center; color: var(--text-muted);
-            transition: all var(--duration-fast) var(--ease-spring);
-        }
-        
-        .host-active .perm-btn { cursor: pointer; }
-        .host-active .perm-btn:hover { border-color: var(--text-main); color: var(--text-main); transform: scale(1.1); }
-        .perm-btn.is-granted { background: var(--brand-alpha); color: var(--brand-primary); border-color: var(--brand-primary); }
-
-        /* Chat */
-        .chat-layout { display: flex; flex-direction: column; height: 100%; }
-        .chat-messages { flex: 1; overflow-y: auto; padding: 24px; display: flex; flex-direction: column; gap: 20px; }
-        
-        .msg-bubble {
-            max-width: 85%; padding: 14px 18px; border-radius: 20px; font-size: 15px; line-height: 1.5;
-            animation: elasticPopIn 0.5s var(--ease-spring); word-wrap: break-word; box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-        }
-        
-        .msg-bubble.mine { background: var(--brand-primary); color: #fff; align-self: flex-end; border-bottom-right-radius: 6px; }
-        .msg-bubble.other { background: var(--bg-base); border: 1px solid var(--border-strong); align-self: flex-start; border-bottom-left-radius: 6px; }
-        
-        .msg-info { font-size: 12px; font-weight: 800; margin-bottom: 6px; opacity: 0.9; display: flex; align-items: center; gap: 6px; }
-        .msg-time { font-size: 10px; text-align: right; margin-top: 8px; opacity: 0.7; font-weight: 600; }
-        
-        .chat-composer { padding: 20px 24px; border-top: 1px solid var(--border-strong); display: flex; gap: 12px; background: var(--bg-panel); }
-        
-        .chat-input {
-            flex: 1; padding: 16px 20px; border-radius: 99px; border: 1.5px solid var(--border-strong);
-            background: var(--bg-canvas); font-size: 15px; transition: all var(--duration-fast) var(--ease-spring);
-        }
-        
-        .chat-input:focus { border-color: var(--brand-primary); box-shadow: 0 0 0 4px var(--brand-alpha); transform: scale(1.02); }
-        
-        .chat-submit {
-            width: 52px; height: 52px; border-radius: 50%; background: var(--brand-primary); color: #fff;
-            display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px var(--brand-alpha);
-            transition: all var(--duration-fast) var(--ease-spring); flex-shrink: 0;
         }
 
         /* Modal */
         .modal-box {
-            position: absolute; top: 50%; left: 50%;
-            transform: translate(-50%, -50%) scale(0.85);
-            background: var(--bg-panel); backdrop-filter: blur(40px);
-            padding: 32px; border-radius: 32px; width: 90%; max-width: 420px;
-            box-shadow: var(--shadow-float), var(--shadow-glass); border: 1px solid var(--border-subtle);
-            opacity: 0; pointer-events: none; transition: all 0.5s var(--ease-spring);
-            z-index: calc(var(--z-modal) + 1);
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.9);
+            background: var(--bg-panel);
+            backdrop-filter: blur(40px);
+            border-radius: 28px;
+            padding: 24px;
+            width: 90%;
+            max-width: 340px;
+            z-index: var(--z-modal);
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.3s var(--ease-spring);
         }
-        
-        .modal-box.is-visible { transform: translate(-50%, -50%) scale(1); opacity: 1; pointer-events: auto; }
-        
+        .modal-box.is-visible {
+            opacity: 1;
+            pointer-events: auto;
+            transform: translate(-50%, -50%) scale(1);
+        }
         .modal-box textarea {
-            width: 100%; min-height: 140px; padding: 20px; border-radius: 20px;
-            border: 1.5px solid var(--border-strong); background: var(--bg-base);
-            font-size: 16px; resize: none; margin: 24px 0; box-shadow: var(--shadow-inner);
+            width: 100%;
+            padding: 16px;
+            border-radius: 16px;
+            border: 1px solid var(--border-strong);
+            background: var(--bg-base);
+            font-size: 15px;
+            margin: 16px 0;
+            resize: none;
         }
-        
-        .modal-actions { display: flex; justify-content: flex-end; gap: 12px; }
+        .modal-actions {
+            display: flex;
+            gap: 12px;
+        }
 
         /* Toast */
-        .toast-wrapper { position: fixed; top: 32px; left: 50%; transform: translateX(-50%); z-index: var(--z-toast); display: flex; flex-direction: column; gap: 12px; pointer-events: none; }
-        
-        .toast-item {
-            background: var(--bg-panel); backdrop-filter: blur(30px);
-            color: var(--text-main); padding: 16px 28px; border-radius: 99px;
-            font-weight: 700; font-size: 15px; box-shadow: var(--shadow-float);
-            display: flex; align-items: center; gap: 14px; border: 1px solid var(--border-subtle);
-            animation: toastElastic 0.6s var(--ease-spring) forwards;
+        .toast-wrapper {
+            position: fixed;
+            top: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            pointer-events: none;
         }
-        
-        @keyframes toastElastic { 0% { opacity: 0; transform: translateY(-50px) scale(0.8); } 100% { opacity: 1; transform: translateY(0) scale(1); } }
-        .toast-item.error { border-left: 6px solid var(--state-danger); }
-        .toast-item.success { border-left: 6px solid var(--state-success); }
-        .toast-item.warning { border-left: 6px solid var(--state-warning); }
+        .toast-item {
+            background: var(--bg-panel);
+            backdrop-filter: blur(40px);
+            padding: 12px 20px;
+            border-radius: 99px;
+            font-weight: 700;
+            font-size: 14px;
+            box-shadow: var(--shadow-float);
+            animation: toastIn 0.3s var(--ease-spring);
+        }
+        @keyframes toastIn {
+            from { opacity: 0; transform: translateY(-20px) scale(0.9); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        .toast-item.error { border-left: 4px solid var(--state-danger); }
+        .toast-item.success { border-left: 4px solid var(--state-success); }
+
+        /* Zen Mode */
+        body.zen-mode .top-bar,
+        body.zen-mode .bottom-dock,
+        body.zen-mode .minimap-widget {
+            opacity: 0;
+            pointer-events: none;
+            transform: translateY(20px);
+        }
+        .zen-exit-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: var(--bg-glass);
+            backdrop-filter: blur(40px);
+            border: 1px solid var(--border-subtle);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            cursor: pointer;
+        }
+        body.zen-mode .zen-exit-btn { display: flex; }
 
         /* Mobile */
         @media (max-width: 768px) {
-            .drawer { max-width: 100%; border-radius: 32px 32px 0 0; top: auto; height: 90vh; transform: translateY(100%); border-right: none; border-top: 1px solid var(--border-subtle); }
-            .drawer.is-open { transform: translateY(0); }
-            .drawer.right { transform: translateY(100%); }
-            
-            .nav-top { flex-direction: column; gap: 12px; left: 16px; right: 16px; top: 16px; }
-            .dock-bottom { padding: 0 12px; bottom: 20px; }
-            .dock-glass { border-radius: 28px; padding: 10px; gap: 6px; width: 100%; justify-content: flex-start; }
-            .action-btn { width: 50px; height: 50px; border-radius: 16px; }
-            .audio-module { display: none; }
-            .tooltip { display: none !important; }
-            .minimap-widget { bottom: 100px; right: 16px; width: 160px; height: 110px; border-radius: 16px; }
-            .sub-toolbar { bottom: 90px; }
-            #auth-gateway { padding: 16px; align-items: flex-end; }
-            .auth-panel { padding: 32px 24px; border-radius: 32px 32px 24px 24px; max-width: 100%; margin-bottom: 20px; }
+            .action-btn { min-width: 44px; height: 44px; }
+            .status-pill { padding: 6px 12px; font-size: 11px; }
+            .dock-content { padding: 6px; gap: 2px; }
+            .minimap-widget { width: 130px; height: 90px; bottom: 80px; right: 12px; }
+            .drawer { max-height: 85vh; }
+            .chat-messages { height: 45vh; }
+            .user-list { max-height: 50vh; }
+            .top-bar { top: 12px; left: 12px; right: 12px; }
         }
     </style>
 </head>
 <body>
 
-    <div id="webrtc-audio-pool" style="display: none;"></div>
     <div id="toast-wrapper" class="toast-wrapper"></div>
-
-    <button class="zen-exit-btn" id="btn-exit-zen" title="To'liq ekrandan chiqish">
-        <i data-lucide="minimize"></i>
-    </button>
+    <button class="zen-exit-btn" id="btn-exit-zen"><i data-lucide="maximize-2"></i></button>
 
     <div id="auth-gateway">
         <div class="auth-panel">
             <div class="brand-header">
                 <h1 class="brand-title">MR <span>BOARD</span></h1>
-                <p class="brand-subtitle">Enterprise Edition</p>
+                <p style="font-size: 12px; color: var(--text-muted); margin-top: 8px;">Enterprise Edition</p>
             </div>
             <div class="form-group">
                 <label class="form-label">Ismingiz</label>
-                <input type="text" id="auth-name-inp" class="form-input" placeholder="Ismni kiriting" maxlength="25" autocomplete="off">
+                <input type="text" id="auth-name-inp" class="form-input" placeholder="Ismni kiriting" maxlength="25">
             </div>
             <button class="btn btn-primary" id="btn-create-room">
-                <i data-lucide="shield-check"></i> Yangi Xona (O'qituvchi)
+                <i data-lucide="plus-circle"></i> Yangi Xona (O'qituvchi)
             </button>
-            <div class="auth-divider"><span>YOKI MAVJUD XONAGA KIRISH</span></div>
+            <div class="auth-divider"><span>yoki</span></div>
             <div class="form-group">
                 <label class="form-label">Xona Kodi</label>
-                <input type="text" id="auth-room-inp" class="form-input" placeholder="XXXXXX" style="text-transform: uppercase;" maxlength="6" autocomplete="off">
+                <input type="text" id="auth-room-inp" class="form-input" placeholder="XXXXXX" maxlength="6" style="text-transform: uppercase;">
             </div>
             <button class="btn btn-ghost" id="btn-join-room">
                 <i data-lucide="log-in"></i> Xonaga Ulanish (O'quvchi)
@@ -666,139 +834,135 @@
         <canvas id="layer-base" class="engine-layer"></canvas>
         <canvas id="layer-live" class="engine-layer"></canvas>
         <canvas id="layer-laser" class="engine-layer"></canvas>
-        <canvas id="layer-ui" class="engine-layer"></canvas>
 
         <div class="minimap-widget" id="minimap-widget">
             <div class="minimap-header" id="minimap-header">
-                <i data-lucide="map" size="14"></i>
-                <span>Kuzatuv doskasi</span>
-                <button class="minimap-close-btn" id="btn-close-minimap"><i data-lucide="x" size="14"></i></button>
+                <i data-lucide="map" size="12"></i>
+                <span>Kuzatuv</span>
+                <button class="minimap-close-btn" id="btn-close-minimap"><i data-lucide="x" size="12"></i></button>
             </div>
             <div class="minimap-body">
                 <canvas id="minimap-cvs"></canvas>
                 <div id="minimap-view"></div>
             </div>
-            <div class="minimap-resize-handle" id="minimap-resize-handle"></div>
         </div>
     </div>
 
     <div id="ui-overlay">
-        <div class="nav-top">
-            <div class="nav-group">
-                <div class="status-pill" title="Xona Kodi">
-                    <i data-lucide="hash"></i>
-                    <span id="ui-room-code">---</span>
-                </div>
-                <div class="status-pill" title="Masshtab">
-                    <i data-lucide="search"></i>
-                    <span id="ui-zoom-level">100%</span>
-                </div>
+        <div class="top-bar">
+            <div class="status-pill">
+                <i data-lucide="hash"></i>
+                <span id="ui-room-code">---</span>
+            </div>
+            <div class="status-pill">
+                <i data-lucide="zoom-in"></i>
+                <span id="ui-zoom-level">100%</span>
             </div>
             <div class="status-pill" id="ui-user-role">
                 <i data-lucide="eye"></i> Kuzatuvchi
             </div>
         </div>
 
-        <div class="sub-toolbar" id="toolbar-shapes">
-            <button class="action-btn" data-tool="rect"><i data-lucide="square"></i><span class="tooltip">To'rtburchak</span></button>
-            <button class="action-btn" data-tool="circle"><i data-lucide="circle"></i><span class="tooltip">Aylana</span></button>
-            <button class="action-btn" data-tool="line"><i data-lucide="minus"></i><span class="tooltip">Chiziq</span></button>
-            <button class="action-btn" data-tool="arrow"><i data-lucide="arrow-up-right"></i><span class="tooltip">O'q</span></button>
-        </div>
-
-        <div class="dock-bottom">
-            <div class="dock-glass">
-                <button class="action-btn" id="btn-open-settings"><i data-lucide="settings-2"></i><span class="tooltip">Sozlamalar</span></button>
-                <button class="action-btn" id="btn-open-colors"><div class="color-indicator" id="ui-current-color" style="background: #007aff;"></div><span class="tooltip">Rang palitrasi</span></button>
+        <div class="bottom-dock">
+            <div class="dock-content">
+                <button class="action-btn" id="btn-open-settings"><i data-lucide="settings"></i></button>
+                <button class="action-btn" id="btn-open-colors"><div class="color-indicator" id="ui-current-color" style="background: #007aff;"></div></button>
                 <div class="dock-sep"></div>
-                <button class="action-btn is-active" data-tool="draw"><i data-lucide="pencil"></i><span class="tooltip">Qalam (B)</span></button>
-                <button class="action-btn" data-tool="laser"><i data-lucide="wand-2" style="color: var(--state-danger)"></i><span class="tooltip">Lazer (L)</span></button>
-                <button class="action-btn" id="btn-toggle-shapes"><i data-lucide="shapes"></i><span class="tooltip">Shakllar (S)</span></button>
-                <button class="action-btn" data-tool="erase"><i data-lucide="eraser"></i><span class="tooltip">O'chirg'ich (E)</span></button>
-                <button class="action-btn" data-tool="pan"><i data-lucide="hand"></i><span class="tooltip">Surish (H)</span></button>
-                <button class="action-btn" data-tool="text"><i data-lucide="type"></i><span class="tooltip">Matn (T)</span></button>
-                <button class="action-btn" id="btn-action-undo"><i data-lucide="undo-2"></i><span class="tooltip">Bekor qilish</span></button>
+                <button class="action-btn is-active" data-tool="draw"><i data-lucide="pencil"></i></button>
+                <button class="action-btn" data-tool="laser"><i data-lucide="wand-2"></i></button>
+                <button class="action-btn" id="btn-toggle-shapes"><i data-lucide="shapes"></i></button>
+                <button class="action-btn" data-tool="erase"><i data-lucide="eraser"></i></button>
+                <button class="action-btn" data-tool="pan"><i data-lucide="hand"></i></button>
+                <button class="action-btn" data-tool="text"><i data-lucide="type"></i></button>
+                <button class="action-btn" id="btn-action-undo"><i data-lucide="undo-2"></i></button>
                 <div class="dock-sep"></div>
                 
                 <div class="audio-module">
-                    <i data-lucide="activity" size="16"></i>
+                    <i data-lucide="activity" size="14"></i>
                     <div class="viz-container" id="eq-container">
                         <div class="viz-bar"></div><div class="viz-bar"></div><div class="viz-bar"></div>
                         <div class="viz-bar"></div><div class="viz-bar"></div><div class="viz-bar"></div>
                     </div>
                 </div>
                 
-                <button class="action-btn mic-off" id="btn-action-mic"><i data-lucide="mic-off"></i><span class="tooltip">Mikrofon (M)</span></button>
-                <button class="action-btn" id="btn-open-chat"><i data-lucide="message-square"></i><div class="badge-counter" id="badge-chat-count" style="display: none;">0</div><span class="tooltip">Chat (C)</span></button>
-                <button class="action-btn" id="btn-open-users"><i data-lucide="users"></i><div class="badge-counter" id="badge-users-count">0</div><span class="tooltip">Foydalanuvchilar (U)</span></button>
+                <button class="action-btn mic-off" id="btn-action-mic"><i data-lucide="mic-off"></i></button>
+                <button class="action-btn" id="btn-open-chat"><i data-lucide="message-square"></i><div class="badge-counter" id="badge-chat-count" style="display: none;">0</div></button>
+                <button class="action-btn" id="btn-open-users"><i data-lucide="users"></i><div class="badge-counter" id="badge-users-count">0</div></button>
                 <div class="dock-sep"></div>
-                <button class="action-btn" id="btn-action-fullscreen"><i data-lucide="maximize"></i><span class="tooltip">To'liq ekran (F)</span></button>
-                <button class="action-btn" id="btn-action-exit"><i data-lucide="log-out" style="color: var(--state-danger)"></i><span class="tooltip">Chiqish</span></button>
+                <button class="action-btn" id="btn-action-fullscreen"><i data-lucide="maximize"></i></button>
+                <button class="action-btn" id="btn-action-exit"><i data-lucide="log-out" style="color: var(--state-danger)"></i></button>
             </div>
         </div>
     </div>
 
     <div class="backdrop" id="drawer-backdrop"></div>
 
+    <!-- Settings Drawer -->
     <div class="drawer" id="drawer-settings">
         <div class="drawer-header">
             <div class="drawer-title"><i data-lucide="settings"></i> Sozlamalar</div>
             <button class="btn-close" data-close><i data-lucide="x"></i></button>
         </div>
         <div class="drawer-content">
-            <div class="section-label">Asbob qalinligi</div>
+            <div class="section-label" style="font-size:12px; font-weight:800; margin-bottom:12px;">Asbob qalinligi</div>
             <div class="slider-group">
                 <i data-lucide="pen-tool"></i>
                 <input type="range" id="inp-tool-size" min="1" max="50" value="4">
-                <div class="slider-val"><span id="val-tool-size">4</span>px</div>
+                <span id="val-tool-size" style="font-weight:700;">4px</span>
             </div>
             
-            <div class="section-label">Ko'rinish</div>
-            <div class="grid-layout">
-                <button class="card-btn" id="act-theme-light"><i data-lucide="sun" size="24"></i>Yorug'</button>
-                <button class="card-btn" id="act-theme-dark"><i data-lucide="moon" size="24"></i>Qorong'u</button>
-                <button class="card-btn" id="act-theme-auto"><i data-lucide="laptop" size="24"></i>Tizimga mos</button>
-                <button class="card-btn" id="act-toggle-minimap"><i data-lucide="map" size="24"></i>Minimap</button>
-                <button class="card-btn" id="act-center"><i data-lucide="target" size="24"></i>Markaz</button>
+            <div class="section-label" style="font-size:12px; font-weight:800; margin-bottom:12px;">Ko'rinish</div>
+            <div class="settings-grid">
+                <button class="setting-card" id="act-theme-light"><i data-lucide="sun"></i>Yorug'</button>
+                <button class="setting-card" id="act-theme-dark"><i data-lucide="moon"></i>Qorong'u</button>
+                <button class="setting-card" id="act-theme-auto"><i data-lucide="laptop"></i>Tizim</button>
+                <button class="setting-card" id="act-toggle-minimap"><i data-lucide="map"></i>Minimap</button>
+                <button class="setting-card" id="act-center"><i data-lucide="target"></i>Markaz</button>
             </div>
 
-            <div class="section-label">Asosiy amallar</div>
-            <div class="grid-layout">
-                <button class="card-btn" id="act-undo"><i data-lucide="undo-2" size="24"></i>Bekor qilish</button>
-                <button class="card-btn" id="act-image"><i data-lucide="image" size="24"></i>Rasm yuklash</button>
-                <button class="card-btn" id="act-export"><i data-lucide="download" size="24"></i>PNG saqlash</button>
-            </div>
-            
-            <div class="section-label">Loyiha</div>
-            <div class="grid-layout">
-                <button class="card-btn" style="color: var(--state-success);" id="act-save-json"><i data-lucide="save" size="24"></i>Saqlash</button>
-                <button class="card-btn" id="act-load-json"><i data-lucide="folder-open" size="24"></i>Yuklash</button>
+            <div class="section-label" style="font-size:12px; font-weight:800; margin-bottom:12px;">Asosiy amallar</div>
+            <div class="settings-grid">
+                <button class="setting-card" id="act-undo"><i data-lucide="undo-2"></i>Bekor</button>
+                <button class="setting-card" id="act-image"><i data-lucide="image"></i>Rasm</button>
+                <button class="setting-card" id="act-export"><i data-lucide="download"></i>PNG</button>
+                <button class="setting-card" id="act-save-json"><i data-lucide="save"></i>Saqlash</button>
+                <button class="setting-card" id="act-load-json"><i data-lucide="folder-open"></i>Yuklash</button>
             </div>
             
             <div id="panel-host-controls" style="display: none;">
-                <div class="section-label" style="color: var(--state-danger); margin-top: 16px;">O'qituvchi Paneli</div>
-                <div class="grid-layout" style="grid-template-columns: 1fr;">
-                    <button class="card-btn danger" id="act-clear-board"><i data-lucide="trash-2" size="24"></i>Doskani tozalash</button>
-                    <button class="card-btn danger" id="act-disable-laser"><i data-lucide="wand-2" size="24"></i>Lazer o'chirish</button>
+                <div class="section-label" style="font-size:12px; font-weight:800; margin:16px 0 12px; color: var(--state-danger);">O'qituvchi Paneli</div>
+                <div class="settings-grid" style="grid-template-columns: 1fr;">
+                    <button class="setting-card danger" id="act-clear-board"><i data-lucide="trash-2"></i>Doskani tozalash</button>
+                    <button class="setting-card danger" id="act-disable-laser"><i data-lucide="wand-2"></i>Lazer o'chirish</button>
+                </div>
+                
+                <div class="section-label" style="font-size:12px; font-weight:800; margin:16px 0 12px;">Xona linklari</div>
+                <div class="link-box" id="teacher-link-box" style="display: none;">
+                    <span id="teacher-link-text" style="font-size:10px;"></span>
+                    <button class="copy-btn" data-copy="teacher">Nusxa</button>
+                </div>
+                <div class="link-box" id="student-link-box" style="display: none;">
+                    <span id="student-link-text" style="font-size:10px;"></span>
+                    <button class="copy-btn" data-copy="student">Nusxa</button>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- Colors Drawer -->
     <div class="drawer" id="drawer-colors">
         <div class="drawer-header">
             <div class="drawer-title"><i data-lucide="palette"></i> Ranglar</div>
             <button class="btn-close" data-close><i data-lucide="x"></i></button>
         </div>
         <div class="drawer-content">
-            <div class="color-wheel-wrapper"><canvas id="cvs-color-picker" width="280" height="280"></canvas></div>
-            <div class="section-label">Yorqinlik</div>
+            <div class="color-wheel-wrapper"><canvas id="cvs-color-picker" width="260" height="260"></canvas></div>
             <div class="slider-group"><i data-lucide="sun"></i><input type="range" id="inp-color-bright" min="0" max="100" value="100"></div>
-            <div class="section-label">Tezkor ranglar</div>
             <div class="palette-grid" id="ui-quick-palette"></div>
         </div>
     </div>
 
+    <!-- Users Drawer -->
     <div class="drawer right" id="drawer-users">
         <div class="drawer-header">
             <div class="drawer-title"><i data-lucide="users"></i> Qatnashchilar</div>
@@ -809,76 +973,122 @@
         </div>
     </div>
 
+    <!-- Chat Drawer -->
     <div class="drawer right" id="drawer-chat">
         <div class="drawer-header">
             <div class="drawer-title"><i data-lucide="message-square"></i> Chat</div>
             <button class="btn-close" data-close><i data-lucide="x"></i></button>
         </div>
-        <div class="chat-layout">
-            <div class="chat-messages" id="ui-chat-messages"></div>
-            <div class="chat-composer">
-                <input type="text" id="inp-chat-text" class="chat-input" placeholder="Xabar yozing..." maxlength="250" autocomplete="off">
-                <button class="chat-submit" id="btn-submit-chat"><i data-lucide="send" size="20"></i></button>
+        <div class="chat-messages" id="ui-chat-messages"></div>
+        <div class="chat-composer">
+            <input type="text" id="inp-chat-text" class="chat-input" placeholder="Xabar yozing..." maxlength="250">
+            <button class="chat-submit" id="btn-submit-chat"><i data-lucide="send"></i></button>
+        </div>
+    </div>
+
+    <!-- Shapes Drawer -->
+    <div class="drawer" id="drawer-shapes">
+        <div class="drawer-header">
+            <div class="drawer-title"><i data-lucide="shapes"></i> Shakllar</div>
+            <button class="btn-close" data-close><i data-lucide="x"></i></button>
+        </div>
+        <div class="drawer-content">
+            <div class="settings-grid">
+                <button class="setting-card" data-tool="rect"><i data-lucide="square"></i>To'rtburchak</button>
+                <button class="setting-card" data-tool="circle"><i data-lucide="circle"></i>Aylana</button>
+                <button class="setting-card" data-tool="line"><i data-lucide="minus"></i>Chiziq</button>
+                <button class="setting-card" data-tool="arrow"><i data-lucide="arrow-up-right"></i>O'q</button>
             </div>
         </div>
     </div>
 
+    <!-- Text Modal -->
     <div class="modal-box" id="modal-text-input">
-        <h2 style="font-size: 22px; font-weight: 800; text-align: center;">Matn kiritish</h2>
-        <textarea id="inp-text-area" placeholder="Matnni yozing (max 300 belgi)" maxlength="300"></textarea>
+        <h3 style="text-align: center; font-size: 20px;">Matn kiritish</h3>
+        <textarea id="inp-text-area" placeholder="Matnni yozing..." maxlength="300"></textarea>
         <div class="modal-actions">
-            <button class="btn btn-ghost" id="btn-cancel-text">Bekor qilish</button>
+            <button class="btn btn-ghost" id="btn-cancel-text">Bekor</button>
             <button class="btn btn-primary" id="btn-add-text">Qo'shish</button>
         </div>
     </div>
 
-    <input type="file" id="sys-file-img" accept="image/png, image/jpeg, image/webp" style="display: none;">
-    <input type="file" id="sys-file-json" accept=".mrboard, .json" style="display: none;">
+    <input type="file" id="sys-file-img" accept="image/*" style="display: none;">
+    <input type="file" id="sys-file-json" accept=".json" style="display: none;">
 
     <script>
         (function() {
-            'use strict';
             lucide.createIcons();
-
-            class Utils {
-                static generateId(prefix = 'ID') { return `${prefix}_${Math.random().toString(36).slice(2, 11)}_${Date.now().toString(36)}`; }
-                static sanitize(str) { return String(str).replace(/[&<>"'/]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;', "/": '&#x2F;' }[m])); }
-                static throttle(fn, wait) { let last = 0; return function(...args) { const now = Date.now(); if (now - last >= wait) { fn.apply(this, args); last = now; } }; }
-                static vibrate(pattern) { if (navigator.vibrate) navigator.vibrate(pattern); }
-                static readFile(file, asText = false) { return new Promise((res, rej) => { const r = new FileReader(); r.onload = e => res(e.target.result); r.onerror = rej; asText ? r.readAsText(file) : r.readAsDataURL(file); }); }
-                static getTime() { return new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }); }
-                static generateTeacherCode() { 
+            
+            // ==================== UTILS ====================
+            const Utils = {
+                generateId: () => `${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+                sanitize: (str) => String(str).replace(/[&<>]/g, (m) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m])),
+                throttle: (fn, delay) => { let last = 0; return (...args) => { const now = Date.now(); if (now - last >= delay) { fn(...args); last = now; } }; },
+                vibrate: (p) => navigator.vibrate && navigator.vibrate(p),
+                getTime: () => new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                generateTeacherCode: () => {
+                    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyz';
+                    let r = '';
+                    for (let i = 0; i < 16; i++) r += chars[Math.floor(Math.random() * chars.length)];
+                    return r;
+                },
+                generateStudentCode: () => {
                     const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ0123456789';
-                    let result = '';
-                    for (let i = 0; i < 16; i++) result += chars[Math.floor(Math.random() * chars.length)];
-                    return result;
+                    let r = '';
+                    for (let i = 0; i < 6; i++) r += chars[Math.floor(Math.random() * chars.length)];
+                    return r;
+                },
+                copyToClipboard: (text) => {
+                    navigator.clipboard.writeText(text).then(() => {
+                        showToast("Link nusxalandi!", "success");
+                    }).catch(() => showToast("Nusxalashda xatolik", "error"));
                 }
-                static generateStudentCode() {
-                    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ0123456789';
-                    let result = '';
-                    for (let i = 0; i < 6; i++) result += chars[Math.floor(Math.random() * chars.length)];
-                    return result;
-                }
-            }
-
-            class EventEmitter {
-                constructor() { this.events = {}; }
-                on(event, listener) { if (!this.events[event]) this.events[event] = []; this.events[event].push(listener); }
-                emit(event, data) { if (this.events[event]) this.events[event].forEach(l => l(data)); }
-            }
-            const AppEvents = new EventEmitter();
-
-            const Store = {
-                uid: Utils.generateId('USR'), name: '', isTeacher: false, roomId: '', teacherSecret: '',
-                perms: { draw: false, speak: false }, micActive: false, tool: 'draw', color: '#007aff', size: 4,
-                cam: { x: 0, y: 0, z: 1 }, db: { els: [], live: {}, laser: {}, curs: {}, peers: {} },
-                unread: 0, textCtx: null, lastChat: 0, minimapVisible: true, isFullscreen: false,
-                maxElements: 500, laserEnabled: true
             };
-
-            class FirebaseService {
-                constructor() { this.ref = null; }
-                init(roomId, teacherSecret = null) {
+            
+            function showToast(msg, type = "info") {
+                const container = document.getElementById('toast-wrapper');
+                const toast = document.createElement('div');
+                toast.className = `toast-item ${type}`;
+                toast.innerHTML = `<span>${msg}</span>`;
+                container.appendChild(toast);
+                setTimeout(() => toast.remove(), 3000);
+            }
+            
+            // ==================== STORE ====================
+            const Store = {
+                uid: Utils.generateId(),
+                name: '',
+                isTeacher: false,
+                roomId: '',
+                teacherSecret: '',
+                perms: { draw: false, speak: false },
+                micActive: false,
+                tool: 'draw',
+                color: '#007aff',
+                size: 4,
+                cam: { x: 0, y: 0, z: 1 },
+                elements: [],
+                livePaths: {},
+                laserPaths: {},
+                cursors: {},
+                users: {},
+                unread: 0,
+                textPos: null,
+                laserEnabled: true,
+                minimapVisible: true
+            };
+            
+            // ==================== EVENTS ====================
+            const Events = new (class {
+                constructor() { this.l = {}; }
+                on(e, fn) { if (!this.l[e]) this.l[e] = []; this.l[e].push(fn); }
+                emit(e, d) { if (this.l[e]) this.l[e].forEach(fn => fn(d)); }
+            })();
+            
+            // ==================== FIREBASE ====================
+            let dbRef = null;
+            const DB = {
+                init(roomId, teacherSecret) {
                     if (!firebase.apps.length) {
                         firebase.initializeApp({
                             apiKey: "AIzaSyDvbG7fChb2LN_nJhwTF1iMKMXNPcuGk5Y",
@@ -886,689 +1096,737 @@
                             projectId: "tictactoe-26434"
                         });
                     }
-                    this.ref = firebase.database().ref(`mr_enterprise_v2/${roomId}`);
-                    const me = this.ref.child(`users/${Store.uid}`);
+                    dbRef = firebase.database().ref(`mrboard_final/${roomId}`);
+                    
+                    const me = dbRef.child(`users/${Store.uid}`);
                     me.onDisconnect().remove();
-
+                    me.set({ id: Store.uid, n: Store.name, t: Store.isTeacher, d: Store.perms.draw, s: Store.perms.speak });
+                    
                     if (Store.isTeacher && teacherSecret) {
-                        Store.perms.draw = true; Store.perms.speak = true;
-                        this.ref.child('meta/teacherSecret').set(teacherSecret);
-                        this.ref.child('meta/laserEnabled').set(true);
-                        this.ref.child('meta/studentCode').set(roomId);
+                        dbRef.child('meta/teacherSecret').set(teacherSecret);
+                        dbRef.child('meta/studentCode').set(roomId);
+                        dbRef.child('meta/laserEnabled').set(true);
                     }
                     
-                    me.set({ id: Store.uid, n: Store.name, t: Store.isTeacher, d: Store.perms.draw, s: Store.perms.speak });
                     this.attachListeners();
-                }
-
+                },
+                
                 attachListeners() {
-                    this.ref.child('data/elements').on('value', s => { 
-                        Store.db.els = s.val() ? Object.values(s.val()) : []; 
-                        if (Store.db.els.length > Store.maxElements && Store.isTeacher) {
-                            const toRemove = Store.db.els.slice(0, Store.db.els.length - Store.maxElements);
-                            toRemove.forEach(el => { if (el.key) this.ref.child(`data/elements/${el.key}`).remove(); });
-                        }
-                        AppEvents.emit('render'); 
-                    });
-                    this.ref.child('data/live').on('value', s => { Store.db.live = s.val() || {}; AppEvents.emit('render'); });
-                    this.ref.child('data/laser').on('value', s => { Store.db.laser = s.val() || {}; AppEvents.emit('render'); });
-                    this.ref.child('data/cursors').on('value', s => { Store.db.curs = s.val() || {}; AppEvents.emit('render'); });
-                    this.ref.child('meta/laserEnabled').on('value', s => { Store.laserEnabled = s.val() !== false; AppEvents.emit('render'); });
+                    dbRef.child('elements').on('value', s => { Store.elements = s.val() ? Object.values(s.val()) : []; Events.emit('render'); });
+                    dbRef.child('live').on('value', s => { Store.livePaths = s.val() || {}; Events.emit('render'); });
+                    dbRef.child('laser').on('value', s => { Store.laserPaths = s.val() || {}; Events.emit('render'); });
+                    dbRef.child('cursors').on('value', s => { Store.cursors = s.val() || {}; Events.emit('render'); });
+                    dbRef.child('meta/laserEnabled').on('value', s => { Store.laserEnabled = s.val() !== false; Events.emit('render'); });
                     
                     if (!Store.isTeacher) {
-                        this.ref.child('cam').on('value', s => {
-                            if (s.val() && !Store.perms.draw) { Store.cam = s.val(); AppEvents.emit('render'); AppEvents.emit('ui:zoom'); }
+                        dbRef.child('camera').on('value', s => {
+                            if (s.val() && !Store.perms.draw) { Store.cam = s.val(); Events.emit('render'); Events.emit('zoom'); }
                         });
                     }
                     
-                    this.ref.child('users').on('value', s => {
-                        Store.db.peers = s.val() || {};
-                        if (!Store.isTeacher && Store.db.peers[Store.uid]) {
-                            const p = Store.db.peers[Store.uid];
-                            if (Store.perms.draw !== p.d) { Store.perms.draw = p.d; AppEvents.emit('ui:toast', { m: p.d ? "Chizish huquqi berildi" : "Chizish huquqi olindi", t: p.d ? "success" : "warning" }); }
-                            if (Store.perms.speak !== p.s) {
-                                Store.perms.speak = p.s;
-                                if (!p.s && Store.micActive) { Store.micActive = false; AppEvents.emit('audio:sync'); AppEvents.emit('ui:toast', { m: "Mikrofon huquqi olindi", t: "warning" }); } 
-                                else if (p.s) { AppEvents.emit('ui:toast', { m: "Gapirish huquqi berildi", t: "success" }); }
-                                AppEvents.emit('audio:sync');
+                    dbRef.child('users').on('value', s => {
+                        Store.users = s.val() || {};
+                        if (!Store.isTeacher && Store.users[Store.uid]) {
+                            const u = Store.users[Store.uid];
+                            if (Store.perms.draw !== u.d) {
+                                Store.perms.draw = u.d;
+                                showToast(u.d ? "Chizish huquqi berildi" : "Chizish huquqi olindi", u.d ? "success" : "warning");
                             }
-                            AppEvents.emit('ui:role');
+                            if (Store.perms.speak !== u.s) {
+                                Store.perms.speak = u.s;
+                                if (!u.s && Store.micActive) { Store.micActive = false; Events.emit('mic'); }
+                                showToast(u.s ? "Mikrofon huquqi berildi" : "Mikrofon huquqi olindi", u.s ? "success" : "warning");
+                            }
+                            Events.emit('role');
                         }
-                        AppEvents.emit('ui:users');
+                        Events.emit('users');
                     });
-                    this.ref.child('chat').on('child_added', s => AppEvents.emit('ui:chat', s.val()));
-                }
-
-                setLive(id, data, isLaser = false) { 
+                    dbRef.child('chat').on('child_added', s => Events.emit('chat', s.val()));
+                },
+                
+                addElement(el) { el.u = Store.uid; el.t = Date.now(); dbRef.child('elements').push(el); },
+                
+                addLive(id, data, isLaser) {
                     if (isLaser && !Store.laserEnabled && !Store.isTeacher) return;
-                    this.ref.child(`data/${isLaser ? 'laser' : 'live'}/${id}`).set(data); 
-                    if (isLaser) setTimeout(() => this.ref.child(`data/laser/${id}`).remove(), 1200); 
-                }
+                    dbRef.child(`${isLaser ? 'laser' : 'live'}/${id}`).set(data);
+                    if (isLaser) setTimeout(() => dbRef.child(`laser/${id}`).remove(), 1000);
+                },
+                updateLive(id, points, isLaser) { dbRef.child(`${isLaser ? 'laser' : 'live'}/${id}`).update({ p: points }); },
+                removeLive(id) { dbRef.child(`live/${id}`).remove(); },
                 
-                updLive(id, points, isLaser = false) { 
-                    if (isLaser && !Store.laserEnabled && !Store.isTeacher) return;
-                    this.ref.child(`data/${isLaser ? 'laser' : 'live'}/${id}`).update({ p: points }); 
-                }
-                
-                rmLive(id) { this.ref.child(`data/live/${id}`).remove(); }
-                
-                pushElement(el) { el.u = Store.uid; el.t = Date.now(); this.ref.child('data/elements').push(el); }
-                
-                updateCursor = Utils.throttle((pos) => { this.ref.child(`data/cursors/${Store.uid}`).set({ x: pos.x, y: pos.y, n: Store.name, t: Store.isTeacher }); }, 40);
-                
-                syncCamera() { if (Store.isTeacher) this.ref.child('cam').set(Store.cam); }
+                updateCursor: Utils.throttle((pos) => { dbRef.child(`cursors/${Store.uid}`).set({ x: pos.x, y: pos.y, n: Store.name, t: Store.isTeacher }); }, 50),
+                syncCamera() { if (Store.isTeacher) dbRef.child('camera').set(Store.cam); },
                 
                 undo() {
-                    this.ref.child('data/elements').once('value', snap => {
+                    dbRef.child('elements').once('value', snap => {
                         if (!snap.val()) return;
-                        const elements = Object.keys(snap.val()).map(k => ({ k, ...snap.val()[k] }))
-                            .filter(e => Store.isTeacher || e.u === Store.uid);
-                        if (elements.length) {
-                            const last = elements.sort((a, b) => a.t - b.t)[elements.length - 1];
-                            this.ref.child(`data/elements/${last.k}`).remove();
-                            Utils.vibrate(15);
-                            AppEvents.emit('ui:toast', { m: "So'nggi element bekor qilindi", t: "success" });
+                        const els = Object.entries(snap.val()).map(([k, v]) => ({ k, ...v })).filter(e => Store.isTeacher || e.u === Store.uid);
+                        if (els.length) {
+                            const last = els.sort((a, b) => a.t - b.t)[els.length - 1];
+                            dbRef.child(`elements/${last.k}`).remove();
+                            showToast("Bekor qilindi", "success");
                         }
                     });
-                }
+                },
                 
-                clearBoard() { 
-                    if (Store.isTeacher) { 
-                        this.ref.child('meta/teacherSecret').once('value', snap => { 
-                            if (snap.val() === Store.teacherSecret) { 
-                                this.ref.child('data/elements').remove();
-                                this.ref.child('data/live').remove();
-                                AppEvents.emit('ui:toast', { m: "Doska tozalandi", t: "success" });
-                            } 
-                        }); 
-                    } 
-                }
+                clearBoard() {
+                    if (Store.isTeacher) {
+                        dbRef.child('meta/teacherSecret').once('value', snap => {
+                            if (snap.val() === Store.teacherSecret) {
+                                dbRef.child('elements').remove();
+                                showToast("Doska tozalandi", "success");
+                            }
+                        });
+                    }
+                },
                 
                 toggleLaser() {
                     if (Store.isTeacher) {
-                        this.ref.child('meta/teacherSecret').once('value', snap => {
+                        dbRef.child('meta/teacherSecret').once('value', snap => {
                             if (snap.val() === Store.teacherSecret) {
-                                const newState = !Store.laserEnabled;
-                                this.ref.child('meta/laserEnabled').set(newState);
-                                AppEvents.emit('ui:toast', { m: newState ? "Lazer yoqildi" : "Lazer o'chirildi", t: "info" });
+                                const newVal = !Store.laserEnabled;
+                                dbRef.child('meta/laserEnabled').set(newVal);
+                                showToast(newVal ? "Lazer yoqildi" : "Lazer o'chirildi", "info");
                             }
                         });
                     }
-                }
+                },
                 
-                setPermission(userId, type, value) { 
-                    if (Store.isTeacher) { 
-                        this.ref.child('meta/teacherSecret').once('value', snap => { 
-                            if (snap.val() === Store.teacherSecret) { 
-                                this.ref.child(`users/${userId}`).update({ [type]: value });
-                                AppEvents.emit('ui:toast', { m: `Ruxsat ${value ? 'berildi' : 'olindi'}`, t: "success" });
-                            } 
-                        }); 
-                    } 
-                }
-                
-                sendChat(text) { this.ref.child('chat').push({ u: Store.uid, n: Store.name, t: Store.isTeacher, m: text, tm: Utils.getTime() }); }
+                setPerm(userId, type, val) {
+                    if (Store.isTeacher) dbRef.child(`users/${userId}`).update({ [type]: val });
+                },
                 
                 kickUser(userId) {
                     if (Store.isTeacher) {
-                        this.ref.child('meta/teacherSecret').once('value', snap => {
-                            if (snap.val() === Store.teacherSecret) {
-                                this.ref.child(`users/${userId}`).remove();
-                                AppEvents.emit('ui:toast', { m: "Foydalanuvchi chiqarib yuborildi", t: "success" });
-                            }
-                        });
+                        dbRef.child(`users/${userId}`).remove();
+                        showToast("Foydalanuvchi chiqarildi", "success");
                     }
-                }
-            }
-
-            const DB = new FirebaseService();
-
+                },
+                
+                sendChat(msg) { dbRef.child('chat').push({ u: Store.uid, n: Store.name, t: Store.isTeacher, m: msg, tm: Utils.getTime() }); }
+            };
+            
+            // ==================== GRAPHICS ENGINE (simplified core) ====================
             class GraphicsEngine {
                 constructor() {
-                    this.dpr = window.devicePixelRatio || 1;
-                    this.cvs = { b: document.getElementById('layer-base'), l: document.getElementById('layer-live'), s: document.getElementById('layer-laser') };
-                    this.ctx = { b: this.cvs.b.getContext('2d'), l: this.cvs.l.getContext('2d'), s: this.cvs.s.getContext('2d') };
-                    this.miniCvs = document.getElementById('minimap-cvs'); this.miniCtx = this.miniCvs.getContext('2d');
+                    this.cvs = {
+                        b: document.getElementById('layer-base'),
+                        l: document.getElementById('layer-live'),
+                        s: document.getElementById('layer-laser')
+                    };
+                    this.ctx = {
+                        b: this.cvs.b.getContext('2d'),
+                        l: this.cvs.l.getContext('2d'),
+                        s: this.cvs.s.getContext('2d')
+                    };
+                    this.miniCvs = document.getElementById('minimap-cvs');
+                    this.miniCtx = this.miniCvs.getContext('2d');
                     this.miniView = document.getElementById('minimap-view');
-                    this.isDrawing = false; this.lastPos = null; this.activeId = null; this.dirty = true; this.shapeStart = null;
+                    this.isDrawing = false;
+                    this.lastPos = null;
+                    this.activeId = null;
+                    this.shapeStart = null;
+                    this.dirty = true;
                 }
-
+                
                 init() {
                     window.addEventListener('resize', () => this.resize());
-                    this.resize(); this.resizeMinimap(); this.bindEvents();
-                    AppEvents.on('render', () => this.dirty = true);
+                    this.resize();
+                    Events.on('render', () => this.dirty = true);
                     requestAnimationFrame(() => this.loop());
                 }
-
+                
                 resize() {
                     const w = window.innerWidth, h = window.innerHeight;
-                    ['b', 'l', 's'].forEach(k => {
-                        this.cvs[k].width = w * this.dpr; this.cvs[k].height = h * this.dpr;
-                        this.cvs[k].style.width = w + 'px'; this.cvs[k].style.height = h + 'px';
-                        this.ctx[k].setTransform(1, 0, 0, 1, 0, 0);
-                        this.ctx[k].scale(this.dpr, this.dpr);
+                    Object.keys(this.cvs).forEach(k => {
+                        this.cvs[k].width = w;
+                        this.cvs[k].height = h;
                     });
                     this.dirty = true;
                 }
-
-                resizeMinimap() {
-                    const parent = document.getElementById('minimap-widget');
-                    const w = parent.clientWidth, h = parent.clientHeight - 36; 
-                    this.miniCvs.width = w * this.dpr; this.miniCvs.height = h * this.dpr;
-                    this.miniCtx.setTransform(1, 0, 0, 1, 0, 0); 
-                    this.miniCtx.scale(this.dpr, this.dpr);
-                    this.dirty = true;
-                }
-
+                
                 toWorld(x, y) { return { x: (x - Store.cam.x) / Store.cam.z, y: (y - Store.cam.y) / Store.cam.z }; }
                 toScreen(x, y) { return { x: x * Store.cam.z + Store.cam.x, y: y * Store.cam.z + Store.cam.y }; }
-
+                
                 bindEvents() {
                     const wrap = document.getElementById('app-container');
                     
                     wrap.addEventListener('wheel', e => {
                         e.preventDefault();
                         if (e.ctrlKey || e.metaKey) {
-                            const w = this.toWorld(e.clientX, e.clientY);
-                            const nz = Math.min(Math.max(0.1, Store.cam.z * (e.deltaY > 0 ? 0.9 : 1.1)), 5);
-                            Store.cam.z = nz; Store.cam.x = e.clientX - w.x * nz; Store.cam.y = e.clientY - w.y * nz;
-                            AppEvents.emit('ui:zoom');
-                        } else { Store.cam.x -= e.deltaX; Store.cam.y -= e.deltaY; }
-                        this.dirty = true; DB.syncCamera();
+                            const p = this.toWorld(e.clientX, e.clientY);
+                            const nz = Math.min(5, Math.max(0.2, Store.cam.z * (e.deltaY > 0 ? 0.9 : 1.1)));
+                            Store.cam.z = nz;
+                            Store.cam.x = e.clientX - p.x * nz;
+                            Store.cam.y = e.clientY - p.y * nz;
+                            Events.emit('zoom');
+                        } else {
+                            Store.cam.x -= e.deltaX;
+                            Store.cam.y -= e.deltaY;
+                        }
+                        this.dirty = true;
+                        DB.syncCamera();
                     }, { passive: false });
-
+                    
                     wrap.addEventListener('pointerdown', e => {
-                        if (!e.isPrimary) return;
-                        if(e.target.closest('.minimap-widget') || e.target.closest('#ui-overlay')) return;
-                        const w = this.toWorld(e.clientX, e.clientY);
+                        if (e.target.closest('.drawer') || e.target.closest('.bottom-dock') || e.target.closest('.minimap-widget')) return;
+                        e.preventDefault();
+                        const p = this.toWorld(e.clientX, e.clientY);
                         
                         if (Store.tool === 'text') {
-                            if (Store.perms.draw) AppEvents.emit('ui:modalText', w);
-                            else AppEvents.emit('ui:toast', { m: "Chizish ruxsati yo'q", t: 'error' });
+                            if (Store.perms.draw) {
+                                Store.textPos = p;
+                                document.getElementById('modal-text-input').classList.add('is-visible');
+                                document.getElementById('drawer-backdrop').classList.add('is-visible');
+                            }
                             return;
                         }
                         
-                        this.isDrawing = true; this.lastPos = { x: e.clientX, y: e.clientY };
-                        if (!Store.perms.draw && Store.tool !== 'pan' && Store.tool !== 'laser') { this.isDrawing = false; return; }
-
-                        this.activeId = Utils.generateId('P'); const isLaser = Store.tool === 'laser' && Store.laserEnabled;
+                        if (!Store.perms.draw && Store.tool !== 'pan' && Store.tool !== 'laser') return;
+                        
+                        this.isDrawing = true;
+                        this.lastPos = { x: e.clientX, y: e.clientY };
+                        this.activeId = Utils.generateId();
+                        const isLaser = Store.tool === 'laser' && Store.laserEnabled;
                         
                         if (['draw', 'erase', 'laser'].includes(Store.tool)) {
-                            DB.setLive(this.activeId, { u: Store.uid, p: [w], c: Store.tool === 'erase' ? '#ffffff' : (isLaser ? '#ef4444' : Store.color), s: (Store.tool === 'erase' ? 60 : Store.size) / Store.cam.z, tl: Store.tool }, isLaser);
+                            DB.addLive(this.activeId, {
+                                p: [p],
+                                c: Store.tool === 'erase' ? '#ffffff' : (isLaser ? '#ff3b30' : Store.color),
+                                s: (Store.tool === 'erase' ? 40 : Store.size) / Store.cam.z,
+                                tl: Store.tool
+                            }, isLaser);
                         } else if (['rect', 'circle', 'line', 'arrow'].includes(Store.tool)) {
-                            this.shapeStart = w;
-                            DB.setLive(this.activeId, { u: Store.uid, tl: Store.tool, p1: w, p2: w, c: Store.color, s: Store.size / Store.cam.z });
+                            this.shapeStart = p;
+                            DB.addLive(this.activeId, {
+                                tl: Store.tool,
+                                p1: p,
+                                p2: p,
+                                c: Store.color,
+                                s: Store.size / Store.cam.z
+                            });
                         }
                     });
-
+                    
                     window.addEventListener('pointermove', e => {
-                        if (!e.isPrimary) return;
-                        if(!e.target.closest('.minimap-widget')) DB.updateCursor(this.toWorld(e.clientX, e.clientY));
-                        if (!this.isDrawing) return;
-
-                        if (Store.tool === 'pan') {
-                            Store.cam.x += e.clientX - this.lastPos.x; Store.cam.y += e.clientY - this.lastPos.y;
-                            this.lastPos = { x: e.clientX, y: e.clientY }; this.dirty = true; return;
+                        if (!this.isDrawing) {
+                            DB.updateCursor(this.toWorld(e.clientX, e.clientY));
+                            return;
                         }
-
-                        if ((Store.perms.draw || Store.tool === 'laser') && this.activeId) {
-                            const w = this.toWorld(e.clientX, e.clientY);
-                            const isLaser = Store.tool === 'laser' && Store.laserEnabled;
-                            const active = isLaser ? Store.db.laser[this.activeId] : Store.db.live[this.activeId];
-                            
-                            if (['draw', 'erase', 'laser'].includes(Store.tool) && active && active.p) {
-                                if (active.p.length > 250 && !isLaser) {
-                                    DB.pushElement({ type: 'path', p: active.p, c: active.c, s: active.s });
-                                    DB.rmLive(this.activeId); this.activeId = Utils.generateId('P');
-                                    DB.setLive(this.activeId, { u: Store.uid, p: [w], c: active.c, s: active.s, tl: Store.tool }, isLaser);
-                                }
-                                const last = active.p[active.p.length - 1];
-                                if (Math.hypot(w.x - last.x, w.y - last.y) > 2 / Store.cam.z) {
-                                    active.p.push(w); DB.updLive(this.activeId, active.p, isLaser);
-                                }
-                            } else if (['rect', 'circle', 'line', 'arrow'].includes(Store.tool) && this.shapeStart) {
-                                DB.updLive(this.activeId, null);
-                                DB.setLive(this.activeId, { u: Store.uid, tl: Store.tool, p1: this.shapeStart, p2: w, c: Store.color, s: Store.size / Store.cam.z });
+                        
+                        if (Store.tool === 'pan') {
+                            Store.cam.x += e.clientX - this.lastPos.x;
+                            Store.cam.y += e.clientY - this.lastPos.y;
+                            this.lastPos = { x: e.clientX, y: e.clientY };
+                            this.dirty = true;
+                            return;
+                        }
+                        
+                        const p = this.toWorld(e.clientX, e.clientY);
+                        const isLaser = Store.tool === 'laser' && Store.laserEnabled;
+                        const active = isLaser ? Store.laserPaths[this.activeId] : Store.livePaths[this.activeId];
+                        
+                        if (['draw', 'erase', 'laser'].includes(Store.tool) && active && active.p) {
+                            const last = active.p[active.p.length - 1];
+                            if (Math.hypot(p.x - last.x, p.y - last.y) > 3 / Store.cam.z) {
+                                active.p.push(p);
+                                DB.updateLive(this.activeId, active.p, isLaser);
                             }
+                        } else if (['rect', 'circle', 'line', 'arrow'].includes(Store.tool) && this.shapeStart) {
+                            DB.updateLive(this.activeId, null);
+                            DB.addLive(this.activeId, {
+                                tl: Store.tool,
+                                p1: this.shapeStart,
+                                p2: p,
+                                c: Store.color,
+                                s: Store.size / Store.cam.z
+                            });
                         }
                         this.lastPos = { x: e.clientX, y: e.clientY };
                     });
-
-                    window.addEventListener('pointerup', e => {
-                        if (!e.isPrimary || !this.isDrawing) return;
+                    
+                    window.addEventListener('pointerup', () => {
+                        if (!this.isDrawing) return;
                         this.isDrawing = false;
-                        if ((Store.perms.draw || Store.tool === 'laser') && this.activeId) {
-                            if (['draw', 'erase'].includes(Store.tool)) {
-                                const path = Store.db.live[this.activeId];
-                                if (path && path.p && path.p.length > 1) DB.pushElement({ type: 'path', p: path.p, c: path.c, s: path.s });
-                                DB.rmLive(this.activeId);
-                            } else if (['rect', 'circle', 'line', 'arrow'].includes(Store.tool)) {
-                                const shape = Store.db.live[this.activeId];
-                                if (shape && shape.p1 && shape.p2 && Math.hypot(shape.p1.x - shape.p2.x, shape.p1.y - shape.p2.y) > 5) {
-                                    DB.pushElement({ type: 'shape', tl: shape.tl, p1: shape.p1, p2: shape.p2, c: shape.c, s: shape.s });
-                                }
-                                DB.rmLive(this.activeId); this.shapeStart = null;
-                            } else if (Store.tool === 'laser') {
-                                DB.rmLive(this.activeId);
+                        
+                        if (['draw', 'erase'].includes(Store.tool) && Store.livePaths[this.activeId]) {
+                            const path = Store.livePaths[this.activeId];
+                            if (path && path.p && path.p.length > 1) {
+                                DB.addElement({ type: 'path', p: path.p, c: path.c, s: path.s });
                             }
-                            this.activeId = null;
+                            DB.removeLive(this.activeId);
+                        } else if (['rect', 'circle', 'line', 'arrow'].includes(Store.tool) && Store.livePaths[this.activeId]) {
+                            const shape = Store.livePaths[this.activeId];
+                            if (shape && shape.p1 && shape.p2 && Math.hypot(shape.p1.x - shape.p2.x, shape.p1.y - shape.p2.y) > 5) {
+                                DB.addElement({ type: 'shape', tl: shape.tl, p1: shape.p1, p2: shape.p2, c: shape.c, s: shape.s });
+                            }
+                            DB.removeLive(this.activeId);
+                            this.shapeStart = null;
+                        } else if (Store.tool === 'laser') {
+                            DB.removeLive(this.activeId);
                         }
+                        this.activeId = null;
                     });
-
-                    let pinchDist = null, pinchZoom = 1;
+                    
+                    let pinchDist = null;
                     wrap.addEventListener('touchstart', e => {
                         if (e.touches.length === 2) {
-                            e.preventDefault(); this.isDrawing = false;
+                            e.preventDefault();
                             pinchDist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
-                            pinchZoom = Store.cam.z;
                         }
-                    }, { passive: false });
-                    
+                    });
                     wrap.addEventListener('touchmove', e => {
                         if (e.touches.length === 2 && pinchDist) {
                             e.preventDefault();
                             const newDist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
-                            const cx = (e.touches[0].clientX + e.touches[1].clientX) / 2, cy = (e.touches[0].clientY + e.touches[1].clientY) / 2;
-                            const w = this.toWorld(cx, cy);
-                            const nz = Math.min(Math.max(0.1, pinchZoom * (newDist / pinchDist)), 5);
-                            Store.cam.z = nz; Store.cam.x = cx - w.x * nz; Store.cam.y = cy - w.y * nz;
-                            this.dirty = true; AppEvents.emit('ui:zoom'); DB.syncCamera();
+                            const cx = (e.touches[0].clientX + e.touches[1].clientX) / 2;
+                            const cy = (e.touches[0].clientY + e.touches[1].clientY) / 2;
+                            const p = this.toWorld(cx, cy);
+                            const nz = Math.min(5, Math.max(0.2, Store.cam.z * (newDist / pinchDist)));
+                            Store.cam.z = nz;
+                            Store.cam.x = cx - p.x * nz;
+                            Store.cam.y = cy - p.y * nz;
+                            this.dirty = true;
+                            Events.emit('zoom');
+                            DB.syncCamera();
                         }
-                    }, { passive: false });
+                    });
                     wrap.addEventListener('touchend', () => { pinchDist = null; });
                 }
-
-                drawSpline(ctx, points, color, width, glow = false) {
+                
+                drawPath(ctx, points, color, width, glow) {
                     if (!points || points.length < 2) return;
-                    ctx.beginPath(); ctx.strokeStyle = color; ctx.lineWidth = width; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
-                    if (glow) { ctx.shadowBlur = 20; ctx.shadowColor = color; }
+                    ctx.beginPath();
+                    ctx.strokeStyle = color;
+                    ctx.lineWidth = width;
+                    ctx.lineCap = 'round';
+                    ctx.lineJoin = 'round';
+                    if (glow) { ctx.shadowBlur = 15; ctx.shadowColor = color; }
                     ctx.moveTo(points[0].x, points[0].y);
                     for (let i = 1; i < points.length - 1; i++) {
-                        const xc = (points[i].x + points[i + 1].x) / 2, yc = (points[i].y + points[i + 1].y) / 2;
+                        const xc = (points[i].x + points[i + 1].x) / 2;
+                        const yc = (points[i].y + points[i + 1].y) / 2;
                         ctx.quadraticCurveTo(points[i].x, points[i].y, xc, yc);
                     }
-                    ctx.lineTo(points[points.length - 1].x, points[points.length - 1].y); ctx.stroke();
+                    ctx.lineTo(points[points.length - 1].x, points[points.length - 1].y);
+                    ctx.stroke();
                     if (glow) ctx.shadowBlur = 0;
                 }
-
+                
                 drawShape(ctx, e) {
-                    ctx.beginPath(); ctx.strokeStyle = e.c; ctx.lineWidth = e.s;
+                    ctx.beginPath();
+                    ctx.strokeStyle = e.c;
+                    ctx.lineWidth = e.s;
                     const { p1, p2, tl } = e;
                     if (tl === 'rect') ctx.rect(p1.x, p1.y, p2.x - p1.x, p2.y - p1.y);
                     else if (tl === 'circle') ctx.arc(p1.x, p1.y, Math.hypot(p2.x - p1.x, p2.y - p1.y), 0, Math.PI * 2);
                     else if (tl === 'line') { ctx.moveTo(p1.x, p1.y); ctx.lineTo(p2.x, p2.y); }
                     else if (tl === 'arrow') {
-                        const angle = Math.atan2(p2.y - p1.y, p2.x - p1.x), h = 25 / Store.cam.z;
-                        ctx.moveTo(p1.x, p1.y); ctx.lineTo(p2.x, p2.y);
-                        ctx.lineTo(p2.x - h * Math.cos(angle - Math.PI / 6), p2.y - h * Math.sin(angle - Math.PI / 6));
-                        ctx.moveTo(p2.x, p2.y); ctx.lineTo(p2.x - h * Math.cos(angle + Math.PI / 6), p2.y - h * Math.sin(angle + Math.PI / 6));
+                        const ang = Math.atan2(p2.y - p1.y, p2.x - p1.x);
+                        const sz = 20 / Store.cam.z;
+                        ctx.moveTo(p1.x, p1.y);
+                        ctx.lineTo(p2.x, p2.y);
+                        ctx.lineTo(p2.x - sz * Math.cos(ang - Math.PI / 6), p2.y - sz * Math.sin(ang - Math.PI / 6));
+                        ctx.moveTo(p2.x, p2.y);
+                        ctx.lineTo(p2.x - sz * Math.cos(ang + Math.PI / 6), p2.y - sz * Math.sin(ang + Math.PI / 6));
                     }
                     ctx.stroke();
                 }
-
+                
                 loop() {
                     if (this.dirty) {
-                        const { b, l, s } = this.ctx;
                         const w = window.innerWidth, h = window.innerHeight;
-                        b.clearRect(0, 0, w, h); l.clearRect(0, 0, w, h); s.clearRect(0, 0, w, h);
+                        const { b, l, s } = this.ctx;
+                        b.clearRect(0, 0, w, h);
+                        l.clearRect(0, 0, w, h);
+                        s.clearRect(0, 0, w, h);
                         
-                        const miniW = this.miniCvs.width / this.dpr, miniH = this.miniCvs.height / this.dpr;
-                        this.miniCtx.clearRect(0, 0, miniW, miniH);
+                        const mmW = this.miniCvs.parentElement.clientWidth;
+                        const mmH = this.miniCvs.parentElement.clientHeight;
+                        this.miniCvs.width = mmW;
+                        this.miniCvs.height = mmH;
+                        this.miniCtx.clearRect(0, 0, mmW, mmH);
                         
                         let bounds = { xMin: Infinity, yMin: Infinity, xMax: -Infinity, yMax: -Infinity };
                         
-                        b.save(); b.translate(Store.cam.x, Store.cam.y); b.scale(Store.cam.z, Store.cam.z);
-                        Store.db.els.forEach(el => {
-                            if (el.type === 'path') this.drawSpline(b, el.p, el.c, el.s);
+                        b.save();
+                        b.translate(Store.cam.x, Store.cam.y);
+                        b.scale(Store.cam.z, Store.cam.z);
+                        Store.elements.forEach(el => {
+                            if (el.type === 'path') this.drawPath(b, el.p, el.c, el.s);
                             else if (el.type === 'shape') this.drawShape(b, el);
                             else if (el.type === 'text') {
-                                b.font = `800 ${Math.min(el.s, 72)}px -apple-system, sans-serif`; 
-                                b.fillStyle = el.c; b.fillText(el.text, el.x, el.y);
+                                b.font = `800 ${Math.min(el.s, 48)}px -apple-system`;
+                                b.fillStyle = el.c;
+                                b.fillText(el.text, el.x, el.y);
                             } else if (el.type === 'image' && el.data) {
-                                if (!el._img) { el._img = new Image(); el._img.src = el.data; el._img.onload = () => this.dirty = true; }
-                                if (el._img.complete) b.drawImage(el._img, el.x, el.y, el.width, el.height);
+                                if (!el.img) { el.img = new Image(); el.img.src = el.data; el.img.onload = () => this.dirty = true; }
+                                if (el.img.complete) b.drawImage(el.img, el.x, el.y, el.width, el.height);
                             }
                             if (el.x !== undefined) {
-                                bounds.xMin = Math.min(bounds.xMin, el.x); bounds.xMax = Math.max(bounds.xMax, el.x + (el.width || 100));
-                                bounds.yMin = Math.min(bounds.yMin, el.y); bounds.yMax = Math.max(bounds.yMax, el.y + (el.height || 100));
+                                bounds.xMin = Math.min(bounds.xMin, el.x);
+                                bounds.xMax = Math.max(bounds.xMax, el.x + (el.width || 100));
+                                bounds.yMin = Math.min(bounds.yMin, el.y);
+                                bounds.yMax = Math.max(bounds.yMax, el.y + (el.height || 100));
                             } else if (el.p && el.p[0]) {
-                                el.p.forEach(point => {
-                                    bounds.xMin = Math.min(bounds.xMin, point.x); bounds.xMax = Math.max(bounds.xMax, point.x);
-                                    bounds.yMin = Math.min(bounds.yMin, point.y); bounds.yMax = Math.max(bounds.yMax, point.y);
+                                el.p.forEach(p => {
+                                    bounds.xMin = Math.min(bounds.xMin, p.x);
+                                    bounds.xMax = Math.max(bounds.xMax, p.x);
+                                    bounds.yMin = Math.min(bounds.yMin, p.y);
+                                    bounds.yMax = Math.max(bounds.yMax, p.y);
                                 });
                             } else if (el.p1 && el.p2) {
-                                bounds.xMin = Math.min(bounds.xMin, el.p1.x, el.p2.x); bounds.xMax = Math.max(bounds.xMax, el.p1.x, el.p2.x);
-                                bounds.yMin = Math.min(bounds.yMin, el.p1.y, el.p2.y); bounds.yMax = Math.max(bounds.yMax, el.p1.y, el.p2.y);
+                                bounds.xMin = Math.min(bounds.xMin, el.p1.x, el.p2.x);
+                                bounds.xMax = Math.max(bounds.xMax, el.p1.x, el.p2.x);
+                                bounds.yMin = Math.min(bounds.yMin, el.p1.y, el.p2.y);
+                                bounds.yMax = Math.max(bounds.yMax, el.p1.y, el.p2.y);
                             }
                         });
                         b.restore();
-
-                        l.save(); l.translate(Store.cam.x, Store.cam.y); l.scale(Store.cam.z, Store.cam.z);
-                        Object.values(Store.db.live).forEach(e => { if (e && e.p) this.drawSpline(l, e.p, e.c, e.s); else if (e && e.p1) this.drawShape(l, e); });
-                        l.restore();
-
-                        if (Store.laserEnabled) {
-                            s.save(); s.translate(Store.cam.x, Store.cam.y); s.scale(Store.cam.z, Store.cam.z);
-                            Object.values(Store.db.laser).forEach(e => { if (e && e.p) this.drawSpline(s, e.p, e.c, e.s, true); });
-                            s.restore();
-                        }
-
+                        
                         l.save();
-                        Object.values(Store.db.curs).forEach(c => {
-                            if (c.n === Store.name || typeof c.x !== 'number') return;
-                            const pos = this.toScreen(c.x, c.y);
-                            l.beginPath(); l.arc(pos.x, pos.y, 6, 0, Math.PI * 2); l.fillStyle = c.t ? '#ffcc00' : '#ff3b30'; l.fill();
-                            l.lineWidth = 2; l.strokeStyle = '#fff'; l.stroke();
-                            l.font = '800 12px -apple-system, sans-serif'; l.fillStyle = getComputedStyle(document.body).getPropertyValue('--text-main');
-                            l.fillText(c.n, pos.x + 12, pos.y + 4);
+                        l.translate(Store.cam.x, Store.cam.y);
+                        l.scale(Store.cam.z, Store.cam.z);
+                        Object.values(Store.livePaths).forEach(e => {
+                            if (e && e.p) this.drawPath(l, e.p, e.c, e.s);
+                            else if (e && e.p1) this.drawShape(l, e);
                         });
                         l.restore();
-
-                        if (Store.minimapVisible) {
-                            if (bounds.xMin === Infinity) bounds = { xMin: -500, yMin: -500, xMax: 500, yMax: 500 };
-                            else {
-                                const wPad = (bounds.xMax - bounds.xMin) * 0.1 || 100, hPad = (bounds.yMax - bounds.yMin) * 0.1 || 100;
-                                bounds.xMin -= wPad; bounds.yMin -= hPad; bounds.xMax += wPad; bounds.yMax += hPad;
-                            }
-                            const boundsW = bounds.xMax - bounds.xMin, boundsH = bounds.yMax - bounds.yMin;
-                            const mmScale = Math.min(miniW / boundsW, miniH / boundsH);
-                            const ox = miniW / 2 - (bounds.xMin + boundsW / 2) * mmScale, oy = miniH / 2 - (bounds.yMin + boundsH / 2) * mmScale;
-
-                            this.miniCtx.save(); this.miniCtx.translate(ox, oy); this.miniCtx.scale(mmScale, mmScale);
-                            Store.db.els.forEach(el => {
-                                if (el.type === 'path') this.drawSpline(this.miniCtx, el.p, el.c, Math.max(el.s * 2, 2 / mmScale));
+                        
+                        if (Store.laserEnabled) {
+                            s.save();
+                            s.translate(Store.cam.x, Store.cam.y);
+                            s.scale(Store.cam.z, Store.cam.z);
+                            Object.values(Store.laserPaths).forEach(e => {
+                                if (e && e.p) this.drawPath(s, e.p, e.c, e.s, true);
+                            });
+                            s.restore();
+                        }
+                        
+                        l.save();
+                        Object.values(Store.cursors).forEach(c => {
+                            if (c.n === Store.name || typeof c.x !== 'number') return;
+                            const pos = this.toScreen(c.x, c.y);
+                            l.beginPath();
+                            l.arc(pos.x, pos.y, 6, 0, Math.PI * 2);
+                            l.fillStyle = c.t ? '#ffcc00' : '#ff3b30';
+                            l.fill();
+                            l.fillStyle = '#fff';
+                            l.font = 'bold 10px -apple-system';
+                            l.fillText(c.n, pos.x + 10, pos.y + 3);
+                        });
+                        l.restore();
+                        
+                        if (Store.minimapVisible && bounds.xMin !== Infinity) {
+                            const pad = Math.max(50, (bounds.xMax - bounds.xMin) * 0.1);
+                            bounds.xMin -= pad;
+                            bounds.xMax += pad;
+                            bounds.yMin -= pad;
+                            bounds.yMax += pad;
+                            const scale = Math.min(mmW / (bounds.xMax - bounds.xMin), mmH / (bounds.yMax - bounds.yMin));
+                            const offX = mmW / 2 - (bounds.xMin + (bounds.xMax - bounds.xMin) / 2) * scale;
+                            const offY = mmH / 2 - (bounds.yMin + (bounds.yMax - bounds.yMin) / 2) * scale;
+                            
+                            this.miniCtx.save();
+                            this.miniCtx.translate(offX, offY);
+                            this.miniCtx.scale(scale, scale);
+                            Store.elements.forEach(el => {
+                                if (el.type === 'path') this.drawPath(this.miniCtx, el.p, el.c, Math.max(1, el.s * scale));
                                 else if (el.type === 'shape') this.drawShape(this.miniCtx, el);
                             });
                             this.miniCtx.restore();
-
-                            const mapX = (-Store.cam.x / Store.cam.z) * mmScale + ox, mapY = (-Store.cam.y / Store.cam.z) * mmScale + oy;
-                            const mapW = (w / Store.cam.z) * mmScale, mapH = (h / Store.cam.z) * mmScale;
-                            this.miniView.style.width = `${Math.max(40, mapW)}px`; this.miniView.style.height = `${Math.max(30, mapH)}px`;
-                            this.miniView.style.transform = `translate(${Math.max(0, Math.min(mapX, miniW - mapW))}px, ${Math.max(0, Math.min(mapY, miniH - mapH))}px)`;
+                            
+                            const viewX = (-Store.cam.x / Store.cam.z) * scale + offX;
+                            const viewY = (-Store.cam.y / Store.cam.z) * scale + offY;
+                            const viewW = (w / Store.cam.z) * scale;
+                            const viewH = (h / Store.cam.z) * scale;
+                            this.miniView.style.width = `${Math.max(20, viewW)}px`;
+                            this.miniView.style.height = `${Math.max(15, viewH)}px`;
+                            this.miniView.style.transform = `translate(${Math.max(0, Math.min(viewX, mmW - viewW))}px, ${Math.max(0, Math.min(viewY, mmH - viewH))}px)`;
                         }
                         this.dirty = false;
                     }
                     requestAnimationFrame(() => this.loop());
                 }
             }
-
+            
             const Engine = new GraphicsEngine();
-
-            class AudioMesh {
-                constructor() { this.stream = null; this.pcs = {}; this.config = { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] }; this.isSpeaking = false; }
+            
+            // ==================== AUDIO ====================
+            let audioStream = null;
+            const AudioSystem = {
                 async init() {
                     try {
-                        this.stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true } });
+                        audioStream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true } });
                         if (Store.perms.speak) Store.micActive = true;
-                        this.stream.getTracks()[0].onended = () => { AppEvents.emit('ui:toast', { m: "Mikrofon uzildi", t: 'error' }); Store.micActive = false; AppEvents.emit('ui:mic'); };
-                        this.sync(); this.visualizer(); this.listen();
-                    } catch (e) {
-                        Store.micActive = false;
-                        if (e.name !== 'NotAllowedError') AppEvents.emit('ui:toast', { m: "Mikrofon topilmadi", t: 'warning' });
-                    }
-                    AppEvents.emit('ui:mic'); AppEvents.on('audio:sync', () => this.sync());
-                }
-                async toggle() {
-                    if (!Store.perms.speak) return AppEvents.emit('ui:toast', { m: "Gapirishga ruxsat yo'q", t: 'error' });
-                    if (!this.stream) { await this.init(); if(!this.stream) return; }
-                    Store.micActive = !Store.micActive; this.sync(); AppEvents.emit('ui:mic'); Utils.vibrate(10);
-                }
-                sync() { if (this.stream) { const t = this.stream.getAudioTracks()[0]; if (t) t.enabled = Store.perms.speak && Store.micActive; } }
+                        this.sync();
+                        this.visualizer();
+                        Events.emit('mic');
+                    } catch (e) { showToast("Mikrofon topilmadi", "warning"); }
+                },
                 visualizer() {
                     const ctx = new (window.AudioContext || window.webkitAudioContext)();
-                    const analyser = ctx.createAnalyser(); ctx.createMediaStreamSource(this.stream).connect(analyser);
-                    analyser.fftSize = 256; const data = new Uint8Array(analyser.frequencyBinCount);
+                    const analyser = ctx.createAnalyser();
+                    ctx.createMediaStreamSource(audioStream).connect(analyser);
+                    analyser.fftSize = 128;
+                    const data = new Uint8Array(analyser.frequencyBinCount);
                     const draw = () => {
-                        requestAnimationFrame(draw); const bars = document.querySelectorAll('.viz-bar');
+                        requestAnimationFrame(draw);
+                        const bars = document.querySelectorAll('.viz-bar');
                         if (!(Store.perms.speak && Store.micActive)) {
                             bars.forEach(b => b.style.height = '4px');
-                            if (this.isSpeaking) { document.getElementById('btn-action-mic').classList.remove('mic-on'); this.isSpeaking = false; }
                             return;
                         }
-                        analyser.getByteFrequencyData(data); let sum = 0; for (let i = 0; i < data.length; i++) sum += data[i];
-                        const avg = sum / data.length, speaking = avg > 15;
-                        if (speaking !== this.isSpeaking) {
-                            const btn = document.getElementById('btn-action-mic');
-                            if (speaking) btn.classList.add('mic-on'); else btn.classList.remove('mic-on');
-                            this.isSpeaking = speaking;
-                        }
-                        const norm = Math.min(1, avg / 100);
-                        bars.forEach((bar, i) => bar.style.height = `${Math.max(4, 4 + norm * 20 * Math.sin((i / bars.length) * Math.PI))}px`);
-                    }; draw();
-                }
-                listen() {
-                    DB.ref.child(`sig/${Store.uid}`).on('child_added', async snap => {
-                        const d = snap.val(); snap.ref.remove();
-                        try {
-                            if (d.t === 'o') await this.handleOffer(d.f, d.s);
-                            else if (d.t === 'a') await this.handleAnswer(d.f, d.s);
-                            else if (d.t === 'i') await this.handleIce(d.f, d.i);
-                        } catch (e) {}
-                    });
-                    DB.ref.child('users').on('child_added', snap => { if (snap.key !== Store.uid) setTimeout(() => this.call(snap.key), 1500); });
-                    DB.ref.child('users').on('child_removed', snap => {
-                        if (this.pcs[snap.key]) { this.pcs[snap.key].close(); delete this.pcs[snap.key]; }
-                        const audio = document.getElementById(`au_${snap.key}`); if (audio) audio.remove();
-                    });
-                }
-                createPeer(uid) {
-                    const pc = new RTCPeerConnection(this.config);
-                    if (this.stream) this.stream.getTracks().forEach(t => pc.addTrack(t, this.stream));
-                    pc.onicecandidate = e => { if (e.candidate) DB.ref.child(`sig/${uid}`).push({ f: Store.uid, t: 'i', i: JSON.stringify(e.candidate) }); };
-                    pc.onconnectionstatechange = () => { if (['disconnected', 'failed'].includes(pc.connectionState)) { pc.close(); delete this.pcs[uid]; } };
-                    pc.ontrack = e => {
-                        let audio = document.getElementById(`au_${uid}`);
-                        if (!audio) { audio = document.createElement('audio'); audio.id = `au_${uid}`; audio.autoplay = true; document.getElementById('webrtc-audio-pool').appendChild(audio); }
-                        if (audio.srcObject !== e.streams[0]) { audio.srcObject = e.streams[0]; audio.play().catch(() => {}); }
+                        analyser.getByteFrequencyData(data);
+                        let sum = 0;
+                        for (let i = 0; i < data.length; i++) sum += data[i];
+                        const avg = sum / data.length;
+                        const h = Math.min(20, 4 + (avg / 128) * 16);
+                        bars.forEach((b, i) => {
+                            b.style.height = `${Math.max(4, h * Math.sin((i / 6) * Math.PI))}px`;
+                        });
                     };
-                    this.pcs[uid] = pc; return pc;
+                    draw();
+                },
+                sync() { if (audioStream) audioStream.getAudioTracks()[0].enabled = Store.perms.speak && Store.micActive; },
+                async toggle() {
+                    if (!Store.perms.speak) { showToast("Mikrofon ruxsati yo'q", "error"); return; }
+                    if (!audioStream) await this.init();
+                    Store.micActive = !Store.micActive;
+                    this.sync();
+                    Events.emit('mic');
+                    Utils.vibrate(10);
                 }
-                async call(uid) { if (this.pcs[uid]) return; const pc = this.createPeer(uid); const offer = await pc.createOffer(); await pc.setLocalDescription(offer); DB.ref.child(`sig/${uid}`).push({ f: Store.uid, t: 'o', s: JSON.stringify(offer) }); }
-                async handleOffer(uid, sdp) { const pc = this.createPeer(uid); await pc.setRemoteDescription(new RTCSessionDescription(JSON.parse(sdp))); const answer = await pc.createAnswer(); await pc.setLocalDescription(answer); DB.ref.child(`sig/${uid}`).push({ f: Store.uid, t: 'a', s: JSON.stringify(answer) }); }
-                async handleAnswer(uid, sdp) { if (this.pcs[uid]) await this.pcs[uid].setRemoteDescription(new RTCSessionDescription(JSON.parse(sdp))); }
-                async handleIce(uid, ice) { if (this.pcs[uid]) await this.pcs[uid].addIceCandidate(new RTCIceCandidate(JSON.parse(ice))); }
-            }
-            const AudioSystem = new AudioMesh();
-
+            };
+            
+            // ==================== UI CONTROLLER ====================
             class UIController {
-                constructor() { this.initEvents(); this.initColorWheel(); this.bindAppEvents(); this.bindMinimapInteractions(); this.bindFullscreen(); this.initTheme(); }
+                constructor() {
+                    this.initEvents();
+                    this.initColorWheel();
+                    this.initTheme();
+                }
                 
                 initTheme() {
-                    const stored = localStorage.getItem('mrboard_theme');
-                    if (stored) document.body.setAttribute('data-theme', stored);
+                    const saved = localStorage.getItem('mr_theme');
+                    if (saved) document.body.setAttribute('data-theme', saved);
                     else {
-                        const darkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
-                        document.body.setAttribute('data-theme', darkMode ? 'dark' : 'light');
+                        const dark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                        document.body.setAttribute('data-theme', dark ? 'dark' : 'light');
                     }
                 }
                 
                 setTheme(mode) {
                     if (mode === 'auto') {
-                        localStorage.removeItem('mrboard_theme');
+                        localStorage.removeItem('mr_theme');
                         const dark = window.matchMedia('(prefers-color-scheme: dark)').matches;
                         document.body.setAttribute('data-theme', dark ? 'dark' : 'light');
                     } else {
-                        localStorage.setItem('mrboard_theme', mode);
+                        localStorage.setItem('mr_theme', mode);
                         document.body.setAttribute('data-theme', mode);
                     }
                 }
                 
                 initEvents() {
-                    document.getElementById('btn-create-room').onclick = () => this.handleAuth(true);
-                    document.getElementById('btn-join-room').onclick = () => this.handleAuth(false);
-                    document.querySelectorAll('[data-tool]').forEach(btn => { btn.onclick = () => { this.setTool(btn.dataset.tool); this.closeAll(); }; });
-                    document.getElementById('btn-toggle-shapes').onclick = () => { Utils.vibrate(10); document.getElementById('toolbar-shapes').classList.toggle('is-visible'); };
+                    document.getElementById('btn-create-room').onclick = () => this.createRoom();
+                    document.getElementById('btn-join-room').onclick = () => this.joinRoom();
+                    document.getElementById('btn-action-exit').onclick = () => { if (confirm("Chiqish?")) location.reload(); };
                     document.getElementById('btn-action-undo').onclick = () => DB.undo();
                     document.getElementById('btn-action-mic').onclick = () => AudioSystem.toggle();
-                    document.getElementById('btn-action-exit').onclick = () => { if (confirm("Xonadan chiqishni xohlaysizmi?")) location.reload(); };
-                    
-                    const drawers = { 'btn-open-settings': 'drawer-settings', 'btn-open-colors': 'drawer-colors', 'btn-open-users': 'drawer-users', 'btn-open-chat': 'drawer-chat' };
-                    for (const [btnId, drawerId] of Object.entries(drawers)) { const btn = document.getElementById(btnId); if (btn) btn.onclick = () => this.openDrawer(drawerId); }
-                    document.querySelectorAll('[data-close]').forEach(btn => btn.onclick = () => this.closeAll());
-                    document.getElementById('drawer-backdrop').onclick = () => this.closeAll();
-
-                    document.getElementById('btn-cancel-text').onclick = () => this.closeTextModal();
-                    document.getElementById('btn-add-text').onclick = () => {
-                        const txt = Utils.sanitize(document.getElementById('inp-text-area').value.trim()).substring(0, 300);
-                        if (txt && Store.textCtx) DB.pushElement({ type: 'text', text: txt, x: Store.textCtx.x, y: Store.textCtx.y, s: Math.min(Store.size * 3 + 16, 64), c: Store.color });
-                        this.closeTextModal();
-                    };
-                    
-                    document.getElementById('inp-tool-size').oninput = e => { Store.size = parseInt(e.target.value); document.getElementById('val-tool-size').innerText = Store.size; };
-                    document.getElementById('act-undo').onclick = () => { DB.undo(); this.closeAll(); };
-                    document.getElementById('act-center').onclick = () => { Store.cam = { x: 0, y: 0, z: 1 }; AppEvents.emit('render'); AppEvents.emit('ui:zoom'); DB.syncCamera(); this.closeAll(); };
-                    document.getElementById('act-clear-board').onclick = () => { if (confirm("Doska tozalanadi. Ishonchingiz komilmi?")) DB.clearBoard(); this.closeAll(); };
-                    document.getElementById('act-disable-laser').onclick = () => { DB.toggleLaser(); this.closeAll(); };
-                    
-                    document.getElementById('act-theme-light').onclick = () => { this.setTheme('light'); this.closeAll(); };
-                    document.getElementById('act-theme-dark').onclick = () => { this.setTheme('dark'); this.closeAll(); };
-                    document.getElementById('act-theme-auto').onclick = () => { this.setTheme('auto'); this.closeAll(); };
-                    
-                    const fileImg = document.getElementById('sys-file-img'), fileJson = document.getElementById('sys-file-json');
-                    document.getElementById('act-image').onclick = () => { fileImg.click(); this.closeAll(); };
-                    fileImg.onchange = async e => {
-                        const f = e.target.files[0]; if (!f || f.size > 5e6) return AppEvents.emit('ui:toast', { m: "Rasm 5MB dan kichik bo'lishi kerak", t: 'error' });
-                        try {
-                            const data = await Utils.readFile(f); const img = new Image();
-                            img.onload = () => {
-                                const center = Engine.toWorld(window.innerWidth / 2, window.innerHeight / 2); let w = img.width, h = img.height;
-                                const maxDim = 600 / Store.cam.z; if (w > maxDim) { h = (maxDim / w) * h; w = maxDim; }
-                                DB.pushElement({ type: 'image', data: data, x: center.x - w / 2, y: center.y - h / 2, width: w, height: h });
-                            }; img.src = data;
-                        } catch (e) {} fileImg.value = '';
-                    };
-                    
-                    document.getElementById('act-export').onclick = () => { const a = document.createElement('a'); a.download = `MR_BOARD_${Date.now()}.png`; a.href = document.getElementById('layer-base').toDataURL(); a.click(); this.closeAll(); };
-                    document.getElementById('act-save-json').onclick = () => { const a = document.createElement('a'); a.download = `MR_Project.json`; a.href = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(Store.db.els)); a.click(); this.closeAll(); };
-                    document.getElementById('act-load-json').onclick = () => { if (!Store.isTeacher) return AppEvents.emit('ui:toast', { m: "Faqat o'qituvchi yuklay oladi", t: 'error' }); fileJson.click(); this.closeAll(); };
-                    fileJson.onchange = async e => {
-                        const f = e.target.files[0]; if (!f) return;
-                        try {
-                            const data = JSON.parse(await Utils.readFile(f, true));
-                            if (Array.isArray(data)) { DB.clearBoard(); setTimeout(() => data.forEach(el => DB.pushElement(el)), 500); AppEvents.emit('ui:toast', { m: "Loyiha yuklandi", t: "success" }); }
-                        } catch (err) { AppEvents.emit('ui:toast', { m: "Fayl noto'g'ri", t: "error" }); } fileJson.value = '';
-                    };
-                    
+                    document.getElementById('btn-action-fullscreen').onclick = () => this.toggleFullscreen();
+                    document.getElementById('btn-exit-zen').onclick = () => this.toggleFullscreen();
+                    document.getElementById('btn-open-settings').onclick = () => this.openDrawer('drawer-settings');
+                    document.getElementById('btn-open-colors').onclick = () => this.openDrawer('drawer-colors');
+                    document.getElementById('btn-open-chat').onclick = () => this.openDrawer('drawer-chat');
+                    document.getElementById('btn-open-users').onclick = () => this.openDrawer('drawer-users');
+                    document.getElementById('btn-toggle-shapes').onclick = () => this.openDrawer('drawer-shapes');
                     document.getElementById('btn-submit-chat').onclick = () => this.sendChat();
                     document.getElementById('inp-chat-text').onkeypress = e => { if (e.key === 'Enter') this.sendChat(); };
+                    document.getElementById('btn-cancel-text').onclick = () => this.closeTextModal();
+                    document.getElementById('btn-add-text').onclick = () => this.addText();
+                    document.getElementById('act-clear-board').onclick = () => { if (confirm("Doska tozalanadi?")) DB.clearBoard(); this.closeDrawers(); };
+                    document.getElementById('act-disable-laser').onclick = () => { DB.toggleLaser(); this.closeDrawers(); };
+                    document.getElementById('act-toggle-minimap').onclick = () => this.toggleMinimap();
+                    document.getElementById('act-center').onclick = () => { Store.cam = { x: 0, y: 0, z: 1 }; Events.emit('render'); Events.emit('zoom'); DB.syncCamera(); this.closeDrawers(); };
+                    document.getElementById('act-undo').onclick = () => { DB.undo(); this.closeDrawers(); };
+                    document.getElementById('act-export').onclick = () => { const a = document.createElement('a'); a.download = `mrboard_${Date.now()}.png`; a.href = document.getElementById('layer-base').toDataURL(); a.click(); this.closeDrawers(); };
+                    document.getElementById('act-save-json').onclick = () => { const a = document.createElement('a'); a.download = `project.json`; a.href = "data:text/json," + encodeURIComponent(JSON.stringify(Store.elements)); a.click(); this.closeDrawers(); };
+                    document.getElementById('act-load-json').onclick = () => { if (!Store.isTeacher) { showToast("Faqat o'qituvchi yuklay oladi", "error"); return; } document.getElementById('sys-file-json').click(); this.closeDrawers(); };
+                    document.getElementById('act-image').onclick = () => document.getElementById('sys-file-img').click();
+                    document.getElementById('act-theme-light').onclick = () => { this.setTheme('light'); this.closeDrawers(); };
+                    document.getElementById('act-theme-dark').onclick = () => { this.setTheme('dark'); this.closeDrawers(); };
+                    document.getElementById('act-theme-auto').onclick = () => { this.setTheme('auto'); this.closeDrawers(); };
+                    document.getElementById('inp-tool-size').oninput = e => { Store.size = parseInt(e.target.value); document.getElementById('val-tool-size').innerText = Store.size + 'px'; };
+                    
+                    document.querySelectorAll('[data-tool]').forEach(btn => {
+                        btn.onclick = () => { this.setTool(btn.dataset.tool); this.closeDrawers(); };
+                    });
+                    
+                    document.querySelectorAll('[data-close]').forEach(btn => btn.onclick = () => this.closeDrawers());
+                    document.getElementById('drawer-backdrop').onclick = () => this.closeDrawers();
+                    
+                    document.getElementById('sys-file-img').onchange = async e => {
+                        const f = e.target.files[0];
+                        if (!f || f.size > 5e6) { showToast("Rasm 5MB dan kichik", "error"); return; }
+                        const reader = new FileReader();
+                        reader.onload = (ev) => {
+                            const img = new Image();
+                            img.onload = () => {
+                                const center = Engine.toWorld(window.innerWidth / 2, window.innerHeight / 2);
+                                let w = img.width, h = img.height;
+                                const maxDim = 500 / Store.cam.z;
+                                if (w > maxDim) { h = (maxDim / w) * h; w = maxDim; }
+                                DB.addElement({ type: 'image', data: ev.target.result, x: center.x - w / 2, y: center.y - h / 2, width: w, height: h });
+                            };
+                            img.src = ev.target.result;
+                        };
+                        reader.readAsDataURL(f);
+                        document.getElementById('sys-file-img').value = '';
+                    };
+                    
+                    document.getElementById('sys-file-json').onchange = async e => {
+                        const f = e.target.files[0];
+                        if (!f) return;
+                        const text = await f.text();
+                        try {
+                            const data = JSON.parse(text);
+                            if (Array.isArray(data)) {
+                                DB.clearBoard();
+                                setTimeout(() => data.forEach(el => DB.addElement(el)), 500);
+                                showToast("Loyiha yuklandi", "success");
+                            }
+                        } catch (err) { showToast("Fayl noto'g'ri", "error"); }
+                        document.getElementById('sys-file-json').value = '';
+                    };
+                    
+                    document.querySelectorAll('.copy-btn').forEach(btn => {
+                        btn.onclick = () => {
+                            const type = btn.dataset.copy;
+                            const text = document.getElementById(`${type}-link-text`).innerText;
+                            if (text) Utils.copyToClipboard(text);
+                        };
+                    });
                     
                     window.addEventListener('keydown', e => {
                         if (['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)) return;
                         const k = e.key.toLowerCase();
-                        if (e.ctrlKey || e.metaKey) { if (k === 'z') { e.preventDefault(); DB.undo(); } }
-                        else {
-                            if (k === 'b') this.setTool('draw'); else if (k === 'e') this.setTool('erase'); else if (k === 'h') this.setTool('pan');
-                            else if (k === 't') this.setTool('text'); else if (k === 'l') this.setTool('laser');
-                            else if (k === 's') document.getElementById('toolbar-shapes').classList.toggle('is-visible');
-                            else if (k === 'm') AudioSystem.toggle(); else if (k === 'c') this.openDrawer('drawer-chat');
-                            else if (k === 'u') this.openDrawer('drawer-users');
-                            else if (k === 'f') this.toggleFullscreen();
-                        }
+                        if (e.ctrlKey && k === 'z') { e.preventDefault(); DB.undo(); }
+                        else if (k === 'b') this.setTool('draw');
+                        else if (k === 'e') this.setTool('erase');
+                        else if (k === 'h') this.setTool('pan');
+                        else if (k === 't') this.setTool('text');
+                        else if (k === 'l') this.setTool('laser');
+                        else if (k === 's') this.openDrawer('drawer-shapes');
+                        else if (k === 'm') AudioSystem.toggle();
+                        else if (k === 'c') this.openDrawer('drawer-chat');
+                        else if (k === 'u') this.openDrawer('drawer-users');
+                        else if (k === 'f') this.toggleFullscreen();
                     });
                 }
                 
-                bindMinimapInteractions() {
-                    const minimap = document.getElementById('minimap-widget'), header = document.getElementById('minimap-header'), resizer = document.getElementById('minimap-resize-handle');
-                    const btnClose = document.getElementById('btn-close-minimap'), btnToggle = document.getElementById('act-toggle-minimap');
-                    let isDragging = false, isResizing = false, startX, startY, startLeft, startTop, startW, startH;
-
-                    header.addEventListener('pointerdown', e => {
-                        if(e.target.closest('button')) return; e.preventDefault(); isDragging = true;
-                        startX = e.clientX; startY = e.clientY; const rect = minimap.getBoundingClientRect(); startLeft = rect.left; startTop = rect.top;
-                        minimap.style.bottom = 'auto'; minimap.style.right = 'auto'; minimap.style.left = `${startLeft}px`; minimap.style.top = `${startTop}px`;
-                    });
-                    resizer.addEventListener('pointerdown', e => {
-                        e.preventDefault(); e.stopPropagation(); isResizing = true; startX = e.clientX; startY = e.clientY;
-                        const rect = minimap.getBoundingClientRect(); startW = rect.width; startH = rect.height;
-                        minimap.style.bottom = 'auto'; minimap.style.right = 'auto'; minimap.style.left = `${rect.left}px`; minimap.style.top = `${rect.top}px`;
-                    });
-                    window.addEventListener('pointermove', e => {
-                        if (isDragging) {
-                            let newLeft = Math.min(Math.max(0, startLeft + (e.clientX - startX)), window.innerWidth - minimap.offsetWidth);
-                            let newTop = Math.min(Math.max(0, startTop + (e.clientY - startY)), window.innerHeight - minimap.offsetHeight);
-                            minimap.style.left = `${newLeft}px`; minimap.style.top = `${newTop}px`;
-                        } else if (isResizing) {
-                            let newW = Math.min(Math.max(150, startW + (e.clientX - startX)), window.innerWidth - minimap.offsetLeft);
-                            let newH = Math.min(Math.max(100, startH + (e.clientY - startY)), window.innerHeight - minimap.offsetTop);
-                            minimap.style.width = `${newW}px`; minimap.style.height = `${newH}px`; Engine.resizeMinimap();
-                        }
-                    });
-                    window.addEventListener('pointerup', () => { isDragging = false; isResizing = false; });
-                    const toggleMinimap = () => {
-                        Store.minimapVisible = !Store.minimapVisible;
-                        if(Store.minimapVisible) { minimap.classList.remove('is-hidden'); Engine.resizeMinimap(); } else minimap.classList.add('is-hidden');
-                    };
-                    btnClose.addEventListener('click', () => toggleMinimap()); btnToggle.addEventListener('click', () => { toggleMinimap(); this.closeAll(); });
-                }
-                
-                bindFullscreen() {
-                    const btnFsDock = document.getElementById('btn-action-fullscreen'), btnFsExit = document.getElementById('btn-exit-zen');
-                    this.toggleFullscreen = () => {
-                        if (!document.fullscreenElement) { document.documentElement.requestFullscreen().catch(() => {}); }
-                        else if (document.exitFullscreen) document.exitFullscreen();
-                    };
-                    btnFsDock.addEventListener('click', this.toggleFullscreen); btnFsExit.addEventListener('click', this.toggleFullscreen);
-                    document.addEventListener('fullscreenchange', () => {
-                        Store.isFullscreen = !!document.fullscreenElement;
-                        if(Store.isFullscreen) { document.body.classList.add('zen-mode'); btnFsDock.innerHTML = `<i data-lucide="minimize"></i>`; }
-                        else { document.body.classList.remove('zen-mode'); btnFsDock.innerHTML = `<i data-lucide="maximize"></i>`; }
-                        lucide.createIcons(); setTimeout(() => Engine.resize(), 100); 
-                    });
-                }
-                
-                handleAuth(isTeacher) {
-                    const name = Utils.sanitize(document.getElementById('auth-name-inp').value.trim()).substring(0, 25);
-                    if (!name) return AppEvents.emit('ui:toast', { m: "Ism kiriting", t: "error" });
-                    
-                    if (isTeacher) {
-                        const teacherCode = Utils.generateTeacherCode();
-                        const studentCode = Utils.generateStudentCode();
-                        Store.name = name; 
-                        Store.isTeacher = true; 
-                        Store.roomId = studentCode;
-                        Store.teacherSecret = teacherCode;
-                        
-                        const teacherLink = `${window.location.origin}${window.location.pathname}#t-${teacherCode}`;
-                        const studentLink = `${window.location.origin}${window.location.pathname}#s-${studentCode}`;
-                        
-                        AppEvents.emit('ui:toast', { m: `O'qituvchi link: ${teacherLink}`, t: "success" });
-                        AppEvents.emit('ui:toast', { m: `O'quvchi link: ${studentLink}`, t: "success" });
-                        
-                        this.startApp(studentCode, teacherCode);
+                toggleFullscreen() {
+                    if (!document.fullscreenElement) {
+                        document.documentElement.requestFullscreen();
+                        document.body.classList.add('zen-mode');
                     } else {
-                        const roomCode = document.getElementById('auth-room-inp').value.trim().toUpperCase();
-                        if (!roomCode) return AppEvents.emit('ui:toast', { m: "Xona kodini kiriting", t: "error" });
-                        Store.name = name;
-                        Store.isTeacher = false;
-                        Store.roomId = roomCode;
-                        this.startApp(roomCode, null);
+                        document.exitFullscreen();
+                        document.body.classList.remove('zen-mode');
                     }
                 }
                 
-                handleHash() {
-                    const hash = window.location.hash.slice(1);
-                    if (!hash) return;
-                    
-                    if (hash.startsWith('t-')) {
-                        const teacherSecret = hash.slice(2);
-                        const name = prompt("O'qituvchi ismingiz:") || "Teacher";
-                        if (name) {
-                            Store.name = Utils.sanitize(name).substring(0, 25);
-                            Store.isTeacher = true;
-                            Store.teacherSecret = teacherSecret;
-                            Store.roomId = teacherSecret.substring(0, 6);
-                            this.startApp(Store.roomId, teacherSecret);
-                        }
-                    } else if (hash.startsWith('s-')) {
-                        const studentCode = hash.slice(2);
-                        const name = prompt("Ismingiz:") || "Student";
-                        if (name) {
-                            Store.name = Utils.sanitize(name).substring(0, 25);
-                            Store.isTeacher = false;
-                            Store.roomId = studentCode;
-                            this.startApp(studentCode, null);
-                        }
+                toggleMinimap() {
+                    Store.minimapVisible = !Store.minimapVisible;
+                    const mm = document.getElementById('minimap-widget');
+                    if (Store.minimapVisible) mm.classList.remove('is-hidden');
+                    else mm.classList.add('is-hidden');
+                }
+                
+                setTool(tool) {
+                    Store.tool = tool;
+                    document.querySelectorAll('[data-tool]').forEach(b => b.classList.remove('is-active'));
+                    const active = document.querySelector(`[data-tool="${tool}"]`);
+                    if (active) active.classList.add('is-active');
+                    document.getElementById('app-container').style.cursor = tool === 'pan' ? 'grab' : (tool === 'text' ? 'text' : 'crosshair');
+                    Utils.vibrate(10);
+                }
+                
+                openDrawer(id) {
+                    this.closeDrawers();
+                    document.getElementById(id).classList.add('is-open');
+                    document.getElementById('drawer-backdrop').classList.add('is-visible');
+                    if (id === 'drawer-chat') {
+                        Store.unread = 0;
+                        document.getElementById('badge-chat-count').style.display = 'none';
+                        setTimeout(() => document.getElementById('inp-chat-text').focus(), 100);
                     }
+                }
+                
+                closeDrawers() {
+                    document.querySelectorAll('.drawer').forEach(d => d.classList.remove('is-open'));
+                    document.getElementById('drawer-backdrop').classList.remove('is-visible');
+                    this.closeTextModal();
+                }
+                
+                closeTextModal() {
+                    document.getElementById('modal-text-input').classList.remove('is-visible');
+                    document.getElementById('inp-text-area').value = '';
+                    Store.textPos = null;
+                }
+                
+                sendChat() {
+                    const msg = Utils.sanitize(document.getElementById('inp-chat-text').value.trim());
+                    if (msg) { DB.sendChat(msg); document.getElementById('inp-chat-text').value = ''; }
+                }
+                
+                addText() {
+                    const txt = Utils.sanitize(document.getElementById('inp-text-area').value.trim()).substring(0, 300);
+                    if (txt && Store.textPos) {
+                        DB.addElement({ type: 'text', text: txt, x: Store.textPos.x, y: Store.textPos.y, s: Math.min(Store.size * 3 + 16, 48), c: Store.color });
+                    }
+                    this.closeTextModal();
+                }
+                
+                async createRoom() {
+                    const name = Utils.sanitize(document.getElementById('auth-name-inp').value.trim());
+                    if (!name) { showToast("Ism kiriting", "error"); return; }
+                    
+                    const teacherCode = Utils.generateTeacherCode();
+                    const studentCode = Utils.generateStudentCode();
+                    const baseUrl = window.location.href.split('#')[0];
+                    const teacherLink = `${baseUrl}#t-${teacherCode}`;
+                    const studentLink = `${baseUrl}#s-${studentCode}`;
+                    
+                    Store.name = name;
+                    Store.isTeacher = true;
+                    Store.teacherSecret = teacherCode;
+                    Store.roomId = studentCode;
+                    Store.perms.draw = true;
+                    Store.perms.speak = true;
+                    
+                    this.startApp(studentCode, teacherCode);
+                    
+                    setTimeout(() => {
+                        document.getElementById('teacher-link-text').innerText = teacherLink;
+                        document.getElementById('student-link-text').innerText = studentLink;
+                        document.getElementById('teacher-link-box').style.display = 'flex';
+                        document.getElementById('student-link-box').style.display = 'flex';
+                        showToast(`O'qituvchi link yaratildi`, "success");
+                    }, 500);
+                }
+                
+                async joinRoom() {
+                    const name = Utils.sanitize(document.getElementById('auth-name-inp').value.trim());
+                    const code = document.getElementById('auth-room-inp').value.trim().toUpperCase();
+                    if (!name) { showToast("Ism kiriting", "error"); return; }
+                    if (!code) { showToast("Xona kodini kiriting", "error"); return; }
+                    
+                    Store.name = name;
+                    Store.isTeacher = false;
+                    Store.roomId = code;
+                    Store.perms.draw = false;
+                    Store.perms.speak = false;
+                    
+                    this.startApp(code, null);
                 }
                 
                 startApp(roomId, teacherSecret) {
@@ -1580,18 +1838,19 @@
                     if (Store.isTeacher) {
                         document.getElementById('panel-host-controls').style.display = 'block';
                         document.getElementById('ui-participants-list').classList.add('host-active');
-                        document.getElementById('ui-user-role').innerHTML = '<i data-lucide="crown" style="color:var(--state-warning)"></i> O\'qituvchi';
+                        document.getElementById('ui-user-role').innerHTML = '<i data-lucide="crown"></i> O\'qituvchi';
                     }
                     
                     DB.init(roomId, teacherSecret);
                     Engine.init();
+                    Engine.bindEvents();
                     AudioSystem.init();
                     
-                    AppEvents.on('ui:zoom', () => {
+                    Events.on('zoom', () => {
                         document.getElementById('ui-zoom-level').innerText = Math.round(Store.cam.z * 100) + '%';
                     });
                     
-                    AppEvents.on('ui:role', () => {
+                    Events.on('role', () => {
                         if (!Store.isTeacher) {
                             if (Store.perms.draw) document.getElementById('ui-user-role').innerHTML = '<i data-lucide="pencil"></i> Yozuvchi';
                             else document.getElementById('ui-user-role').innerHTML = '<i data-lucide="eye"></i> Kuzatuvchi';
@@ -1599,21 +1858,21 @@
                         }
                     });
                     
-                    AppEvents.on('ui:mic', () => {
+                    Events.on('mic', () => {
                         const btn = document.getElementById('btn-action-mic');
-                        btn.className = 'action-btn ' + (!Store.perms.speak ? 'mic-off' : (Store.micActive ? 'mic-on' : 'mic-off'));
-                        btn.innerHTML = `<i data-lucide="${Store.micActive && Store.perms.speak ? 'mic' : 'mic-off'}"></i><span class="tooltip">Mikrofon (M)</span>`;
+                        btn.className = `action-btn ${!Store.perms.speak ? 'mic-off' : (Store.micActive ? 'mic-on' : 'mic-off')}`;
+                        btn.innerHTML = `<i data-lucide="${Store.micActive && Store.perms.speak ? 'mic' : 'mic-off'}"></i>`;
                         lucide.createIcons();
                     });
                     
-                    AppEvents.on('ui:chat', (msg) => {
+                    Events.on('chat', (msg) => {
                         const container = document.getElementById('ui-chat-messages');
                         const isMine = msg.u === Store.uid;
                         const bubble = document.createElement('div');
                         bubble.className = `msg-bubble ${isMine ? 'mine' : 'other'}`;
                         bubble.innerHTML = `
                             <div class="msg-info">
-                                ${Utils.sanitize(msg.n)} 
+                                ${Utils.sanitize(msg.n)}
                                 ${msg.t ? '<i data-lucide="crown" size="12" style="color:var(--state-warning)"></i>' : ''}
                             </div>
                             <div>${Utils.sanitize(msg.m)}</div>
@@ -1632,52 +1891,36 @@
                         }
                     });
                     
-                    AppEvents.on('ui:users', () => {
+                    Events.on('users', () => {
                         const list = document.getElementById('ui-participants-list');
-                        let html = '';
-                        let studentCount = 0;
-                        
-                        Object.values(Store.db.peers).forEach(p => {
+                        let html = '', studentCount = 0;
+                        Object.values(Store.users).forEach(p => {
                             if (p.t && p.id !== Store.uid) return;
                             if (!p.t) studentCount++;
-                            
                             html += `
                                 <div class="user-card">
                                     <div class="user-meta">
                                         <div class="avatar">${p.n.charAt(0).toUpperCase()}</div>
                                         <span>${Utils.sanitize(p.n)}</span>
-                                        ${p.t ? '<i data-lucide="crown" size="16" style="color:var(--state-warning); margin-left:8px;"></i>' : ''}
+                                        ${p.t ? '<i data-lucide="crown" size="14" style="color:var(--state-warning)"></i>' : ''}
                                     </div>
                                     <div class="perm-actions">
                             `;
-                            
                             if (Store.isTeacher && !p.t) {
                                 html += `
-                                    <button class="perm-btn ${p.d ? 'is-granted' : ''}" data-user="${p.id}" data-perm="d" title="Chizish">
-                                        <i data-lucide="pencil" size="18"></i>
-                                    </button>
-                                    <button class="perm-btn ${p.s ? 'is-granted' : ''}" data-user="${p.id}" data-perm="s" title="Mikrofon">
-                                        <i data-lucide="mic" size="18"></i>
-                                    </button>
-                                    <button class="perm-btn" data-user="${p.id}" data-perm="kick" title="Chiqarish">
-                                        <i data-lucide="user-x" size="18"></i>
-                                    </button>
+                                    <button class="perm-btn ${p.d ? 'is-granted' : ''}" data-user="${p.id}" data-perm="d"><i data-lucide="pencil" size="14"></i></button>
+                                    <button class="perm-btn ${p.s ? 'is-granted' : ''}" data-user="${p.id}" data-perm="s"><i data-lucide="mic" size="14"></i></button>
+                                    <button class="perm-btn" data-user="${p.id}" data-perm="kick"><i data-lucide="user-x" size="14"></i></button>
                                 `;
                             } else if (!Store.isTeacher && p.t) {
-                                html += `<div style="font-size:12px; color:var(--text-muted);">O'qituvchi</div>`;
+                                html += `<span style="font-size:11px;">O'qituvchi</span>`;
                             } else if (!Store.isTeacher) {
-                                html += `<div style="font-size:12px; color:var(--text-muted);">${p.d ? '✏️' : '👁️'} ${p.s ? '🎤' : '🔇'}</div>`;
+                                html += `<span style="font-size:11px;">${p.d ? '✏️' : '👁️'} ${p.s ? '🎤' : '🔇'}</span>`;
                             }
-                            
                             html += `</div></div>`;
                         });
-                        
-                        if (studentCount === 0 && !Store.isTeacher) {
-                            html = `<div style="text-align:center; color:var(--text-muted); padding:20px;">Faqat o'qituvchi</div>`;
-                        } else if (studentCount === 0 && Store.isTeacher) {
-                            html = `<div style="text-align:center; color:var(--text-muted); padding:20px;">Hali o'quvchilar yo'q</div>`;
-                        }
-                        
+                        if (studentCount === 0 && !Store.isTeacher) html = '<div style="text-align:center; padding:20px;">Faqat o\'qituvchi</div>';
+                        else if (studentCount === 0 && Store.isTeacher) html = '<div style="text-align:center; padding:20px;">Hali o\'quvchilar yo\'q</div>';
                         list.innerHTML = html;
                         lucide.createIcons();
                         document.getElementById('badge-users-count').innerText = studentCount;
@@ -1685,132 +1928,133 @@
                         
                         if (Store.isTeacher) {
                             list.querySelectorAll('.perm-btn[data-perm="d"]').forEach(btn => {
-                                btn.onclick = () => DB.setPermission(btn.dataset.user, 'd', !btn.classList.contains('is-granted'));
+                                btn.onclick = () => DB.setPerm(btn.dataset.user, 'd', !btn.classList.contains('is-granted'));
                             });
                             list.querySelectorAll('.perm-btn[data-perm="s"]').forEach(btn => {
-                                btn.onclick = () => DB.setPermission(btn.dataset.user, 's', !btn.classList.contains('is-granted'));
+                                btn.onclick = () => DB.setPerm(btn.dataset.user, 's', !btn.classList.contains('is-granted'));
                             });
                             list.querySelectorAll('.perm-btn[data-perm="kick"]').forEach(btn => {
-                                btn.onclick = () => { if(confirm("Foydalanuvchini chiqarib yuborilsinmi?")) DB.kickUser(btn.dataset.user); };
+                                btn.onclick = () => { if(confirm("Chiqarilsinmi?")) DB.kickUser(btn.dataset.user); };
                             });
                         }
                     });
                     
-                    AppEvents.on('ui:toast', (data) => {
-                        Utils.vibrate(data.t === 'error' ? [50, 50, 50] : 15);
-                        const wrap = document.getElementById('toast-wrapper');
-                        const toast = document.createElement('div');
-                        toast.className = `toast-item ${data.t}`;
-                        let icon = 'info';
-                        if(data.t === 'error') icon = 'shield-alert';
-                        if(data.t === 'success') icon = 'check-circle';
-                        if(data.t === 'warning') icon = 'alert-triangle';
-                        toast.innerHTML = `<i data-lucide="${icon}"></i><span>${data.m}</span>`;
-                        wrap.appendChild(toast);
-                        lucide.createIcons();
-                        setTimeout(() => {
-                            toast.style.animation = 'none';
-                            toast.style.opacity = '0';
-                            toast.style.transform = 'translateY(-40px) scale(0.8)';
-                            setTimeout(() => toast.remove(), 400);
-                        }, 4000);
-                    });
-                    
-                    AppEvents.on('ui:modalText', (pos) => {
-                        Store.textCtx = pos;
-                        document.getElementById('drawer-backdrop').classList.add('is-visible');
-                        document.getElementById('modal-text-input').classList.add('is-visible');
-                        setTimeout(() => document.getElementById('inp-text-area').focus(), 100);
-                    });
-                    
-                    AppEvents.emit('ui:zoom');
+                    Events.emit('zoom');
                     lucide.createIcons();
                 }
                 
-                setTool(tool) {
-                    Utils.vibrate(10); Store.tool = tool;
-                    document.querySelectorAll('[data-tool]').forEach(b => b.classList.remove('is-active')); 
-                    const activeBtn = document.querySelector(`[data-tool="${tool}"]`);
-                    if (activeBtn) activeBtn.classList.add('is-active');
-                    const shapes = ['rect', 'circle', 'line', 'arrow'];
-                    if (shapes.includes(tool)) document.getElementById('btn-toggle-shapes').classList.add('is-active'); 
-                    else document.getElementById('btn-toggle-shapes').classList.remove('is-active');
-                    if (!shapes.includes(tool)) document.getElementById('toolbar-shapes').classList.remove('is-visible');
-                    document.getElementById('app-container').style.cursor = tool === 'pan' ? 'grab' : (tool === 'text' ? 'text' : 'crosshair');
-                }
-                
-                openDrawer(id) {
-                    Utils.vibrate(10); this.closeAll(); document.getElementById('drawer-backdrop').classList.add('is-visible'); document.getElementById(id).classList.add('is-open');
-                    if (id === 'drawer-chat') { Store.unread = 0; document.getElementById('badge-chat-count').style.display = 'none'; setTimeout(() => document.getElementById('inp-chat-text').focus(), 300); }
-                }
-                
-                closeAll() {
-                    document.querySelectorAll('.drawer').forEach(d => d.classList.remove('is-open')); 
-                    document.getElementById('drawer-backdrop').classList.remove('is-visible');
-                    document.getElementById('toolbar-shapes').classList.remove('is-visible'); 
-                    this.closeTextModal();
-                }
-                
-                closeTextModal() { 
-                    document.getElementById('modal-text-input').classList.remove('is-visible'); 
-                    document.getElementById('inp-text-area').value = ''; 
-                    Store.textCtx = null; 
-                }
-                
-                sendChat() {
-                    if (Date.now() - Store.lastChat < 1000) return AppEvents.emit('ui:toast', { m: "Kuting...", t: "warning" });
-                    Store.lastChat = Date.now(); const msg = Utils.sanitize(document.getElementById('inp-chat-text').value.trim()).substring(0, 300);
-                    if (msg) { DB.sendChat(msg); document.getElementById('inp-chat-text').value = ''; }
-                }
-                
                 initColorWheel() {
-                    const cvs = document.getElementById('cvs-color-picker'), ctx = cvs.getContext('2d'); let hue = 0.6, sat = 0.8, val = 1;
+                    const cvs = document.getElementById('cvs-color-picker');
+                    const ctx = cvs.getContext('2d');
+                    let hue = 0.6, sat = 0.8, val = 1;
+                    
                     const drawWheel = () => {
-                        const w = cvs.width, img = ctx.createImageData(w, w), data = img.data, r = w / 2;
+                        const w = cvs.width, r = w / 2;
                         for (let y = 0; y < w; y++) {
                             for (let x = 0; x < w; x++) {
                                 const dx = x - r, dy = y - r, dist = Math.hypot(dx, dy);
                                 if (dist <= r) {
-                                    const h = (Math.atan2(dy, dx) + Math.PI) / (2 * Math.PI), s = dist / r;
-                                    const rgb = this.hsvToRgb(h, s, 1), idx = (y * w + x) * 4;
-                                    data[idx] = rgb.r; data[idx + 1] = rgb.g; data[idx + 2] = rgb.b; data[idx + 3] = 255;
+                                    const h = (Math.atan2(dy, dx) + Math.PI) / (2 * Math.PI);
+                                    const s = dist / r;
+                                    const rgb = this.hsvToRgb(h, s, 1);
+                                    ctx.fillStyle = `rgb(${rgb.r}, ${rgb.g}, ${rgb.b})`;
+                                    ctx.fillRect(x, y, 1, 1);
                                 }
                             }
-                        } ctx.putImageData(img, 0, 0);
-                    }; drawWheel();
+                        }
+                    };
+                    drawWheel();
+                    
                     const updateColor = () => {
-                        const rgb = this.hsvToRgb(hue, sat, val), hex = `#${((1 << 24) + (rgb.r << 16) + (rgb.g << 8) + rgb.b).toString(16).slice(1)}`;
-                        Store.color = hex; document.getElementById('ui-current-color').style.background = hex; this.setTool('draw');
+                        const rgb = this.hsvToRgb(hue, sat, val);
+                        Store.color = `rgb(${rgb.r}, ${rgb.g}, ${rgb.b})`;
+                        document.getElementById('ui-current-color').style.background = Store.color;
                     };
-                    const pick = e => {
-                        const rect = cvs.getBoundingClientRect(), x = (e.clientX - rect.left) * (cvs.width / rect.width), y = (e.clientY - rect.top) * (cvs.height / rect.height);
-                        const r = cvs.width / 2, dx = x - r, dy = y - r, dist = Math.hypot(dx, dy);
-                        if (dist <= r) { hue = (Math.atan2(dy, dx) + Math.PI) / (2 * Math.PI); sat = dist / r; updateColor(); }
+                    
+                    cvs.onclick = (e) => {
+                        const rect = cvs.getBoundingClientRect();
+                        const x = (e.clientX - rect.left) * (cvs.width / rect.width);
+                        const y = (e.clientY - rect.top) * (cvs.height / rect.height);
+                        const r = cvs.width / 2;
+                        const dx = x - r, dy = y - r;
+                        const dist = Math.hypot(dx, dy);
+                        if (dist <= r) {
+                            hue = (Math.atan2(dy, dx) + Math.PI) / (2 * Math.PI);
+                            sat = dist / r;
+                            updateColor();
+                        }
                     };
-                    cvs.onpointerdown = pick; cvs.onpointermove = e => { if (e.buttons === 1) pick(e); };
-                    document.getElementById('inp-color-bright').oninput = e => { val = e.target.value / 100; updateColor(); };
+                    
+                    document.getElementById('inp-color-bright').oninput = e => {
+                        val = e.target.value / 100;
+                        updateColor();
+                    };
                     
                     const palette = document.getElementById('ui-quick-palette');
                     ['#ffffff', '#000000', '#64748b', '#ff3b30', '#ff9500', '#ffcc00', '#34c759', '#30b0c7', '#007aff', '#5856d6', '#af52de', '#ff2d55'].forEach(col => {
-                        const sw = document.createElement('div'); sw.className = 'swatch-box'; sw.style.background = col;
+                        const sw = document.createElement('div');
+                        sw.className = 'swatch-box';
+                        sw.style.background = col;
                         sw.onclick = () => { Store.color = col; document.getElementById('ui-current-color').style.background = col; this.setTool('draw'); Utils.vibrate(10); };
                         palette.appendChild(sw);
                     });
                 }
                 
                 hsvToRgb(h, s, v) {
-                    let r, g, b; const i = Math.floor(h * 6), f = h * 6 - i, p = v * (1 - s), q = v * (1 - f * s), t = v * (1 - (1 - f) * s);
-                    switch (i % 6) { case 0: r=v; g=t; b=p; break; case 1: r=q; g=v; b=p; break; case 2: r=p; g=v; b=t; break; case 3: r=p; g=q; b=v; break; case 4: r=t; g=p; b=v; break; default: r=v; g=p; b=q; break; }
+                    let r, g, b;
+                    const i = Math.floor(h * 6);
+                    const f = h * 6 - i;
+                    const p = v * (1 - s);
+                    const q = v * (1 - f * s);
+                    const t = v * (1 - (1 - f) * s);
+                    switch (i % 6) {
+                        case 0: r = v; g = t; b = p; break;
+                        case 1: r = q; g = v; b = p; break;
+                        case 2: r = p; g = v; b = t; break;
+                        case 3: r = p; g = q; b = v; break;
+                        case 4: r = t; g = p; b = v; break;
+                        default: r = v; g = p; b = q; break;
+                    }
                     return { r: Math.round(r * 255), g: Math.round(g * 255), b: Math.round(b * 255) };
                 }
-                
-                bindAppEvents() {
-                    // Already bound in startApp
+            }
+            
+            const UI = new UIController();
+            
+            // Handle URL hash
+            const hash = window.location.hash.slice(1);
+            if (hash.startsWith('t-')) {
+                const teacherSecret = hash.slice(2);
+                const name = prompt("O'qituvchi ismingiz:") || "Teacher";
+                if (name) {
+                    Store.name = Utils.sanitize(name);
+                    Store.isTeacher = true;
+                    Store.teacherSecret = teacherSecret;
+                    Store.roomId = teacherSecret.substring(0, 6);
+                    Store.perms.draw = true;
+                    Store.perms.speak = true;
+                    UI.startApp(Store.roomId, teacherSecret);
+                    
+                    const baseUrl = window.location.href.split('#')[0];
+                    setTimeout(() => {
+                        document.getElementById('teacher-link-text').innerText = `${baseUrl}#t-${teacherSecret}`;
+                        document.getElementById('student-link-text').innerText = `${baseUrl}#s-${Store.roomId}`;
+                        document.getElementById('teacher-link-box').style.display = 'flex';
+                        document.getElementById('student-link-box').style.display = 'flex';
+                    }, 500);
+                }
+            } else if (hash.startsWith('s-')) {
+                const studentCode = hash.slice(2);
+                const name = prompt("Ismingiz:") || "Student";
+                if (name) {
+                    Store.name = Utils.sanitize(name);
+                    Store.isTeacher = false;
+                    Store.roomId = studentCode;
+                    Store.perms.draw = false;
+                    Store.perms.speak = false;
+                    UI.startApp(studentCode, null);
                 }
             }
-
-            const UI = new UIController();
-            window.addEventListener('load', () => UI.handleHash());
         })();
     </script>
 </body>
